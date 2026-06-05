@@ -1,198 +1,264 @@
-# SmartPOS
+## SmartPOS - SWD392 FPT University
 
-SmartPOS là ứng dụng bán hàng chạy trên máy tính Windows cho cửa hàng bán lẻ vừa và nhỏ.
-Dự án được làm cho môn SWD392 tại FPT University, mục tiêu chính là hoàn thành luồng demo
-rõ ràng, dễ chạy, dễ sửa lỗi và phù hợp với nhóm lập trình viên mới.
+SmartPOS là solution .NET 8 cho hệ thống bán hàng POS demo. Hiện tại project đang ở dạng skeleton: đã có cấu trúc layer, DTO, entity, repository, service, WPF shell, API và test stub. Business logic chưa được implement.
 
-## Đọc trước khi viết mã
-
-Thứ tự đọc khuyến nghị:
-
-1. `docs/project-overview.md` để nắm mục tiêu, phạm vi demo và ràng buộc của dự án.
-2. `docs/system-architecture.md` để nắm cấu trúc solution, các tầng và luồng dữ liệu.
-3. `docs/feature-specifications.md` để nắm quy tắc nghiệp vụ của từng tính năng.
-4. `docs/code-standards.md` để nắm quy ước viết mã.
-5. `docs/ai-agent-guide.md` để nắm cách một tác nhân AI nên làm việc với mã nguồn.
-6. `docs/implementation-status.md` để biết tính năng nào đã làm, đang làm hoặc chưa làm.
-
-## Công nghệ sử dụng
-
-- .NET 8
-- WPF cho ứng dụng bán hàng trên Windows
-- ASP.NET Core cho cổng nhận callback VNPay và Inventory Manager
-- Entity Framework Core 8
-- PostgreSQL 16
-- Docker Desktop
-- CommunityToolkit.Mvvm
-- ModernWpfUI
-- Serilog
-- xUnit và Moq
-
-## Cấu trúc dự kiến
+## Cấu Trúc Project
 
 ```text
 SmartPOS.sln
 src/
-  SmartPOS.WPF/
-  SmartPOS.Services/
-  SmartPOS.Data/
   SmartPOS.Shared/
+  SmartPOS.Data/
+  SmartPOS.Services/
+  SmartPOS.WPF/
   SmartPOS.CallbackApi/
   InventoryManager.Api/
 tests/
   SmartPOS.Tests/
 docs/
+docker-compose.yml
 ```
 
-## Cách thiết lập môi trường
+Vai trò từng project:
 
-### 1. Cài công cụ cần thiết
+- `SmartPOS.Shared`: DTO, enum, constant và exception dùng chung.
+- `SmartPOS.Data`: EF Core `AppDbContext`, entity, repository interface và repository implementation.
+- `SmartPOS.Services`: service interface và service implementation.
+- `SmartPOS.WPF`: ứng dụng desktop POS, ViewModel, View và cấu hình DI.
+- `SmartPOS.CallbackApi`: API nhận callback thanh toán VNPay.
+- `InventoryManager.Api`: API quản lý tồn kho.
+- `SmartPOS.Tests`: test stub cho service layer.
 
-- Windows 10 hoặc Windows 11
-- .NET SDK 8
+## Yêu Cầu Môi Trường
+
+Cài trước khi chạy project:
+
+- .NET 8 SDK
 - Docker Desktop
-- PostgreSQL chạy bằng Docker
-- Visual Studio 2022 hoặc Rider
-- ngrok nếu cần demo thanh toán VNPay
+- EF Core CLI
+- Visual Studio 2022 hoặc Rider nếu muốn chạy/debug WPF thuận tiện hơn
 
-### 2. Clone dự án
+Kiểm tra version:
 
 ```powershell
-git clone <duong-dan-repository>
-cd POS_System
+dotnet --version
+docker --version
+dotnet ef --version
 ```
 
-### 3. Chạy cơ sở dữ liệu
+Nếu chưa có `dotnet ef`:
+
+```powershell
+dotnet tool install --global dotnet-ef
+```
+
+Nếu đã có nhưng muốn update:
+
+```powershell
+dotnet tool update --global dotnet-ef
+```
+
+## Setup Sau Khi Clone
+
+Clone repository và đi vào thư mục source:
+
+```powershell
+git clone <repository-url>
+cd <repository-folder>
+```
+
+Restore package và build solution:
+
+```powershell
+dotnet restore SmartPOS.sln
+dotnet build SmartPOS.sln
+```
+
+Chạy PostgreSQL bằng Docker:
 
 ```powershell
 docker compose up -d
 ```
 
-Dự án nên có hai cơ sở dữ liệu riêng:
-
-- `smartpos`: dữ liệu của hệ thống bán hàng.
-- `inventory_manager`: dữ liệu của hệ thống quản lý tồn kho.
-
-POS không đọc trực tiếp cơ sở dữ liệu của Inventory Manager. Inventory Manager cũng không
-đọc trực tiếp cơ sở dữ liệu của POS. Hai hệ thống chỉ trao đổi với nhau qua HTTP API.
-
-### 4. Cập nhật cơ sở dữ liệu
+Kiểm tra container:
 
 ```powershell
-dotnet ef database update --project src/SmartPOS.Data --startup-project src/SmartPOS.WPF
+docker compose ps
 ```
 
-Nếu Inventory Manager có project migration riêng, chạy thêm lệnh cập nhật cho project đó.
+File cấu hình connection string:
 
-### 5. Chạy dữ liệu mẫu
+- `src/SmartPOS.WPF/appsettings.json`
+- `src/SmartPOS.CallbackApi/appsettings.json`
+- `src/InventoryManager.Api/appsettings.json`
 
-Dữ liệu mẫu cần có ít nhất:
-
-- Một tài khoản quản trị.
-- Một tài khoản quản lý.
-- Một tài khoản nhân viên.
-- Mười sản phẩm mẫu bên Inventory Manager.
-- Tồn kho mẫu cho từng sản phẩm.
-- Một mã khuyến mãi còn hạn.
-
-Tài khoản demo đề xuất:
+Database mặc định trong config:
 
 ```text
-quantri / 123456
-quanly / 123456
-nhanvien / 123456
+smartpos
+inventory_manager
 ```
 
-Thông báo nếu đăng nhập sai nên là:
+Lưu ý: `docker-compose.yml` hiện tại chỉ khai báo container PostgreSQL tối thiểu. Nếu database/user chưa được tạo tự động, cần cập nhật thêm biến môi trường cho PostgreSQL hoặc tạo database thủ công theo connection string trong `appsettings.json`.
 
-```text
-Tên đăng nhập hoặc mật khẩu không đúng
-```
+## Migration Và Update Database
 
-### 6. Chạy các dịch vụ
+Migration của POS nằm trong project `SmartPOS.Data`.
 
-Chạy Inventory Manager:
+### Tạo Migration Đầu Tiên
+
+Chạy từ root repository:
 
 ```powershell
-dotnet run --project src/InventoryManager.Api
+dotnet ef migrations add InitialCreate --project src/SmartPOS.Data --startup-project src/SmartPOS.WPF --context AppDbContext --output-dir Migrations
 ```
 
-Địa chỉ dự kiến:
+Sau khi chạy xong, migration sẽ nằm tại:
 
 ```text
-http://localhost:5001
+src/SmartPOS.Data/Migrations/
 ```
 
-Chạy cổng nhận callback VNPay:
+### Tạo Migration Khi Entity Thay Đổi
+
+Khi sửa entity hoặc `AppDbContext`, tạo migration mới với tên mô tả thay đổi:
 
 ```powershell
-dotnet run --project src/SmartPOS.CallbackApi
+dotnet ef migrations add AddPromotionCode --project src/SmartPOS.Data --startup-project src/SmartPOS.WPF --context AppDbContext --output-dir Migrations
 ```
 
-Địa chỉ dự kiến:
+Ví dụ tên migration:
 
 ```text
-http://localhost:5000
+AddPromotionCode
+AddCustomerLoyaltyPoints
+UpdatePaymentFields
+CreateAuditLogTable
 ```
 
-Chạy ứng dụng POS:
+### Update Database POS
+
+Apply migration vào database `smartpos`:
+
+```powershell
+dotnet ef database update --project src/SmartPOS.Data --startup-project src/SmartPOS.WPF --context AppDbContext
+```
+
+### Xem Danh Sách Migration
+
+```powershell
+dotnet ef migrations list --project src/SmartPOS.Data --startup-project src/SmartPOS.WPF --context AppDbContext
+```
+
+### Rollback Migration
+
+Rollback database về migration cụ thể:
+
+```powershell
+dotnet ef database update <MigrationName> --project src/SmartPOS.Data --startup-project src/SmartPOS.WPF --context AppDbContext
+```
+
+Rollback về trạng thái chưa có migration nào:
+
+```powershell
+dotnet ef database update 0 --project src/SmartPOS.Data --startup-project src/SmartPOS.WPF --context AppDbContext
+```
+
+Chỉ rollback hoặc xoá migration khi chắc chắn migration đó chưa được chia sẻ cho cả nhóm.
+
+### Inventory Manager Database
+
+Trong skeleton hiện tại, `InventoryManager.Api` vẫn reference `SmartPOS.Data`. Khi team tách riêng DbContext cho Inventory Manager, migration của Inventory Manager nên dùng API project làm startup project, ví dụ:
+
+```powershell
+dotnet ef migrations add InitialInventoryCreate --project src/InventoryManager.Api --startup-project src/InventoryManager.Api --context <InventoryDbContext> --output-dir Migrations
+dotnet ef database update --project src/InventoryManager.Api --startup-project src/InventoryManager.Api --context <InventoryDbContext>
+```
+
+Hiện tại, nếu chỉ dùng `AppDbContext` scaffold sẵn, dùng lệnh migration của POS ở trên.
+
+## Chạy Project
+
+Chạy WPF app:
 
 ```powershell
 dotnet run --project src/SmartPOS.WPF
 ```
 
-### 7. Chạy ngrok cho VNPay
+Chạy Callback API:
 
 ```powershell
-ngrok http 5000
+dotnet run --project src/SmartPOS.CallbackApi
 ```
 
-Lấy địa chỉ HTTPS của ngrok và cập nhật vào cấu hình callback VNPay.
-
-### 8. Chạy kiểm thử
+Chạy Inventory Manager API:
 
 ```powershell
-dotnet test
+dotnet run --project src/InventoryManager.Api
 ```
 
-## Luồng demo cuối
-
-1. Quản lý đăng nhập và kiểm tra danh mục sản phẩm được đồng bộ từ Inventory Manager.
-2. Nhân viên đăng nhập và mở ca.
-3. Nhân viên nhập hoặc chọn mã sản phẩm bằng giao diện giả lập máy quét.
-4. Nhân viên thêm sản phẩm vào giỏ hàng.
-5. Nhân viên áp dụng mã khuyến mãi.
-6. Nhân viên thanh toán VNPay bằng môi trường thử nghiệm.
-7. Hệ thống nhận callback, cập nhật đơn hàng và hiển thị hóa đơn xem trước.
-8. Nhân viên thanh toán tiền mặt cho đơn thứ hai.
-9. Quản lý xem báo cáo ca.
-10. Quản lý tạo và duyệt yêu cầu trả hàng, tồn kho được cập nhật qua API Inventory Manager.
-
-## Lưu ý demo thiết bị
-
-Nhóm không dùng phần cứng thật trong demo.
-
-- Máy quét được thay bằng giao diện nhập hoặc chọn mã sản phẩm.
-- Máy in được thay bằng màn hình xem trước hóa đơn và kết quả in giả lập.
-- Thông báo in thành công nên là:
+Endpoint chính:
 
 ```text
-In hóa đơn thành công
+POST /api/vnpay/callback
+GET  /api/sync/catalog
+GET  /api/sync/stock
+POST /api/stock/deduct
+POST /api/stock/restock
 ```
 
-- Thông báo lỗi máy in nên là:
+## Chạy Test
 
-```text
-Lỗi máy in: vui lòng kiểm tra cấu hình và thử lại
+Chạy toàn bộ test:
+
+```powershell
+dotnet test SmartPOS.sln
 ```
 
-## Nguyên tắc quan trọng
+Chạy riêng project test:
 
-- Ưu tiên hoàn thành luồng demo hơn thêm tính năng phụ.
-- Không làm phức tạp kiến trúc khi chưa cần.
-- ViewModel gọi Service.
-- Service chứa quy tắc nghiệp vụ.
-- Repository làm việc với cơ sở dữ liệu.
-- Không để ViewModel truy cập trực tiếp DbContext.
-- Tất cả thao tác có I/O phải dùng bất đồng bộ.
-- Thông báo người dùng, nội dung in hóa đơn và nội dung nhật ký nghiệp vụ phải viết bằng tiếng Việt có dấu.
+```powershell
+dotnet test tests/SmartPOS.Tests/SmartPOS.Tests.csproj
+```
+
+Hiện tại test class chỉ là placeholder. Khi implement service logic, thêm test thật vào `tests/SmartPOS.Tests`.
+
+## Lệnh Hay Dùng
+
+Clean solution:
+
+```powershell
+dotnet clean SmartPOS.sln
+```
+
+Restore và build lại:
+
+```powershell
+dotnet restore SmartPOS.sln
+dotnet build SmartPOS.sln
+```
+
+Dừng PostgreSQL:
+
+```powershell
+docker compose down
+```
+
+Dừng PostgreSQL và xoá volume:
+
+```powershell
+docker compose down -v
+```
+
+## Quy Ước Khi Dev
+
+- Đọc `docs/system-architecture.md` trước khi thêm project, folder hoặc class mới.
+- Đọc `docs/code-standards.md` trước khi implement logic.
+- Flow bắt buộc: `View -> ViewModel -> Service -> Repository -> DbContext`.
+- ViewModel không gọi trực tiếp repository hoặc DbContext.
+- Service không gọi trực tiếp DbContext.
+- Service trả DTO, không trả EF entity cho UI.
+- Repository trả entity, không trả DTO.
+- Method async phải kết thúc bằng `Async`.
+- Skeleton hiện tại cố ý để method body là `throw new NotImplementedException();`.
+- ViewModel command hiện tại chỉ để `// TODO` cho đến khi implement UI flow thật.

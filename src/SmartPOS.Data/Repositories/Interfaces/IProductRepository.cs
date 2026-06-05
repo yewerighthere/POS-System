@@ -1,0 +1,9 @@
+﻿using SmartPOS.Data.Entities;
+
+namespace SmartPOS.Data.Repositories.Interfaces;
+
+public interface IProductRepository
+{
+    Task<Product?> GetByIdAsync(Guid id); Task<Product?> GetByBarcodeAsync(string barcode); Task<Product?> GetByExternalIdAsync(string externalId); Task<IReadOnlyList<Product>> SearchAsync(string keyword); Task AddAsync(Product product); Task UpdateAsync(Product product);
+}
+
