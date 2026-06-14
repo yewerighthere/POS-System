@@ -4,5 +4,5 @@
     <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="8.0.0" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="8.0.0"><PrivateAssets>all</PrivateAssets><IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets></PackageReference>
   </ItemGroup>
-  <ItemGroup><ProjectReference Include="..\SmartPOS.Shared\SmartPOS.Shared.csproj" /><ProjectReference Include="..\SmartPOS.Data\SmartPOS.Data.csproj" /></ItemGroup>
+  <ItemGroup><ProjectReference Include="..\SmartPOS.Shared\SmartPOS.Shared.csproj" /></ItemGroup>
 </Project>
