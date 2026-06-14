@@ -6,6 +6,7 @@ File này là checklist triển khai dự án SmartPOS từ skeleton hiện tạ
 
 - Làm theo thứ tự từ trên xuống nếu chưa có task khẩn cấp hơn.
 - Mỗi task nên nhỏ đủ để một người làm, review và test được.
+- Khi chia việc cho 6 thành viên triển khai, dùng bảng phân công trong `docs/team-workflow.md`.
 - Khi task thay đổi schema, API hoặc business rule, cập nhật docs liên quan.
 - Khi hoàn thành feature, cập nhật `docs/implementation-status.md`.
 - Không implement business logic trong ViewModel hoặc Repository.

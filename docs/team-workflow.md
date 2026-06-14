@@ -23,18 +23,37 @@ File này mô tả cách nhóm làm việc với SmartPOS: chia task, đặt bra
 
 ## Chia Việc Theo Module
 
-Gợi ý chia việc cho nhóm 6 người:
+Phân công hiện tại chia đều cho 6 người. Tất cả thành viên đều phải trực tiếp phát triển
+feature/code; review là trách nhiệm chung của cả nhóm, không tính là phần việc riêng của
+một người. Các task nền tảng đã xong như Docker port `5433`, POS migration đầu tiên và
+`InventoryDbContext` được xem là nền hiện có, không dùng để trừ khối lượng của ai.
 
-| Thành viên | Module chính |
-|---|---|
-| Thành viên 1 | Database, migration, Docker, seed data, Auth |
-| Thành viên 2 | Shift, Cash Payment, Report |
-| Thành viên 3 | Sales screen, Cart, Product search, Scanner emulator |
-| Thành viên 4 | VNPay, Callback API, Invoice, Fake print |
-| Thành viên 5 | Customer, Loyalty points, Return/Refund |
-| Thành viên 6 | Catalog, Product price, Promotion, Inventory Sync |
+| Thành viên | Module chính | Feature | Task chính | Deliverable bắt buộc |
+|---|---|---|---|---|
+| Thành viên 1 | Auth, Session, Seed User, User Management | F-01 | `TASK-0008`, `TASK-0101` đến `TASK-0112` | Login được bằng `quantri`, `quanly`, `nhanvien`; lưu session/current user; điều hướng theo role; có test AuthService |
+| Thành viên 2 | Shift, Cash Payment, Shift Report | F-02, F-05, F-15 | `TASK-0201` đến `TASK-0209`, `TASK-0501` đến `TASK-0510`, `TASK-1204`, `TASK-1206` | Mở ca, chặn bán khi chưa mở ca, thanh toán tiền mặt, đóng ca, xem báo cáo ca cơ bản; có test shift/payment |
+| Thành viên 3 | Product Search, Sales Screen, Cart | F-03 | `TASK-0304`, `TASK-0305`, `TASK-0308`, `TASK-0309`, `TASK-0401` đến `TASK-0409` | Tìm/quét sản phẩm, thêm/sửa/xóa giỏ hàng, tính subtotal/discount/tax/total, kiểm tra tồn kho; có test cart/search |
+| Thành viên 4 | Catalog, Inventory Manager API, Inventory Sync | F-11, F-13 | `TASK-0301` đến `TASK-0303`, `TASK-0306`, `TASK-0307`, `TASK-1101` đến `TASK-1110` | Quản lý danh mục/sản phẩm, seed 10 sản phẩm, Inventory API trả catalog/stock và nhận deduct/restock, POS sync được; có test sync |
+| Thành viên 5 | VNPay, Callback, Invoice, Fake Print | F-06, F-07, F-08, F-14 | `TASK-0601` đến `TASK-0610`, `TASK-0701` đến `TASK-0708` | Tạo URL/QR VNPay, khóa/mở order, callback validate signature/update payment, invoice preview/fake print; có test callback/invoice |
+| Thành viên 6 | Promotion, Customer, Loyalty, Return/Refund, Audit | F-04, F-09, F-10, F-12, F-15 | `TASK-0801` đến `TASK-0807`, `TASK-0901` đến `TASK-0909`, `TASK-1001` đến `TASK-1010`, `TASK-1201` đến `TASK-1203`, `TASK-1205`, `TASK-1207` | Áp dụng mã `GIAM10`, customer/loyalty, tạo/duyệt/từ chối return, restock sau return, audit log thao tác nhạy cảm; có test promotion/return/customer |
 
-Một người có thể hỗ trợ module khác, nhưng cần báo trước để tránh sửa cùng file.
+Nếu muốn gắn tên thật của từng thành viên, thay `Thành viên 1` đến `Thành viên 6` bằng tên
+trong bảng này mà không đổi module hoặc task.
+
+## Thứ Tự Tích Hợp Demo
+
+1. Thành viên 1 hoàn thành Auth và seed user demo trước để mọi người test role.
+2. Thành viên 3 và Thành viên 4 làm song song Product/Search/Cart và Catalog/Inventory seed.
+3. Thành viên 2 tích hợp Shift và Cash Payment khi cart/order draft sẵn sàng.
+4. Thành viên 5 tích hợp Invoice cơ bản trước, rồi VNPay/callback sau.
+5. Thành viên 6 làm Promotion trước để nối vào cart/payment, rồi Customer/Return/Audit.
+6. Cả nhóm chạy demo flow cuối: login, sync inventory, open shift, cart, promotion, VNPay,
+   invoice, cash payment, report, return/restock.
+
+Khi bị block, mỗi thành viên chuyển sang test, docs, UI polish hoặc bug trong module của
+mình trước. Người hoàn thành sớm phải hỗ trợ phần test, UI polish hoặc bug trong module
+đang phụ thuộc mình, không đứng ngoài. Chỉ hỗ trợ module khác sau khi đã thống nhất
+file/module sẽ sửa.
 
 ## Quy Trình Làm Một Task
 
@@ -279,4 +298,3 @@ Hướng nghi ngờ:
 ```
 
 Sau đó nhờ người khác xem. Đừng âm thầm sửa nhiều hướng cùng lúc vì dễ làm code rối hơn.
-
