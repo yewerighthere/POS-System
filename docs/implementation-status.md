@@ -1,11 +1,12 @@
 # Trạng thái triển khai
 
-File này giúp nhóm và tác nhân AI biết tính năng nào đã làm, đang làm hoặc chưa làm.
-Mỗi khi hoàn thành một module, hãy cập nhật file này trước khi giao việc tiếp.
+File này giúp nhóm và tác nhân AI biết tính năng nào đã làm, đang làm hoặc chưa làm. Mỗi khi hoàn thành một module, hãy cập nhật file này trước khi giao việc tiếp.
 
-Trạng thái dùng chung:
+Nếu cần danh sách task chi tiết để triển khai từ đầu đến cuối, đọc thêm `docs/development-task-list.md`.
 
-- `Chưa làm`: chưa có code hoặc chỉ mới có ý tưởng.
+## Trạng thái dùng chung
+
+- `Chưa làm`: chưa có code hoặc chỉ mới có skeleton/stub.
 - `Đang làm`: đã có code một phần, cần đọc source trước khi sửa tiếp.
 - `Cần kiểm thử`: code có thể đã xong nhưng chưa đủ test hoặc chưa chạy demo.
 - `Đã xong`: đã chạy được theo luồng demo và có test tối thiểu.
@@ -13,49 +14,64 @@ Trạng thái dùng chung:
 
 ## Tổng quan hiện tại
 
-Tại thời điểm lập docs, workspace chủ yếu mới có tài liệu. Nếu mã nguồn được tạo sau này,
-hãy cập nhật bảng bên dưới theo đúng hiện trạng.
+Solution skeleton đã được scaffold:
+
+- Đã có `SmartPOS.sln`.
+- Đã có các project trong `src/`.
+- Đã có project test trong `tests/`.
+- Đã có DTO, enum, exception, entity, repository interface, service interface, ViewModel/View shell và API shell.
+- Business logic hầu hết chưa được implement.
+- Repository và service implementation hiện vẫn chủ yếu là stub.
+- Đã có migration POS đầu tiên `InitialCreate`.
+- Đã apply migration POS vào PostgreSQL Docker container qua port `5433`.
+- Chưa có seed data demo.
+- Chưa có UI flow hoàn chỉnh.
+
+Vì vậy, trạng thái hiện tại nên hiểu là: **nền project đã có, tính năng nghiệp vụ chưa hoàn thành**.
+
+## Trạng thái tính năng
 
 | Mã | Tính năng | Trạng thái | Ghi chú |
 |---|---|---|---|
-| F-01 | Đăng nhập, đăng xuất, tạo tài khoản | Chưa làm | Cần seed tài khoản demo và có màn hình tạo tài khoản dự phòng |
-| F-02 | Mở ca, đóng ca | Chưa làm | Bắt buộc cho luồng bán hàng |
-| F-03 | Chọn sản phẩm, giả lập máy quét, tìm kiếm | Chưa làm | Không dùng phần cứng thật |
-| F-04 | Giỏ hàng | Chưa làm | Cần tính tiền và kiểm tra tồn kho |
-| F-05 | Khuyến mãi theo code | Chưa làm | Cần cột `code` trong bảng `promotions` |
-| F-06 | Thanh toán tiền mặt | Chưa làm | Cần trừ kho sau khi thành công |
-| F-07 | Thanh toán VNPay | Chưa làm | Cần callback và kiểm tra chữ ký |
-| F-08 | Hóa đơn và giả lập in | Chưa làm | Dùng màn hình xem trước và nút giả lập in thành công |
-| F-09 | Khách hàng và điểm tích lũy | Chưa làm | Cần cho demo cuối |
-| F-10 | Trả hàng và hoàn tiền | Chưa làm | Bắt buộc cho demo cuối |
-| F-11 | Đồng bộ Inventory Manager | Chưa làm | POS và Inventory Manager chỉ nói chuyện qua API |
-| F-12 | Báo cáo | Chưa làm | Ưu tiên báo cáo ca trước |
-| F-13 | Nhật ký thao tác | Chưa làm | Cần cho sửa giá, thanh toán, trả hàng |
-
-## Nhiệm vụ nên làm đầu tiên
-
-1. Tạo solution và các project trong `src`.
-2. Tạo `docker-compose.yml` với PostgreSQL.
-3. Tạo cơ sở dữ liệu `smartpos` và `inventory_manager`.
-4. Tạo entity và migration POS.
-5. Tạo entity và migration Inventory Manager nếu tách project data riêng.
-6. Tạo seed data cho tài khoản và sản phẩm mẫu.
-7. Làm đăng nhập.
-8. Làm mở ca.
-9. Làm giỏ hàng và chọn sản phẩm.
-10. Làm thanh toán tiền mặt.
+| F-01 | Đăng nhập, đăng xuất, tạo tài khoản | Chưa làm | Đã có skeleton DTO/service/ViewModel; cần implement AuthService, repository, seed user demo |
+| F-02 | Mở ca, đóng ca | Chưa làm | Đã có skeleton; cần implement ShiftService và lưu ca hiện tại |
+| F-03 | Bán hàng: chọn sản phẩm, tìm kiếm, giỏ hàng, tính tiền | Chưa làm | Đã có skeleton ProductService/CartService/SalesViewModel; cần implement search, cart, kiểm tra tồn kho và UI |
+| F-04 | Khuyến mãi và giảm giá | Chưa làm | Entity `Promotion` đã có `Code`; cần implement validation, áp dụng mã và approval |
+| F-05 | Thanh toán tiền mặt | Chưa làm | Cần implement order/payment flow và trừ kho sau thanh toán |
+| F-06 | Thanh toán VNPay | Chưa làm | Cần tạo URL, QR, khóa order và poll trạng thái |
+| F-07 | Callback thanh toán | Chưa làm | Đã có CallbackApi shell; cần callback endpoint, chữ ký và xử lý trạng thái |
+| F-08 | Hóa đơn và giả lập in | Chưa làm | Cần invoice number, preview, fake print và device log |
+| F-09 | Khách hàng và điểm tích lũy | Chưa làm | Cần implement customer lookup, create, cộng/trừ điểm |
+| F-10 | Trả hàng và hoàn tiền | Chưa làm | Bắt buộc cho demo cuối; cần approve/reject và restock |
+| F-11 | Danh mục sản phẩm | Chưa làm | Cần implement quản lý danh mục, sản phẩm, SKU/barcode/QR duy nhất |
+| F-12 | Giá, thuế và khuyến mãi | Chưa làm | Cần implement quản lý giá, thuế, khuyến mãi và audit sửa giá |
+| F-13 | Đồng bộ Inventory Manager | Đang làm | Đã tách `InventoryDbContext`, entity riêng và migration `InitialInventoryCreate`; API shell cần implement sync/stock |
+| F-14 | Thiết bị giả lập và nhật ký thiết bị | Chưa làm | Cần fake scanner/printer, device config và device logs |
+| F-15 | Báo cáo, audit log và cấu hình cửa hàng | Chưa làm | Ưu tiên báo cáo ca và audit log trước |
 
 ## Trạng thái project
 
 | Project | Trạng thái | Ghi chú |
 |---|---|---|
-| SmartPOS.Shared | Chưa làm | Tạo enum, DTO, exception và constant trước |
-| SmartPOS.Data | Chưa làm | Tạo entity POS, DbContext, repository và migration |
-| SmartPOS.Services | Chưa làm | Tạo service interface trước implementation |
-| SmartPOS.WPF | Chưa làm | Tạo shell giao diện và điều hướng |
-| SmartPOS.CallbackApi | Chưa làm | Làm sau khi có PaymentService |
-| InventoryManager.Api | Chưa làm | Tạo API riêng và cơ sở dữ liệu riêng |
-| SmartPOS.Tests | Chưa làm | Thêm test cho Service quan trọng |
+| SmartPOS.Shared | Cần kiểm thử | Đã có enum, DTO, exception, constant; cần rà lại shape DTO khi implement thật |
+| SmartPOS.Data | Đang làm | Đã có entity, DbContext, design-time factory, migration đầu tiên và repository skeleton; repository chưa implement |
+| SmartPOS.Services | Đang làm | Đã có interface/implementation skeleton; chưa có business logic |
+| SmartPOS.WPF | Đang làm | Đã có shell, ViewModel/View placeholder, DI; chưa có UI flow thật |
+| SmartPOS.CallbackApi | Đang làm | Đã có Minimal API shell; callback chỉ trả `OK` |
+| InventoryManager.Api | Đang làm | Đã có `InventoryDbContext`, entity inventory riêng, migration `InitialInventoryCreate` và controller shell; action chỉ trả `Ok()` |
+| SmartPOS.Tests | Đang làm | Đã có test class placeholder; chưa có test nghiệp vụ |
+
+## Việc nên làm tiếp theo
+
+Chi tiết task nằm trong `docs/development-task-list.md`. Thứ tự ưu tiên ngắn gọn:
+
+1. Tạo seed data demo.
+2. Implement Auth.
+3. Implement Shift.
+4. Implement Product/Search và Cart.
+5. Implement Cash Payment.
+6. Implement Invoice.
+7. Implement Inventory Sync, VNPay, Return, Report và Audit theo thứ tự demo.
 
 ## Dữ liệu demo cần có
 
@@ -98,23 +114,23 @@ Một tính năng chỉ nên đánh dấu `Đã xong` khi:
 - Có đủ thông báo tiếng Việt có dấu.
 - Không phá luồng demo chính.
 - Có test Service nếu tính năng có quy tắc nghiệp vụ.
-- Đã cập nhật docs nếu có thay đổi về schema, API hoặc quy tắc.
+- Đã cập nhật docs nếu có thay đổi về schema, API, config hoặc quy tắc.
+- Đã cập nhật checkbox liên quan trong `docs/development-task-list.md`.
 
 ## Mẫu cập nhật trạng thái
 
-Khi cập nhật, ghi ngắn gọn:
-
 ```text
-F-06 Thanh toán tiền mặt: Cần kiểm thử
+F-05 Thanh toán tiền mặt: Cần kiểm thử
 Đã tạo PaymentService và OrderRepository.AddPaymentAsync.
 Còn thiếu test trừ kho khi Inventory Manager lỗi.
 ```
 
 ## Rủi ro cần theo dõi
 
+- PostgreSQL Docker đang map ra host port `5433` để tránh đụng PostgreSQL local ở port `5432`.
 - VNPay cần ngrok và cấu hình callback đúng.
 - Đồng bộ tồn kho dễ lỗi nếu API Inventory Manager chưa chạy.
 - Trả hàng cần tính đúng số lượng đã trả trước đó.
-- Khuyến mãi cần cột `code`, nếu thiếu sẽ không khớp luồng demo.
-- Giả lập in phải không làm thất bại thanh toán nếu có lỗi.
-- Tạo tài khoản mới cần giới hạn cho quản lý hoặc quản trị.
+- Khuyến mãi cần `code`, nếu thiếu sẽ không khớp luồng demo.
+- Giả lập in không nên làm thất bại thanh toán nếu có lỗi.
+- Tạo tài khoản mới cần giới hạn cho Manager hoặc Admin.

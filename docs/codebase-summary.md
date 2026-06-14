@@ -29,7 +29,7 @@ SmartPOS.CallbackApi
 
 InventoryManager.Api
   -> hệ thống riêng
-  -> dùng cơ sở dữ liệu riêng
+  -> dùng InventoryDbContext và cơ sở dữ liệu riêng
   -> giao tiếp với POS qua API
 ```
 
@@ -251,6 +251,19 @@ Chữ ký VNPay không hợp lệ
 
 Hệ thống riêng, có cơ sở dữ liệu riêng.
 
+DbContext:
+
+- `InventoryDbContext`: context riêng của Inventory Manager, dùng connection string
+  `Host=localhost;Port=5433;Database=inventory_manager;Username=postgres;Password=1`.
+- Migration đầu tiên: `InitialInventoryCreate`.
+
+Entities:
+
+- `InventoryCategory`
+- `InventoryProduct`
+- `StockItem`
+- `StockTransaction`
+
 Controller đề xuất:
 
 - `ProductsController`: danh sách sản phẩm tồn kho.
@@ -291,7 +304,7 @@ Dùng xUnit, Moq và FluentAssertions nếu đã được thêm vào project tes
 ```json
 {
   "ConnectionStrings": {
-    "DefaultConnection": "Host=localhost;Port=5432;Database=smartpos;Username=pos_user;Password=pos_password"
+    "DefaultConnection": "Host=localhost;Port=5433;Database=smartpos;Username=postgres;Password=1"
   },
   "InventoryManager": {
     "BaseUrl": "http://localhost:5001"
@@ -312,7 +325,7 @@ Dùng xUnit, Moq và FluentAssertions nếu đã được thêm vào project tes
 ```json
 {
   "ConnectionStrings": {
-    "DefaultConnection": "Host=localhost;Port=5432;Database=inventory_manager;Username=inventory_user;Password=inventory_password"
+    "DefaultConnection": "Host=localhost;Port=5433;Database=inventory_manager;Username=postgres;Password=1"
   }
 }
 ```
@@ -326,7 +339,7 @@ services:
   postgres:
     image: postgres:16
     ports:
-      - "5432:5432"
+      - "5433:5432"
 ```
 
 ## Gói thư viện

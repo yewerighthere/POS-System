@@ -27,6 +27,9 @@ DbContext ngoài Repository, hãy dừng lại và sửa thiết kế.
 5. Đọc `docs/code-standards.md` để nắm cách viết mã.
 6. Đọc `docs/codebase-summary.md` để tìm nhanh nơi cần sửa.
 7. Đọc `docs/implementation-status.md` để biết tính năng nào đã xong hoặc chưa xong.
+8. Đọc `docs/development-task-list.md` để chọn task triển khai tiếp theo.
+9. Đọc `docs/database-guide.md` nếu task có database, migration hoặc seed data.
+10. Đọc `docs/team-workflow.md` nếu task cần phối hợp branch, PR hoặc cập nhật docs.
 
 ## Cách làm một tính năng
 
@@ -42,8 +45,11 @@ theo hướng hiện tại, không tạo song song class mới trùng vai trò.
 
 ### Bước 3: Kiểm tra cơ sở dữ liệu
 
-Nếu cần bảng hoặc cột mới, sửa entity trong `SmartPOS.Data/Entities`, sửa `AppDbContext`
+Nếu cần bảng hoặc cột mới cho POS, sửa entity trong `SmartPOS.Data/Entities`, sửa `AppDbContext`
 nếu cần, sau đó tạo migration EF Core.
+
+Nếu cần bảng hoặc cột mới cho Inventory Manager, sửa entity trong `src/InventoryManager.Api/Entities`,
+sửa `InventoryDbContext`, sau đó tạo migration EF Core cho context `InventoryDbContext`.
 
 Lệnh mẫu:
 

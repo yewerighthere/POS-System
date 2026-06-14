@@ -1,5 +1,14 @@
-﻿services:
+services:
   postgres:
     image: postgres:16
     ports:
-      - "5432:5432"
+      - "5433:5432"
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: "1"
+      POSTGRES_DB: smartpos
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+volumes:
+  postgres_data:

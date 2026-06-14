@@ -29,6 +29,17 @@ Vai trò từng project:
 - `InventoryManager.Api`: API quản lý tồn kho.
 - `SmartPOS.Tests`: test stub cho service layer.
 
+## Tài Liệu Quan Trọng
+
+- `docs/project-overview.md`: mục tiêu dự án, phạm vi demo và kế hoạch 15 tuần.
+- `docs/system-architecture.md`: kiến trúc solution, project dependency và database schema.
+- `docs/feature-specifications.md`: đặc tả chi tiết từng tính năng.
+- `docs/code-standards.md`: quy chuẩn code, DI, ViewModel, Service và Repository.
+- `docs/development-task-list.md`: checklist task cần làm từ skeleton đến demo cuối.
+- `docs/implementation-status.md`: trạng thái hiện tại của feature/project.
+- `docs/database-guide.md`: hướng dẫn Docker PostgreSQL, migration, update database và seed data.
+- `docs/team-workflow.md`: cách chia task, branch, commit, review và merge trong nhóm.
+
 ## Yêu Cầu Môi Trường
 
 Cài trước khi chạy project:

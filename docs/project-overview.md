@@ -63,8 +63,8 @@ Tính năng không nằm trong luồng trên được xem là ưu tiên thấp h
 | Ứng dụng POS | Nhóm này | .NET 8 WPF | máy tính cá nhân |
 | Cổng nhận callback VNPay | Nhóm này | ASP.NET Core | `localhost:5000` |
 | Inventory Manager | Nhóm này | ASP.NET Core | `localhost:5001` |
-| Cơ sở dữ liệu POS | Nhóm này | PostgreSQL 16 | `localhost:5432/smartpos` |
-| Cơ sở dữ liệu Inventory | Nhóm này | PostgreSQL 16 | `localhost:5432/inventory_manager` |
+| Cơ sở dữ liệu POS | Nhóm này | PostgreSQL 16 | `localhost:5433/smartpos` |
+| Cơ sở dữ liệu Inventory | Nhóm này | PostgreSQL 16 | `localhost:5433/inventory_manager` |
 | VNPay | Bên ngoài | Môi trường thử nghiệm | internet |
 
 ## Phân công module

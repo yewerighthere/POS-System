@@ -29,7 +29,8 @@ docs/
 - `SmartPOS.WPF` phụ thuộc `SmartPOS.Shared`, `SmartPOS.Services` và `SmartPOS.Data` chỉ
   để cấu hình DI trong `App.xaml.cs`.
 - `SmartPOS.CallbackApi` phụ thuộc các project cần thiết để nhận callback và cập nhật đơn.
-- `InventoryManager.Api` là hệ thống riêng, có cơ sở dữ liệu riêng.
+- `InventoryManager.Api` là hệ thống riêng, có cơ sở dữ liệu riêng và dùng `InventoryDbContext`
+  riêng trong chính project API.
 
 Quy tắc quan trọng nhất:
 
@@ -114,6 +115,21 @@ POST /api/vnpay/callback
 ### InventoryManager.Api
 
 Hệ thống quản lý tồn kho riêng. POS chỉ nói chuyện với hệ thống này qua HTTP API.
+
+Project này có DbContext và entity riêng:
+
+```text
+Data/
+  InventoryDbContext.cs
+  InventoryDbContextFactory.cs
+Entities/
+  InventoryCategory.cs
+  InventoryProduct.cs
+  StockItem.cs
+  StockTransaction.cs
+Migrations/
+  InitialInventoryCreate
+```
 
 Endpoint dự kiến:
 
@@ -226,6 +242,8 @@ inventory_manager
   stock_items
   stock_transactions
 ```
+
+Migration đầu tiên của Inventory Manager là `InitialInventoryCreate`.
 
 ## Sơ đồ bảng POS
 
