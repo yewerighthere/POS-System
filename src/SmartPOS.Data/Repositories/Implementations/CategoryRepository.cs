@@ -1,4 +1,5 @@
-﻿using SmartPOS.Data.Entities;
+﻿using Microsoft.EntityFrameworkCore;
+using SmartPOS.Data.Entities;
 using SmartPOS.Data.Repositories.Interfaces;
 
 namespace SmartPOS.Data.Repositories.Implementations;
@@ -12,24 +13,27 @@ public class CategoryRepository : ICategoryRepository
         _context = context;
     }
 
-    public Task<IReadOnlyList<Category>> GetAllAsync()
+    public async Task<IReadOnlyList<Category>> GetAllAsync()
     {
-        throw new NotImplementedException();
+        return await _context.Categorys.OrderBy(c => c.Name).ToListAsync();
     }
 
-    public Task<Category?> GetByIdAsync(Guid id)
+    public async Task<Category?> GetByIdAsync(Guid id)
     {
-        throw new NotImplementedException();
+        return await _context.Categorys
+            .FirstOrDefaultAsync(c => c.Id == id);
     }
 
-    public Task AddAsync(Category category)
+    public async Task AddAsync(Category category)
     {
-        throw new NotImplementedException();
+        await _context.Categorys.AddAsync(category);
+        await _context.SaveChangesAsync();
     }
 
-    public Task UpdateAsync(Category category)
+    public async Task UpdateAsync(Category category)
     {
-        throw new NotImplementedException();
+        _context.Categorys.Update(category);
+        await _context.SaveChangesAsync();
     }
 }
 
