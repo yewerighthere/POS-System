@@ -4,6 +4,9 @@ namespace SmartPOS.Data.Repositories.Interfaces;
 
 public interface IUserSessionRepository
 {
-    Task AddAsync(UserSession session); Task UpdateLogoutAsync(UserSession session);
+    Task<UserSession?> GetByIdAsync(Guid id);
+    Task<UserSession?> GetActiveByUserIdAsync(Guid userId);
+    Task AddAsync(UserSession session);
+    Task UpdateLogoutAsync(UserSession session);
 }
 

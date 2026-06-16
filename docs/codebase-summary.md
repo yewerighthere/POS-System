@@ -146,7 +146,7 @@ Thư mục: `SmartPOS.Data/Repositories/Interfaces`
 
 Thư mục interface: `SmartPOS.Services/Interfaces`
 
-- `IAuthService`: đăng nhập, đăng xuất, kiểm tra token, tạo tài khoản demo khi cần.
+- `IAuthService`: đăng nhập, đăng xuất, kiểm tra JWT, tạo tài khoản demo khi cần.
 - `IShiftService`: mở ca, đóng ca, lấy ca đang mở, tóm tắt ca.
 - `IProductService`: tìm sản phẩm theo mã, tìm kiếm sản phẩm.
 - `ICartService`: thêm, sửa, xóa, tính lại giỏ hàng.
@@ -182,7 +182,7 @@ Service implementation nằm trong `SmartPOS.Services/Implementations`.
 
 Thư mục: `SmartPOS.WPF/ViewModels`
 
-- `LoginViewModel`: đăng nhập và đăng xuất.
+- `LoginViewModel`: đăng nhập, lưu `CurrentSessionContext` và điều hướng theo role.
 - `ShiftViewModel`: mở ca, đóng ca.
 - `SalesViewModel`: màn hình bán hàng, giả lập máy quét, giỏ hàng.
 - `PaymentViewModel`: tiền mặt và VNPay.
@@ -309,6 +309,12 @@ Dùng xUnit, Moq và FluentAssertions nếu đã được thêm vào project tes
   "InventoryManager": {
     "BaseUrl": "http://localhost:5001"
   },
+  "Jwt": {
+    "Issuer": "SmartPOS",
+    "Audience": "SmartPOS.Client",
+    "SecretKey": "SmartPOS_Demo_Secret_Key_2026_ChangeMe",
+    "ExpiresMinutes": "480"
+  },
   "VNPay": {
     "TmnCode": "YOUR_TMN_CODE",
     "HashSecret": "YOUR_HASH_SECRET",
@@ -345,7 +351,7 @@ services:
 ## Gói thư viện
 
 - WPF: CommunityToolkit.Mvvm, ModernWpfUI, Serilog, QRCoder.
-- Services: logging, HttpClient.
+- Services: logging, HttpClient, BCrypt.Net-Next, System.IdentityModel.Tokens.Jwt.
 - Data: Entity Framework Core, Npgsql.
 - CallbackApi: ASP.NET Core.
 - InventoryManager.Api: ASP.NET Core, Entity Framework Core, Npgsql.
