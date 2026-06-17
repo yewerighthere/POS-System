@@ -19,7 +19,7 @@ public partial class App : Application
 {
     private ServiceProvider _serviceProvider = null!;
 
-    protected override void OnStartup(StartupEventArgs e)
+    protected override async void OnStartup(StartupEventArgs e)
     {
         base.OnStartup(e);
         var configuration = new ConfigurationBuilder().Build();
@@ -86,6 +86,11 @@ public partial class App : Application
         services.AddTransient<UserManagementView>();
         services.AddTransient<MainWindow>();
         _serviceProvider = services.BuildServiceProvider();
+        using (var scope = _serviceProvider.CreateScope())
+        {
+            var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+            await DataSeeder.SeedAsync(db);
+        }
         _serviceProvider.GetRequiredService<MainWindow>().Show();
     }
 }
