@@ -1,4 +1,4 @@
-﻿using SmartPOS.WPF.Navigation;
+using SmartPOS.WPF.Navigation;
 using SmartPOS.WPF.ViewModels;
 using System.Windows;
 
