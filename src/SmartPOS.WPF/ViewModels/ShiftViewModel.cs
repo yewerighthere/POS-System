@@ -4,7 +4,9 @@ using Microsoft.Extensions.Logging;
 using SmartPOS.Services.Interfaces;
 using SmartPOS.Shared.DTOs.Shift;
 using SmartPOS.Shared.Exceptions;
+using SmartPOS.WPF.Navigation;
 using SmartPOS.WPF.Session;
+using System.Windows.Threading;
 
 namespace SmartPOS.WPF.ViewModels;
 
@@ -13,36 +15,47 @@ public partial class ShiftViewModel : ObservableObject
     private readonly IShiftService _shiftService;
     private readonly CurrentSessionContext _session;
     private readonly ILogger<ShiftViewModel> _logger;
+    private readonly NavigationService _navigation;
 
     [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(IsNotLoading))]
     private bool _isLoading;
 
-    [ObservableProperty]
-    private string _errorMessage = string.Empty;
+    [ObservableProperty] private string _errorMessage = string.Empty;
+    [ObservableProperty] private decimal _openingCash;
+    [ObservableProperty] private decimal _closingCash;
+    [ObservableProperty] private bool _hasOpenShift;
+    [ObservableProperty] private string _statusMessage = string.Empty;
+    [ObservableProperty] private ShiftDto? _currentShift;
+    [ObservableProperty] private ShiftSummaryDto? _lastSummary;
+    [ObservableProperty] private string _staffName = string.Empty;
+    [ObservableProperty] private string _staffRole = string.Empty;
+    [ObservableProperty] private string _currentDateDisplay = string.Empty;
+    [ObservableProperty] private string _currentTimeDisplay = string.Empty;
 
-    [ObservableProperty]
-    private decimal _openingCash;
+    public bool IsNotLoading => !IsLoading;
 
-    [ObservableProperty]
-    private decimal _closingCash;
-
-    [ObservableProperty]
-    private bool _hasOpenShift;
-
-    [ObservableProperty]
-    private string _statusMessage = string.Empty;
-
-    [ObservableProperty]
-    private ShiftDto? _currentShift;
-
-    [ObservableProperty]
-    private ShiftSummaryDto? _lastSummary;
-
-    public ShiftViewModel(IShiftService shiftService, CurrentSessionContext session, ILogger<ShiftViewModel> logger)
+    public ShiftViewModel(IShiftService shiftService, CurrentSessionContext session,
+        ILogger<ShiftViewModel> logger, NavigationService navigation)
     {
         _shiftService = shiftService;
         _session = session;
         _logger = logger;
+        _navigation = navigation;
+
+        _staffName = session.CurrentUser?.FullName ?? string.Empty;
+        _staffRole = session.CurrentUser?.Role?.ToUpperInvariant() ?? string.Empty;
+        UpdateDateTime();
+
+        var timer = new DispatcherTimer { Interval = TimeSpan.FromSeconds(30) };
+        timer.Tick += (_, _) => UpdateDateTime();
+        timer.Start();
+    }
+
+    private void UpdateDateTime()
+    {
+        CurrentDateDisplay = DateTime.Now.ToString("dd/MM/yyyy");
+        CurrentTimeDisplay = DateTime.Now.ToString("HH:mm");
     }
 
     public async Task InitializeAsync()
@@ -55,9 +68,18 @@ public partial class ShiftViewModel : ObservableObject
             CurrentShift = openShift;
             _session.CurrentShift = openShift;
             HasOpenShift = true;
-            StatusMessage = $"Ca đang mở từ {openShift.OpenedAt:HH:mm dd/MM/yyyy}";
         }
     }
+
+    [RelayCommand]
+    private void SetQuickAmount(string amount)
+    {
+        if (decimal.TryParse(amount, out var value))
+            OpeningCash = value;
+    }
+
+    [RelayCommand]
+    private void NavigateToLogin() => _navigation.NavigateTo<LoginViewModel>();
 
     [RelayCommand]
     private async Task OpenShiftAsync()
@@ -70,7 +92,6 @@ public partial class ShiftViewModel : ObservableObject
 
         IsLoading = true;
         ErrorMessage = string.Empty;
-        StatusMessage = string.Empty;
 
         try
         {
@@ -79,7 +100,6 @@ public partial class ShiftViewModel : ObservableObject
             CurrentShift = shift;
             _session.CurrentShift = shift;
             HasOpenShift = true;
-            StatusMessage = "Ca làm việc đã được mở thành công";
         }
         catch (BusinessException ex)
         {
@@ -111,15 +131,15 @@ public partial class ShiftViewModel : ObservableObject
 
         try
         {
-            var dto = new CloseShiftDto(CurrentShift.Id, ClosingCash);
-            await _shiftService.CloseShiftAsync(dto);
+            var closeDto = new CloseShiftDto(CurrentShift.Id, ClosingCash);
+            await _shiftService.CloseShiftAsync(closeDto);
 
             LastSummary = await _shiftService.GetShiftSummaryAsync(CurrentShift.Id);
 
             _session.CurrentShift = null;
             CurrentShift = null;
             HasOpenShift = false;
-            StatusMessage = "Ca làm việc đã được đóng";
+            StatusMessage = "Ca làm việc đã được đóng thành công";
         }
         catch (BusinessException ex)
         {
