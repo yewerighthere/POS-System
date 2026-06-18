@@ -1,5 +1,6 @@
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using Microsoft.Extensions.Logging;
 using SmartPOS.Services.Interfaces;
 using SmartPOS.Shared.DTOs.Auth;
 using SmartPOS.Shared.Enums;
@@ -14,6 +15,7 @@ public partial class LoginViewModel : ObservableObject
     private readonly IAuthService _authService;
     private readonly CurrentSessionContext _sessionContext;
     private readonly NavigationService _navigationService;
+    private readonly ILogger<LoginViewModel> _logger;
 
     [ObservableProperty]
     private string _username = string.Empty;
@@ -30,11 +32,13 @@ public partial class LoginViewModel : ObservableObject
     public LoginViewModel(
         IAuthService authService,
         CurrentSessionContext sessionContext,
-        NavigationService navigationService)
+        NavigationService navigationService,
+        ILogger<LoginViewModel> logger)
     {
         _authService = authService;
         _sessionContext = sessionContext;
         _navigationService = navigationService;
+        _logger = logger;
     }
 
     [RelayCommand]
@@ -60,8 +64,9 @@ public partial class LoginViewModel : ObservableObject
         {
             ErrorMessage = ex.Message;
         }
-        catch
+        catch (Exception ex)
         {
+            _logger.LogError(ex, "Đã có lỗi xảy ra khi đăng nhập hoặc điều hướng sau đăng nhập");
             ErrorMessage = "Đã có lỗi xảy ra, vui lòng kiểm tra nhật ký";
         }
         finally

@@ -55,7 +55,6 @@ public partial class App : Application
         services.AddTransient<ICustomerService, CustomerService>();
         services.AddTransient<IReturnService, ReturnService>();
         services.AddTransient<ICatalogService, CatalogService>();
-        services.AddTransient<IInventorySyncService, InventorySyncService>();
         services.AddTransient<IReportService, ReportService>();
         services.AddTransient<IAuditService, AuditService>();
         services.AddHttpClient<IInventorySyncService, InventorySyncService>(client => client.BaseAddress = new Uri("http://localhost:5001"));

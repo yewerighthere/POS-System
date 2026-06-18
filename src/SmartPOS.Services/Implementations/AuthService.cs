@@ -64,7 +64,6 @@ public class AuthService : IAuthService
         {
             Id = Guid.NewGuid(),
             UserId = user.Id,
-            User = user,
             LoginAt = DateTime.UtcNow
         };
 
@@ -111,7 +110,8 @@ public class AuthService : IAuthService
             if (session is null || session.LogoutAt is not null)
                 return null;
 
-            return ToSessionDto(session, session.User);
+            var user = session.User ?? await _userRepository.GetByIdAsync(session.UserId).ConfigureAwait(false);
+            return user is null ? null : ToSessionDto(session, user);
         }
         catch (Exception ex) when (ex is SecurityTokenException or ArgumentException)
         {
