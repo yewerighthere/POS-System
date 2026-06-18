@@ -12,6 +12,7 @@ public class CurrentSessionContext
 
     public Guid RequireUserId()
     {
-        throw new NotImplementedException();
+        if (CurrentUser is null) throw new InvalidOperationException("Chưa đăng nhập");
+        return CurrentUser.UserId;
     }
 }
