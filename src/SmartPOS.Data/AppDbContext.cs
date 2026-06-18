@@ -32,14 +32,15 @@ public class AppDbContext : DbContext
              .SetBasePath(AppContext.BaseDirectory)
                     .AddJsonFile("appsettings.json", true, true)
                     .Build();
-        var strConn = config["ConnectionStrings:DefaultConnection"];
-
-        return strConn;
+        return config.GetConnectionString("DefaultConnection")
+            ?? "Host=localhost;Port=5433;Database=smartpos;Username=postgres;Password=1";
     }
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {
         if (!optionsBuilder.IsConfigured)
+        {
             optionsBuilder.UseNpgsql(GetConnectionString());
+        }
     }
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {

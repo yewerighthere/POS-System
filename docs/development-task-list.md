@@ -28,7 +28,7 @@ Trạng thái đề xuất:
 - [x] TASK-0005: Tạo entity riêng cho `inventory_products`, `inventory_categories`, `stock_items`, `stock_transactions`.
 - [x] TASK-0006: Tạo migration đầu tiên cho POS.
 - [x] TASK-0007: Chạy `dotnet ef database update` cho POS.
-- [ ] TASK-0008: Tạo seed data tối thiểu cho tài khoản demo, danh mục, sản phẩm, tồn kho và mã khuyến mãi.
+- [~] TASK-0008: Tạo seed data tối thiểu cho tài khoản demo, danh mục, sản phẩm, tồn kho và mã khuyến mãi. Đã có seed user demo; còn thiếu danh mục, sản phẩm, tồn kho và mã `GIAM10`.
 - [ ] TASK-0009: Kiểm tra WPF khởi động được tới `LoginView`.
 - [ ] TASK-0010: Kiểm tra Callback API và Inventory API start được trên port dự kiến.
 
@@ -36,18 +36,18 @@ Trạng thái đề xuất:
 
 Liên quan: F-01.
 
-- [ ] TASK-0101: Hoàn thiện `User` và `UserSession` entity nếu còn thiếu field cần cho login.
-- [ ] TASK-0102: Implement `IUserRepository`.
-- [ ] TASK-0103: Implement `IUserSessionRepository`.
-- [ ] TASK-0104: Implement hash password bằng BCrypt.
-- [ ] TASK-0105: Implement `AuthService.LoginAsync`.
-- [ ] TASK-0106: Implement `AuthService.LogoutAsync`.
-- [ ] TASK-0107: Implement validate session/token tối giản cho demo.
-- [ ] TASK-0108: Implement tạo tài khoản demo nếu database chưa có user.
-- [ ] TASK-0109: Implement `LoginViewModel` command đăng nhập.
-- [ ] TASK-0110: Hiển thị lỗi đăng nhập bằng tiếng Việt có dấu.
-- [ ] TASK-0111: Điều hướng sau login theo role.
-- [ ] TASK-0112: Viết test cho login thành công, sai mật khẩu, tài khoản bị khóa.
+- [x] TASK-0101: Hoàn thiện `User` và `UserSession` entity nếu còn thiếu field cần cho login.
+- [x] TASK-0102: Implement `IUserRepository`.
+- [x] TASK-0103: Implement `IUserSessionRepository`.
+- [x] TASK-0104: Implement hash password bằng BCrypt.
+- [x] TASK-0105: Implement `AuthService.LoginAsync`.
+- [x] TASK-0106: Implement `AuthService.LogoutAsync`.
+- [x] TASK-0107: Implement validate session/token tối giản cho demo.
+- [x] TASK-0108: Implement tạo tài khoản demo nếu database chưa có user.
+- [x] TASK-0109: Implement `LoginViewModel` command đăng nhập.
+- [x] TASK-0110: Hiển thị lỗi đăng nhập bằng tiếng Việt có dấu.
+- [x] TASK-0111: Điều hướng sau login theo role.
+- [x] TASK-0112: Viết test cho login thành công, sai mật khẩu, tài khoản bị khóa.
 
 ## Phase 2 - Mở Ca Và Đóng Ca
 

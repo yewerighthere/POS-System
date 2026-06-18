@@ -22,7 +22,10 @@ public partial class App : Application
     protected override void OnStartup(StartupEventArgs e)
     {
         base.OnStartup(e);
-        var configuration = new ConfigurationBuilder().Build();
+        var configuration = new ConfigurationBuilder()
+            .SetBasePath(AppContext.BaseDirectory)
+            .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
+            .Build();
         var services = new ServiceCollection();
         services.AddSingleton<IConfiguration>(configuration);
         services.AddLogging(builder => builder.AddSerilog(new LoggerConfiguration().WriteTo.File("logs/smartpos-.log", rollingInterval: RollingInterval.Day).CreateLogger()));
@@ -54,7 +57,6 @@ public partial class App : Application
         services.AddTransient<ICustomerService, CustomerService>();
         services.AddTransient<IReturnService, ReturnService>();
         services.AddTransient<ICatalogService, CatalogService>();
-        services.AddTransient<IInventorySyncService, InventorySyncService>();
         services.AddTransient<IReportService, ReportService>();
         services.AddTransient<IAuditService, AuditService>();
         services.AddHttpClient<IInventorySyncService, InventorySyncService>(client => client.BaseAddress = new Uri("http://localhost:5001"));

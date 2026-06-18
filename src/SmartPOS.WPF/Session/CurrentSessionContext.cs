@@ -1,18 +1,20 @@
-﻿using SmartPOS.Shared.DTOs.Auth;
+using SmartPOS.Shared.DTOs.Auth;
 using SmartPOS.Shared.DTOs.Shift;
+using SmartPOS.Shared.Exceptions;
 
 namespace SmartPOS.WPF.Session;
 
 public class CurrentSessionContext
 {
     public UserSessionDto? CurrentUser { get; set; }
+    public string CurrentToken { get; set; } = string.Empty;
     public ShiftDto? CurrentShift { get; set; }
     public bool IsAuthenticated => CurrentUser is not null;
     public bool HasOpenShift => CurrentShift is not null;
 
     public Guid RequireUserId()
     {
-        if (CurrentUser is null) throw new InvalidOperationException("Chưa đăng nhập");
-        return CurrentUser.UserId;
+        return CurrentUser?.UserId
+            ?? throw new BusinessException("Bạn không có quyền truy cập chức năng này");
     }
 }
