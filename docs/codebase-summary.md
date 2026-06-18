@@ -170,8 +170,8 @@ Service implementation nằm trong `SmartPOS.Services/Implementations`.
 `App.xaml.cs` cấu hình DI, nạp cấu hình, đăng ký service, repository, ViewModel và mở
 `MainWindow`.
 
-`SmartPOS.WPF` references `Microsoft.EntityFrameworkCore.Design` so it can be used as the startup project for
-`dotnet ef database update --project src\SmartPOS.Data --startup-project src\SmartPOS.WPF`.
+POS migration dùng `SmartPOS.Data/AppDbContextFactory` làm design-time factory theo `database-guide.md`.
+`SmartPOS.WPF` vẫn tham chiếu `Microsoft.EntityFrameworkCore.Design` để hỗ trợ EF tooling khi cần dùng WPF làm startup project.
 
 Inventory sync is registered as a typed `HttpClient` service in WPF so manager/admin login can navigate to `SyncView`
 without duplicate DI registrations.

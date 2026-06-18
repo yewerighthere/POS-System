@@ -20,12 +20,12 @@ Solution skeleton đã được scaffold:
 - Đã có các project trong `src/`.
 - Đã có project test trong `tests/`.
 - Đã có DTO, enum, exception, entity, repository interface, service interface, ViewModel/View shell và API shell.
-- Business logic hầu hết chưa được implement.
-- Repository và service implementation hiện vẫn chủ yếu là stub.
+- Business logic hầu hết chưa được implement, ngoại trừ F-01 Auth/JWT đã hoàn thành.
+- Repository và service implementation hiện vẫn chủ yếu là stub, ngoại trừ Auth repository/service.
 - Đã có migration POS `InitialCreate` và `AddUserContactFields`.
 - Đã apply migration POS vào PostgreSQL Docker container qua port `5433`.
-- Chưa có seed data demo.
-- Chưa có UI flow hoàn chỉnh.
+- Đã có seed user demo cho Auth: `quantri`, `quanly`, `nhanvien`.
+- Đã có UI flow đăng nhập và điều hướng theo role; các flow nghiệp vụ còn lại chưa hoàn chỉnh.
 
 Vì vậy, trạng thái hiện tại nên hiểu là: **nền project đã có, tính năng nghiệp vụ chưa hoàn thành**.
 
@@ -65,13 +65,12 @@ Vì vậy, trạng thái hiện tại nên hiểu là: **nền project đã có,
 
 Chi tiết task nằm trong `docs/development-task-list.md`. Thứ tự ưu tiên ngắn gọn:
 
-1. Tạo seed data demo.
-2. Implement Auth.
-3. Implement Shift.
-4. Implement Product/Search và Cart.
-5. Implement Cash Payment.
-6. Implement Invoice.
-7. Implement Inventory Sync, VNPay, Return, Report và Audit theo thứ tự demo.
+1. Bổ sung seed data demo còn thiếu: danh mục, sản phẩm, tồn kho và mã `GIAM10`.
+2. Implement Shift.
+3. Implement Product/Search và Cart.
+4. Implement Cash Payment.
+5. Implement Invoice.
+6. Implement Inventory Sync, VNPay, Return, Report và Audit theo thứ tự demo.
 
 ## Dữ liệu demo cần có
 
