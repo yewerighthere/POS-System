@@ -208,6 +208,8 @@ Thư mục: `SmartPOS.WPF/Views`
 
 Mỗi ViewModel nên có View tương ứng.
 
+- `LoginView`: giao diện split-screen theo thiết kế, có password toggle và binding về `LoginViewModel`.
+
 ### Control
 
 Thư mục: `SmartPOS.WPF/Controls`
