@@ -34,7 +34,7 @@ Vì vậy, trạng thái hiện tại nên hiểu là: **nền project đã có,
 | Mã | Tính năng | Trạng thái | Ghi chú |
 |---|---|---|---|
 | F-01 | Đăng nhập, đăng xuất, tạo tài khoản | Đã xong | Đã implement repository, AuthService với BCrypt/JWT, seed 3 user demo, LoginViewModel, LoginView theo thiết kế, điều hướng theo role và kiểm thử thủ công 3 tài khoản demo |
-| F-02 | Mở ca, đóng ca | Chưa làm | Đã có skeleton; cần implement ShiftService và lưu ca hiện tại |
+| F-02 | Mở ca, đóng ca | Đã xong | Đã implement IShiftRepository (GetOpenShiftAsync, GetByIdAsync, AddAsync, UpdateAsync, GetCashRevenueAsync, GetTotalSalesAsync), ShiftService (OpenShiftAsync, CloseShiftAsync, GetOpenShiftAsync, GetShiftSummaryAsync), ShiftViewModel với CommunityToolkit.Mvvm, ShiftView.xaml UI mở/đóng ca, lưu ca vào CurrentSessionContext; 5 unit test pass |
 | F-03 | Bán hàng: chọn sản phẩm, tìm kiếm, giỏ hàng, tính tiền | Chưa làm | Đã có skeleton ProductService/CartService/SalesViewModel; cần implement search, cart, kiểm tra tồn kho và UI |
 | F-04 | Khuyến mãi và giảm giá | Chưa làm | Entity `Promotion` đã có `Code`; cần implement validation, áp dụng mã và approval |
 | F-05 | Thanh toán tiền mặt | Chưa làm | Cần implement order/payment flow và trừ kho sau thanh toán |
@@ -66,8 +66,7 @@ Vì vậy, trạng thái hiện tại nên hiểu là: **nền project đã có,
 Chi tiết task nằm trong `docs/development-task-list.md`. Thứ tự ưu tiên ngắn gọn:
 
 1. Bổ sung seed data demo còn thiếu: danh mục, sản phẩm, tồn kho và mã `GIAM10`.
-2. Implement Shift.
-3. Implement Product/Search và Cart.
+2. Implement Product/Search và Cart.
 4. Implement Cash Payment.
 5. Implement Invoice.
 6. Implement Inventory Sync, VNPay, Return, Report và Audit theo thứ tự demo.
