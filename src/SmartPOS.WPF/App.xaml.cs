@@ -26,7 +26,9 @@ public partial class App : Application
         var services = new ServiceCollection();
         services.AddSingleton<IConfiguration>(configuration);
         services.AddLogging(builder => builder.AddSerilog(new LoggerConfiguration().WriteTo.File("logs/smartpos-.log", rollingInterval: RollingInterval.Day).CreateLogger()));
-        services.AddDbContext<AppDbContext>(options => options.UseNpgsql("Host=localhost;Port=5433;Database=smartpos;Username=postgres;Password=1"), ServiceLifetime.Transient);
+        var connectionString = configuration.GetConnectionString("DefaultConnection");
+        services.AddDbContext<AppDbContext>(options =>
+            options.UseNpgsql(connectionString, b => b.MigrationsAssembly("SmartPOS.Data")));
         services.AddTransient<IUserRepository, UserRepository>();
         services.AddTransient<IUserSessionRepository, UserSessionRepository>();
         services.AddTransient<IShiftRepository, ShiftRepository>();
