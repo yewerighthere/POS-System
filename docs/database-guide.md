@@ -196,6 +196,14 @@ Migration đầu tiên đã được tạo:
 src/SmartPOS.Data/Migrations/20260614115153_InitialCreate.cs
 ```
 
+Migration bổ sung hiện có:
+
+```text
+src/SmartPOS.Data/Migrations/20260618183830_AddUserContactFields.cs
+```
+
+Migration `AddUserContactFields` thêm `Email` và `PhoneNumber` cho bảng `Users`.
+
 Lệnh đã dùng:
 
 ```powershell

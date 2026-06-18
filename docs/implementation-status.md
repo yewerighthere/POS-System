@@ -22,7 +22,7 @@ Solution skeleton đã được scaffold:
 - Đã có DTO, enum, exception, entity, repository interface, service interface, ViewModel/View shell và API shell.
 - Business logic hầu hết chưa được implement.
 - Repository và service implementation hiện vẫn chủ yếu là stub.
-- Đã có migration POS đầu tiên `InitialCreate`.
+- Đã có migration POS `InitialCreate` và `AddUserContactFields`.
 - Đã apply migration POS vào PostgreSQL Docker container qua port `5433`.
 - Chưa có seed data demo.
 - Chưa có UI flow hoàn chỉnh.
@@ -33,7 +33,7 @@ Vì vậy, trạng thái hiện tại nên hiểu là: **nền project đã có,
 
 | Mã | Tính năng | Trạng thái | Ghi chú |
 |---|---|---|---|
-| F-01 | Đăng nhập, đăng xuất, tạo tài khoản | Chưa làm | Đã có skeleton DTO/service/ViewModel; cần implement AuthService, repository, seed user demo |
+| F-01 | Đăng nhập, đăng xuất, tạo tài khoản | Đã xong | Đã implement repository, AuthService với BCrypt/JWT, seed 3 user demo, LoginViewModel, LoginView theo thiết kế, điều hướng theo role và kiểm thử thủ công 3 tài khoản demo |
 | F-02 | Mở ca, đóng ca | Chưa làm | Đã có skeleton; cần implement ShiftService và lưu ca hiện tại |
 | F-03 | Bán hàng: chọn sản phẩm, tìm kiếm, giỏ hàng, tính tiền | Chưa làm | Đã có skeleton ProductService/CartService/SalesViewModel; cần implement search, cart, kiểm tra tồn kho và UI |
 | F-04 | Khuyến mãi và giảm giá | Chưa làm | Entity `Promotion` đã có `Code`; cần implement validation, áp dụng mã và approval |
@@ -54,12 +54,12 @@ Vì vậy, trạng thái hiện tại nên hiểu là: **nền project đã có,
 | Project | Trạng thái | Ghi chú |
 |---|---|---|
 | SmartPOS.Shared | Cần kiểm thử | Đã có enum, DTO, exception, constant; cần rà lại shape DTO khi implement thật |
-| SmartPOS.Data | Đang làm | Đã có entity, DbContext, design-time factory, migration đầu tiên và repository skeleton; repository chưa implement |
-| SmartPOS.Services | Đang làm | Đã có interface/implementation skeleton; chưa có business logic |
-| SmartPOS.WPF | Đang làm | Đã có shell, ViewModel/View placeholder, DI; chưa có UI flow thật |
+| SmartPOS.Data | Đang làm | Đã có entity, DbContext, design-time factory, migration POS và Auth repository; repository nghiệp vụ khác chưa implement |
+| SmartPOS.Services | Đang làm | AuthService đã có logic BCrypt/JWT; các service nghiệp vụ khác vẫn chủ yếu là skeleton |
+| SmartPOS.WPF | Đang làm | Login flow đã có giao diện theo thiết kế và điều hướng theo role; các màn hình còn lại vẫn placeholder/skeleton |
 | SmartPOS.CallbackApi | Đang làm | Đã có Minimal API shell; callback chỉ trả `OK` |
 | InventoryManager.Api | Đang làm | Đã có `InventoryDbContext`, entity inventory riêng, migration `InitialInventoryCreate` và controller shell; action chỉ trả `Ok()` |
-| SmartPOS.Tests | Đang làm | Đã có test class placeholder; chưa có test nghiệp vụ |
+| SmartPOS.Tests | Đang làm | AuthService đã có test nghiệp vụ và pass 14/14; các module khác vẫn cần bổ sung test |
 
 ## Việc nên làm tiếp theo
 

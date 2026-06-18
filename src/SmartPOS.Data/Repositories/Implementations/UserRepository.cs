@@ -1,4 +1,5 @@
-﻿using SmartPOS.Data.Entities;
+using Microsoft.EntityFrameworkCore;
+using SmartPOS.Data.Entities;
 using SmartPOS.Data.Repositories.Interfaces;
 
 namespace SmartPOS.Data.Repositories.Implementations;
@@ -12,24 +13,29 @@ public class UserRepository : IUserRepository
         _context = context;
     }
 
-    public Task<User?> GetByUsernameAsync(string username)
+    public async Task<User?> GetByUsernameAsync(string username)
     {
-        throw new NotImplementedException();
+        return await _context.Users
+            .FirstOrDefaultAsync(user => user.Username == username)
+            .ConfigureAwait(false);
     }
 
-    public Task<User?> GetByIdAsync(Guid id)
+    public async Task<User?> GetByIdAsync(Guid id)
     {
-        throw new NotImplementedException();
+        return await _context.Users
+            .FirstOrDefaultAsync(user => user.Id == id)
+            .ConfigureAwait(false);
     }
 
-    public Task AddAsync(User user)
+    public async Task AddAsync(User user)
     {
-        throw new NotImplementedException();
+        await _context.Users.AddAsync(user).ConfigureAwait(false);
+        await _context.SaveChangesAsync().ConfigureAwait(false);
     }
 
-    public Task UpdateAsync(User user)
+    public async Task UpdateAsync(User user)
     {
-        throw new NotImplementedException();
+        _context.Users.Update(user);
+        await _context.SaveChangesAsync().ConfigureAwait(false);
     }
 }
-
