@@ -137,14 +137,33 @@
 
     <Grid Margin="12">
         <Grid.RowDefinitions>
+            <!-- Top Header & Back to Shift Button -->
+            <RowDefinition Height="Auto"/>
             <!-- Header bar / Error bar -->
             <RowDefinition Height="Auto"/>
             <!-- Main grid area -->
             <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
 
+        <!-- Top Header Bar -->
+        <Grid Grid.Row="0" Margin="4,0,4,8">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="Auto"/>
+            </Grid.ColumnDefinitions>
+            <TextBlock Text="🖥️ MÀN HÌNH BÁN HÀNG (POS)" Foreground="#F3F4F6" FontSize="18" FontWeight="Bold" VerticalAlignment="Center"/>
+            <Button Grid.Column="1" 
+                    Content="🔑 Quản lý ca / Đóng ca" 
+                    Style="{StaticResource AccentButton}" 
+                    Background="#374151"
+                    Command="{Binding NavigateToShiftCommand}" 
+                    Height="36" 
+                    Padding="16,0"
+                    VerticalAlignment="Center"/>
+        </Grid>
+
         <!-- Notification / Error Messages -->
-        <Grid Grid.Row="0" Margin="4,0,4,8" Visibility="{Binding ErrorMessage, Converter={StaticResource NullOrEmptyToVisibilityConverter}, FallbackValue=Collapsed}">
+        <Grid Grid.Row="1" Margin="4,0,4,8" Visibility="{Binding ErrorMessage, Converter={StaticResource NullOrEmptyToVisibilityConverter}, FallbackValue=Collapsed}">
             <Border Background="#450A0A" BorderBrush="#991B1B" BorderThickness="1" CornerRadius="6" Padding="12,8">
                 <Grid>
                     <Grid.ColumnDefinitions>
@@ -159,7 +178,7 @@
         </Grid>
 
         <!-- Main Workspace split (Left: Products/Scanning | Right: Cart Summary) -->
-        <Grid Grid.Row="1">
+        <Grid Grid.Row="2">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="3*"/>
                 <ColumnDefinition Width="2*"/>
@@ -192,7 +211,8 @@
                                  Style="{StaticResource ModernTextBox}" 
                                  Text="{Binding BarcodeQuery, UpdateSourceTrigger=PropertyChanged}" 
                                  HorizontalAlignment="Stretch"
-                                 VerticalAlignment="Center">
+                                 VerticalAlignment="Center"
+                                 ToolTip="Nhập mã vạch sản phẩm, số điện thoại khách hàng, hoặc mã khuyến mãi rồi nhấn Enter">
                             <TextBox.InputBindings>
                                 <KeyBinding Key="Enter" Command="{Binding ScanBarcodeCommand}"/>
                             </TextBox.InputBindings>
@@ -403,6 +423,19 @@
                 <!-- 3. Cart Totals & Checkout -->
                 <Border Grid.Row="2" Style="{StaticResource CardBorder}" Padding="16">
                     <StackPanel>
+                        <!-- Row: Customer info -->
+                        <Grid Margin="0,4">
+                            <TextBlock Text="👤 Khách hàng:" Foreground="#9CA3AF"/>
+                            <TextBlock Text="{Binding CustomerInfo}" HorizontalAlignment="Right" FontWeight="SemiBold" Foreground="#3B82F6"/>
+                        </Grid>
+                        <!-- Row: Promotion info -->
+                        <Grid Margin="0,4">
+                            <TextBlock Text="🏷️ Khuyến mãi:" Foreground="#9CA3AF"/>
+                            <TextBlock Text="{Binding PromotionInfo}" HorizontalAlignment="Right" FontWeight="SemiBold" Foreground="#F59E0B"/>
+                        </Grid>
+                        
+                        <Separator Background="#2D2D35" Margin="0,8"/>
+
                         <!-- Row 1: Subtotal -->
                         <Grid Margin="0,4">
                             <TextBlock Text="Tạm tính:" Foreground="#9CA3AF"/>
@@ -436,7 +469,7 @@
                             <Button Grid.Column="0" 
                                     Content="Hủy Đơn" 
                                     Style="{StaticResource SecondaryButton}" 
-                                    Command="{Binding ClearCartCommand}" 
+                                    Command="{Binding CancelOrderCommand}" 
                                     Margin="0,0,6,0"
                                     Height="45"/>
                             <Button Grid.Column="1" 

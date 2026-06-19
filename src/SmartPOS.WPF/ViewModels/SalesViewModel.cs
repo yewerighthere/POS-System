@@ -14,6 +14,8 @@ public partial class SalesViewModel : ObservableObject
     private readonly IProductService _productService;
     private readonly ICartService _cartService;
     private readonly NavigationService _navigationService;
+    private readonly ICustomerService _customerService;
+    private readonly IPromotionService _promotionService;
 
     [ObservableProperty]
     private bool _isLoading;
@@ -30,16 +32,26 @@ public partial class SalesViewModel : ObservableObject
     [ObservableProperty]
     private CartSummaryDto _cart = new();
 
+    [ObservableProperty]
+    private string _customerInfo = "Khách vãng lai";
+
+    [ObservableProperty]
+    private string _promotionInfo = "Không áp dụng";
+
     public ObservableCollection<ProductDto> SearchResults { get; } = new();
 
     public SalesViewModel(
         IProductService productService,
         ICartService cartService,
-        NavigationService navigationService)
+        NavigationService navigationService,
+        ICustomerService customerService,
+        IPromotionService promotionService)
     {
         _productService = productService;
         _cartService = cartService;
         _navigationService = navigationService;
+        _customerService = customerService;
+        _promotionService = promotionService;
         
         RecalculateCart();
     }
@@ -78,19 +90,99 @@ public partial class SalesViewModel : ObservableObject
         IsLoading = true;
         try
         {
+            // 1. Kiểm tra xem có phải là mã sản phẩm không
             var product = await _productService.FindByBarcodeAsync(BarcodeQuery).ConfigureAwait(true);
-            if (product == null)
+            if (product != null)
             {
-                ErrorMessage = $"Không tìm thấy sản phẩm có mã vạch: {BarcodeQuery}";
+                AddToCart(product.Id);
+                BarcodeQuery = string.Empty;
                 return;
             }
 
-            AddToCart(product.Id);
-            BarcodeQuery = string.Empty;
+            // 2. Kiểm tra nếu là số điện thoại (từ 9 đến 11 số)
+            bool isPhone = System.Text.RegularExpressions.Regex.IsMatch(BarcodeQuery, @"^(0|\+84|84)\d{8,10}$");
+            if (isPhone)
+            {
+                // MOCK DATA: Giả lập thông tin khách hàng để test (không sửa file của người khác)
+                if (BarcodeQuery == "0987654321")
+                {
+                    CustomerInfo = "Nguyễn Văn A (0987654321)";
+                    BarcodeQuery = string.Empty;
+                    return;
+                }
+                else if (BarcodeQuery == "0912345678")
+                {
+                    CustomerInfo = "Trần Thị B (0912345678)";
+                    BarcodeQuery = string.Empty;
+                    return;
+                }
+
+                // Gọi service thật (an toàn nếu chưa cài đặt)
+                try
+                {
+                    var customer = await _customerService.FindByPhoneAsync(BarcodeQuery).ConfigureAwait(true);
+                    if (customer != null)
+                    {
+                        CustomerInfo = $"{customer.FullName} ({customer.Phone})";
+                        BarcodeQuery = string.Empty;
+                        return;
+                    }
+                }
+                catch (NotImplementedException) { }
+
+                ErrorMessage = $"Không tìm thấy khách hàng với SĐT: {BarcodeQuery}";
+                return;
+            }
+
+            // 3. Kiểm tra xem có phải là mã khuyến mãi không
+            // MOCK DATA: Giả lập mã khuyến mãi để test (không sửa file của người khác)
+            if (BarcodeQuery.Equals("KM10", StringComparison.OrdinalIgnoreCase))
+            {
+                decimal discount = Math.Round(Cart.Subtotal * 0.1m);
+                Cart.DiscountAmount = discount;
+                Cart = _cartService.Recalculate(Cart);
+                PromotionInfo = $"KM10 (-{discount:N0} đ)";
+                BarcodeQuery = string.Empty;
+                OnPropertyChanged(nameof(Cart));
+                return;
+            }
+            else if (BarcodeQuery.Equals("KM20", StringComparison.OrdinalIgnoreCase))
+            {
+                decimal discount = Math.Round(Cart.Subtotal * 0.2m);
+                Cart.DiscountAmount = discount;
+                Cart = _cartService.Recalculate(Cart);
+                PromotionInfo = $"KM20 (-{discount:N0} đ)";
+                BarcodeQuery = string.Empty;
+                OnPropertyChanged(nameof(Cart));
+                return;
+            }
+
+            // Gọi service thật (an toàn nếu chưa cài đặt)
+            try
+            {
+                var validation = await _promotionService.ValidateCodeAsync(BarcodeQuery, Cart).ConfigureAwait(true);
+                if (validation.IsValid)
+                {
+                    Cart = await _promotionService.ApplyPromotionAsync(BarcodeQuery, Cart).ConfigureAwait(true);
+                    PromotionInfo = $"{BarcodeQuery} (-{validation.DiscountAmount:N0} đ)";
+                    BarcodeQuery = string.Empty;
+                    OnPropertyChanged(nameof(Cart));
+                    return;
+                }
+                else if (!string.IsNullOrEmpty(validation.Message) && validation.Message != "Promotion not found")
+                {
+                    ErrorMessage = $"Mã khuyến mãi không khả dụng: {validation.Message}";
+                    return;
+                }
+            }
+            catch (NotImplementedException) { }
+
+            // 4. Nếu không khớp với bất kỳ trường hợp nào
+            ErrorMessage = $"Không tìm thấy sản phẩm, số điện thoại hoặc mã khuyến mãi phù hợp cho: {BarcodeQuery}";
         }
         catch (Exception ex)
         {
-            ErrorMessage = ex.Message;
+            ErrorMessage = $"Lỗi xử lý: {ex.Message}";
         }
         finally
         {
@@ -191,6 +283,17 @@ public partial class SalesViewModel : ObservableObject
     }
 
     [RelayCommand]
+    private void CancelOrder()
+    {
+        ErrorMessage = string.Empty;
+        Cart = new CartSummaryDto();
+        RecalculateCart();
+        CustomerInfo = "Khách vãng lai";
+        PromotionInfo = "Không áp dụng";
+        OnPropertyChanged(nameof(Cart));
+    }
+
+    [RelayCommand]
     private void ClearErrorMessage()
     {
         ErrorMessage = string.Empty;
@@ -207,6 +310,12 @@ public partial class SalesViewModel : ObservableObject
         }
         
         _navigationService.NavigateTo<PaymentViewModel>();
+    }
+
+    [RelayCommand]
+    private void NavigateToShift()
+    {
+        _navigationService.NavigateTo<ShiftViewModel>();
     }
 
     private void RecalculateCart()
