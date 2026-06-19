@@ -1,45 +1,43 @@
-﻿using Microsoft.Extensions.Logging;
+﻿using Microsoft.EntityFrameworkCore;
+using SmartPOS.Data.Entities;
 using SmartPOS.Data.Repositories.Interfaces;
-using SmartPOS.Services.Interfaces;
-using SmartPOS.Shared.DTOs.Auth;
-using SmartPOS.Shared.DTOs.Shift;
-using SmartPOS.Shared.DTOs.Product;
-using SmartPOS.Shared.DTOs.Cart;
-using SmartPOS.Shared.DTOs.Order;
-using SmartPOS.Shared.DTOs.Payment;
-using SmartPOS.Shared.DTOs.Invoice;
-using SmartPOS.Shared.DTOs.Customer;
-using SmartPOS.Shared.DTOs.Return;
-using SmartPOS.Shared.DTOs.Catalog;
-using SmartPOS.Shared.DTOs.Inventory;
-using SmartPOS.Shared.DTOs.Report;
-using SmartPOS.Shared.DTOs.Promotion;
-using SmartPOS.Shared.Enums;
 
-namespace SmartPOS.Services.Implementations;
+namespace SmartPOS.Data.Repositories.Implementations;
 
-public class CustomerService : ICustomerService
+public class CustomerRepository : ICustomerRepository
 {
-    private readonly ILogger<CustomerService> _logger;
+    private readonly AppDbContext _context;
 
-    public CustomerService(ILogger<CustomerService> logger)
+    public CustomerRepository(AppDbContext context)
     {
-        _logger = logger;
+        _context = context;
     }
 
-    public Task<CustomerDto?> FindByPhoneAsync(string phone)
+    public async Task<Customer?> GetByIdAsync(Guid id)
     {
-        throw new NotImplementedException();
+        return await _context.Customers.FirstOrDefaultAsync(c => c.Id == id);
     }
 
-    public Task<CustomerDto> CreateAsync(CreateCustomerDto dto)
+    public async Task<Customer?> GetByPhoneAsync(string phone)
     {
-        throw new NotImplementedException();
+        return await _context.Customers.FirstOrDefaultAsync(c => c.Phone == phone);
     }
 
-    public Task AddLoyaltyPointsAsync(Guid customerId, int points)
+    public async Task<Customer?> GetByMemberCodeAsync(string memberCode)
     {
-        throw new NotImplementedException();
+        return await _context.Customers.FirstOrDefaultAsync(c => c.MemberCode == memberCode);
+    }
+
+    public async Task AddAsync(Customer customer)
+    {
+        await _context.Customers.AddAsync(customer);
+        await _context.SaveChangesAsync();
+    }
+
+    public async Task UpdateAsync(Customer customer)
+    {
+        _context.Customers.Update(customer);
+        await _context.SaveChangesAsync();
     }
 }
 

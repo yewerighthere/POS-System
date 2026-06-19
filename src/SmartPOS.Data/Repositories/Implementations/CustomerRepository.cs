@@ -1,4 +1,5 @@
-﻿using SmartPOS.Data.Entities;
+﻿using Microsoft.EntityFrameworkCore;
+using SmartPOS.Data.Entities;
 using SmartPOS.Data.Repositories.Interfaces;
 
 namespace SmartPOS.Data.Repositories.Implementations;
@@ -12,24 +13,31 @@ public class CustomerRepository : ICustomerRepository
         _context = context;
     }
 
-    public Task<Customer?> GetByPhoneAsync(string phone)
+    public async Task<Customer?> GetByIdAsync(Guid id)
     {
-        throw new NotImplementedException();
+        return await _context.Customers.FirstOrDefaultAsync(c => c.Id == id);
     }
 
-    public Task<Customer?> GetByMemberCodeAsync(string memberCode)
+    public async Task<Customer?> GetByPhoneAsync(string phone)
     {
-        throw new NotImplementedException();
+        return await _context.Customers.FirstOrDefaultAsync(c => c.Phone == phone);
     }
 
-    public Task AddAsync(Customer customer)
+    public async Task<Customer?> GetByMemberCodeAsync(string memberCode)
     {
-        throw new NotImplementedException();
+        return await _context.Customers.FirstOrDefaultAsync(c => c.MemberCode == memberCode);
     }
 
-    public Task UpdateAsync(Customer customer)
+    public async Task AddAsync(Customer customer)
     {
-        throw new NotImplementedException();
+        await _context.Customers.AddAsync(customer);
+        await _context.SaveChangesAsync();
+    }
+
+    public async Task UpdateAsync(Customer customer)
+    {
+        _context.Customers.Update(customer);
+        await _context.SaveChangesAsync();
     }
 }
 
