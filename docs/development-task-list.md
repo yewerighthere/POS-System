@@ -53,15 +53,15 @@ Liên quan: F-01.
 
 Liên quan: F-02.
 
-- [ ] TASK-0201: Implement `IShiftRepository`.
-- [ ] TASK-0202: Implement `ShiftService.OpenShiftAsync`.
-- [ ] TASK-0203: Chặn mở ca mới nếu user còn ca đang mở.
-- [ ] TASK-0204: Implement `ShiftService.CloseShiftAsync`.
-- [ ] TASK-0205: Tính tiền mặt dự kiến khi đóng ca.
-- [ ] TASK-0206: Implement `ShiftService.GetOpenShiftAsync`.
-- [ ] TASK-0207: Implement `ShiftViewModel` mở ca, đóng ca.
-- [ ] TASK-0208: Lưu ca hiện tại vào `CurrentSessionContext`.
-- [ ] TASK-0209: Viết test cho mở ca, đóng ca, không cho mở trùng ca.
+- [x] TASK-0201: Implement `IShiftRepository`.
+- [x] TASK-0202: Implement `ShiftService.OpenShiftAsync`.
+- [x] TASK-0203: Chặn mở ca mới nếu user còn ca đang mở.
+- [x] TASK-0204: Implement `ShiftService.CloseShiftAsync`.
+- [x] TASK-0205: Tính tiền mặt dự kiến khi đóng ca.
+- [x] TASK-0206: Implement `ShiftService.GetOpenShiftAsync`.
+- [x] TASK-0207: Implement `ShiftViewModel` mở ca, đóng ca.
+- [x] TASK-0208: Lưu ca hiện tại vào `CurrentSessionContext`.
+- [x] TASK-0209: Viết test cho mở ca, đóng ca, không cho mở trùng ca.
 
 ## Phase 3 - Catalog, Product Và Inventory Seed
 
