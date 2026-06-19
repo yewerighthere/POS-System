@@ -1,50 +1,99 @@
-﻿using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Logging;
+using SmartPOS.Data.Entities;
 using SmartPOS.Data.Repositories.Interfaces;
 using SmartPOS.Services.Interfaces;
-using SmartPOS.Shared.DTOs.Auth;
 using SmartPOS.Shared.DTOs.Shift;
-using SmartPOS.Shared.DTOs.Product;
-using SmartPOS.Shared.DTOs.Cart;
-using SmartPOS.Shared.DTOs.Order;
-using SmartPOS.Shared.DTOs.Payment;
-using SmartPOS.Shared.DTOs.Invoice;
-using SmartPOS.Shared.DTOs.Customer;
-using SmartPOS.Shared.DTOs.Return;
-using SmartPOS.Shared.DTOs.Catalog;
-using SmartPOS.Shared.DTOs.Inventory;
-using SmartPOS.Shared.DTOs.Report;
-using SmartPOS.Shared.DTOs.Promotion;
 using SmartPOS.Shared.Enums;
+using SmartPOS.Shared.Exceptions;
 
 namespace SmartPOS.Services.Implementations;
 
 public class ShiftService : IShiftService
 {
+    private readonly IShiftRepository _shiftRepo;
     private readonly ILogger<ShiftService> _logger;
 
-    public ShiftService(ILogger<ShiftService> logger)
+    public ShiftService(IShiftRepository shiftRepo, ILogger<ShiftService> logger)
     {
+        _shiftRepo = shiftRepo;
         _logger = logger;
     }
 
-    public Task<ShiftDto> OpenShiftAsync(OpenShiftDto dto)
+    public async Task<ShiftDto> OpenShiftAsync(OpenShiftDto dto)
     {
-        throw new NotImplementedException();
+        if (dto.OpeningCash < 0)
+            throw new BusinessException("Tiền đầu ca không được âm");
+
+        var existing = await _shiftRepo.GetOpenShiftAsync(dto.UserId).ConfigureAwait(false);
+        if (existing is not null)
+            throw new BusinessException("Bạn đang có ca làm việc đang mở");
+
+        var shift = new Shift
+        {
+            Id = Guid.NewGuid(),
+            UserId = dto.UserId,
+            Status = ShiftStatus.Open,
+            OpeningCash = dto.OpeningCash,
+            OpenedAt = DateTime.UtcNow
+        };
+
+        await _shiftRepo.AddAsync(shift).ConfigureAwait(false);
+        _logger.LogInformation("Đã mở ca {ShiftId} cho nhân viên {UserId}", shift.Id, dto.UserId);
+
+        return MapToDto(shift);
     }
 
-    public Task<ShiftDto> CloseShiftAsync(CloseShiftDto dto)
+    public async Task<ShiftDto> CloseShiftAsync(CloseShiftDto dto)
     {
-        throw new NotImplementedException();
+        var shift = await _shiftRepo.GetByIdAsync(dto.ShiftId).ConfigureAwait(false)
+            ?? throw new BusinessException("Ca không tồn tại");
+
+        if (shift.Status != ShiftStatus.Open)
+            throw new BusinessException("Ca đã được đóng");
+
+        var cashRevenue = await _shiftRepo.GetCashRevenueAsync(dto.ShiftId).ConfigureAwait(false);
+        var expectedCash = shift.OpeningCash + cashRevenue;
+
+        shift.Status = ShiftStatus.Closed;
+        shift.ClosingCash = dto.ClosingCash;
+        shift.ExpectedCash = expectedCash;
+        shift.CashDifference = dto.ClosingCash - expectedCash;
+        shift.ClosedAt = DateTime.UtcNow;
+
+        await _shiftRepo.UpdateAsync(shift).ConfigureAwait(false);
+        _logger.LogInformation("Đã đóng ca {ShiftId}, chênh lệch tiền mặt: {Diff}", shift.Id, shift.CashDifference);
+
+        return MapToDto(shift);
     }
 
-    public Task<ShiftDto?> GetOpenShiftAsync(Guid userId)
+    public async Task<ShiftDto?> GetOpenShiftAsync(Guid userId)
     {
-        throw new NotImplementedException();
+        var shift = await _shiftRepo.GetOpenShiftAsync(userId).ConfigureAwait(false);
+        return shift is null ? null : MapToDto(shift);
     }
 
-    public Task<ShiftSummaryDto> GetShiftSummaryAsync(Guid shiftId)
+    public async Task<ShiftSummaryDto> GetShiftSummaryAsync(Guid shiftId)
     {
-        throw new NotImplementedException();
+        var shift = await _shiftRepo.GetByIdAsync(shiftId).ConfigureAwait(false)
+            ?? throw new BusinessException("Ca không tồn tại");
+
+        var totalSales = await _shiftRepo.GetTotalSalesAsync(shiftId).ConfigureAwait(false);
+        var cashRevenue = await _shiftRepo.GetCashRevenueAsync(shiftId).ConfigureAwait(false);
+
+        return new ShiftSummaryDto
+        {
+            ShiftId = shiftId,
+            TotalSales = totalSales,
+            ExpectedCash = shift.OpeningCash + cashRevenue
+        };
     }
+
+    private static ShiftDto MapToDto(Shift shift) => new()
+    {
+        Id = shift.Id,
+        UserId = shift.UserId,
+        Status = shift.Status.ToString(),
+        OpeningCash = shift.OpeningCash,
+        OpenedAt = shift.OpenedAt
+    };
 }
-

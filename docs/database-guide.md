@@ -54,6 +54,15 @@ src/InventoryManager.Api/appsettings.json
 src/SmartPOS.Data/AppDbContextFactory.cs
 ```
 
+Lưu ý:
+
+- `AppDbContext` không hard-code connection string. Khi chạy trong app, context đọc
+  `ConnectionStrings:DefaultConnection` từ `appsettings.json` của startup project.
+- `AppDbContextFactory` dùng cho EF design-time đọc POS connection string từ
+  `src/SmartPOS.WPF/appsettings.json`.
+- Nếu thiếu `ConnectionStrings:DefaultConnection`, context/factory phải báo lỗi thay vì fallback sang
+  connection string hard-code.
+
 ## Docker Compose
 
 File `docker-compose.yml` hiện dùng PostgreSQL 16:
@@ -187,6 +196,8 @@ src/SmartPOS.Data
 ```
 
 Project này có `AppDbContextFactory` để EF Core tạo được `AppDbContext` khi chạy migration.
+Factory này tìm root repository qua `SmartPOS.sln` và đọc `src/SmartPOS.WPF/appsettings.json` để lấy
+`ConnectionStrings:DefaultConnection`.
 
 ## Tạo Migration Đầu Tiên
 
@@ -195,6 +206,14 @@ Migration đầu tiên đã được tạo:
 ```text
 src/SmartPOS.Data/Migrations/20260614115153_InitialCreate.cs
 ```
+
+Migration bổ sung hiện có:
+
+```text
+src/SmartPOS.Data/Migrations/20260618183830_AddUserContactFields.cs
+```
+
+Migration `AddUserContactFields` thêm `Email` và `PhoneNumber` cho bảng `Users`.
 
 Lệnh đã dùng:
 
