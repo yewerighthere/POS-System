@@ -14,6 +14,7 @@ public partial class LoginViewModel : ObservableObject
 {
     private readonly IAuthService _authService;
     private readonly CurrentSessionContext _sessionContext;
+    private readonly NavigationService _navigationService;
     private readonly ILogger<LoginViewModel> _logger;
 
     [ObservableProperty]
@@ -27,7 +28,6 @@ public partial class LoginViewModel : ObservableObject
 
     [ObservableProperty]
     private string _errorMessage = string.Empty;
-
 
     public LoginViewModel(
         IAuthService authService,
