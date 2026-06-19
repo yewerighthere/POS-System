@@ -1,3 +1,33 @@
+<UserControl x:Class="SmartPOS.WPF.Views.LoginView" 
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" 
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:viewmodels="clr-namespace:SmartPOS.WPF.ViewModels"
+             mc:Ignorable="d"
+             d:DataContext="{d:DesignInstance Type=viewmodels:LoginViewModel}"
+             Background="#121214">
+    <Grid>
+        <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center">
+            <TextBlock Text="TODO: LoginView" FontSize="24" Foreground="#9CA3AF" HorizontalAlignment="Center" Margin="0,0,0,20" />
+            
+            <!-- Nút chuyển tạm thời để Thành Vinh test màn hình Bán hàng (F-03) -->
+            <Button Content="Vào Trang Bán Hàng (Test F-03)" 
+                    Command="{Binding GoToSalesCommand}" 
+                    Background="#3B82F6" 
+                    Foreground="White" 
+                    FontWeight="SemiBold" 
+                    Padding="16,10" 
+                    BorderThickness="0" 
+                    Cursor="Hand">
+                <Button.Resources>
+                    <Style TargetType="Border">
+                        <Setter Property="CornerRadius" Value="6"/>
+                    </Style>
+                </Button.Resources>
+            </Button>
+        </StackPanel>
+
 <UserControl x:Class="SmartPOS.WPF.Views.LoginView"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"

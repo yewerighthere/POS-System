@@ -2,6 +2,7 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Microsoft.Extensions.Logging;
 using SmartPOS.Services.Interfaces;
+using SmartPOS.WPF.Navigation;
 using SmartPOS.Shared.DTOs.Auth;
 using SmartPOS.Shared.Enums;
 using SmartPOS.Shared.Exceptions;
@@ -12,6 +13,7 @@ namespace SmartPOS.WPF.ViewModels;
 
 public partial class LoginViewModel : ObservableObject
 {
+    private readonly NavigationService _navigationService;
     private readonly IAuthService _authService;
     private readonly CurrentSessionContext _sessionContext;
     private readonly NavigationService _navigationService;
@@ -29,6 +31,9 @@ public partial class LoginViewModel : ObservableObject
     [ObservableProperty]
     private string _errorMessage = string.Empty;
 
+    public LoginViewModel(IAuthService authService, NavigationService navigationService)
+    {
+        _navigationService = navigationService;
     public LoginViewModel(
         IAuthService authService,
         CurrentSessionContext sessionContext,
@@ -85,5 +90,11 @@ public partial class LoginViewModel : ObservableObject
         }
 
         _navigationService.NavigateTo<SyncViewModel>();
+    }
+
+    [RelayCommand]
+    private void GoToSales()
+    {
+        _navigationService.NavigateTo<SalesViewModel>();
     }
 }
