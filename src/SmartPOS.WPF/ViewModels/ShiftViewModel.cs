@@ -66,16 +66,8 @@ public partial class ShiftViewModel : ObservableObject
         if (openShift is not null)
         {
             CurrentShift = openShift;
-            if (_session.CurrentShift is null)
-            {
-                _session.CurrentShift = openShift;
-                HasOpenShift = true;
-                _navigation.NavigateTo<SalesViewModel>();
-            }
-            else
-            {
-                HasOpenShift = true;
-            }
+            _session.CurrentShift = openShift;
+            HasOpenShift = true;
         }
     }
 
@@ -108,7 +100,6 @@ public partial class ShiftViewModel : ObservableObject
             CurrentShift = shift;
             _session.CurrentShift = shift;
             HasOpenShift = true;
-            _navigation.NavigateTo<SalesViewModel>();
         }
         catch (BusinessException ex)
         {
