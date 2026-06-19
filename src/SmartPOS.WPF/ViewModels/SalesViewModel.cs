@@ -1,11 +1,6 @@
-using System.Collections.ObjectModel;
-using CommunityToolkit.Mvvm.ComponentModel;
+﻿using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using SmartPOS.Services.Interfaces;
-using SmartPOS.Shared.DTOs.Cart;
-using SmartPOS.Shared.DTOs.Product;
-using SmartPOS.Shared.Exceptions;
-using SmartPOS.WPF.Navigation;
 
 namespace SmartPOS.WPF.ViewModels;
 
@@ -16,6 +11,7 @@ public partial class SalesViewModel : ObservableObject
     private readonly NavigationService _navigationService;
     private readonly ICustomerService _customerService;
     private readonly IPromotionService _promotionService;
+
 
     [ObservableProperty]
     private bool _isLoading;
@@ -58,26 +54,8 @@ public partial class SalesViewModel : ObservableObject
 
     [RelayCommand]
     private async Task SearchProductsAsync()
+    public SalesViewModel(IProductService productService, ICartService cartService)
     {
-        ErrorMessage = string.Empty;
-        IsLoading = true;
-        try
-        {
-            var result = await _productService.SearchAsync(SearchQuery).ConfigureAwait(true);
-            SearchResults.Clear();
-            foreach (var item in result.Products)
-            {
-                SearchResults.Add(item);
-            }
-        }
-        catch (Exception ex)
-        {
-            ErrorMessage = $"Lỗi tìm kiếm: {ex.Message}";
-        }
-        finally
-        {
-            IsLoading = false;
-        }
     }
 
     [RelayCommand]
@@ -319,16 +297,9 @@ public partial class SalesViewModel : ObservableObject
     }
 
     private void RecalculateCart()
+    private void Execute()
     {
-        try
-        {
-            Cart = _cartService.Recalculate(Cart);
-            OnPropertyChanged(nameof(Cart));
-        }
-        catch (Exception ex)
-        {
-            ErrorMessage = $"Lỗi tính toán giỏ hàng: {ex.Message}";
-        }
+        // TODO
     }
 }
 
