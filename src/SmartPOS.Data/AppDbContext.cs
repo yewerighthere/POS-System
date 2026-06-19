@@ -26,14 +26,15 @@ public class AppDbContext : DbContext
     public DbSet<Shift> Shifts => Set<Shift>();
     public DbSet<User> Users => Set<User>();
     public DbSet<UserSession> UserSessions => Set<UserSession>();
-    private string GetConnectionString()
+    private static string GetConnectionString()
     {
         IConfiguration config = new ConfigurationBuilder()
-             .SetBasePath(AppContext.BaseDirectory)
-                    .AddJsonFile("appsettings.json", true, true)
-                    .Build();
+            .SetBasePath(AppContext.BaseDirectory)
+            .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
+            .Build();
+
         return config.GetConnectionString("DefaultConnection")
-            ?? "Host=localhost;Port=5433;Database=smartpos;Username=postgres;Password=1";
+            ?? throw new InvalidOperationException("Missing ConnectionStrings:DefaultConnection in appsettings.json.");
     }
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {

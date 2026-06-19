@@ -171,10 +171,14 @@ Service implementation nằm trong `SmartPOS.Services/Implementations`.
 `MainWindow`.
 
 POS migration dùng `SmartPOS.Data/AppDbContextFactory` làm design-time factory theo `database-guide.md`.
+`AppDbContext` và `AppDbContextFactory` đều lấy POS connection string từ `appsettings.json`; không hard-code
+connection string trong code Data.
 `SmartPOS.WPF` vẫn tham chiếu `Microsoft.EntityFrameworkCore.Design` để hỗ trợ EF tooling khi cần dùng WPF làm startup project.
 
 Inventory sync is registered as a typed `HttpClient` service in WPF so manager/admin login can navigate to `SyncView`
 without duplicate DI registrations.
+
+Trong môi trường dev, WPF ghi log Serilog vào `logs/smartpos-yyyyMMdd.log` ở root repository nếu tìm thấy `SmartPOS.sln`.
 
 ### Session
 
@@ -189,7 +193,7 @@ without duplicate DI registrations.
 Thư mục: `SmartPOS.WPF/ViewModels`
 
 - `LoginViewModel`: đăng nhập, lưu `CurrentSessionContext` và điều hướng theo role.
-- `ShiftViewModel`: mở ca, đóng ca.
+- `ShiftViewModel`: mở ca, đóng ca, có `InitializeAsync` để tìm ca đang mở của user khi quay lại màn hình ca.
 - `SalesViewModel`: màn hình bán hàng, giả lập máy quét, giỏ hàng.
 - `PaymentViewModel`: tiền mặt và VNPay.
 - `InvoiceViewModel`: xem trước hóa đơn và giả lập in.
@@ -302,6 +306,9 @@ Tập trung kiểm thử Service:
 - `ReturnServiceTests`
 
 Dùng xUnit, Moq và FluentAssertions nếu đã được thêm vào project test.
+
+Hiện test suite có AuthServiceTests và ShiftServiceTests đang pass 18/18 khi chạy
+`dotnet test tests/SmartPOS.Tests/SmartPOS.Tests.csproj --no-build`.
 
 ## Cấu hình chính
 

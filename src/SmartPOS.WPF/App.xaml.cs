@@ -11,6 +11,7 @@ using SmartPOS.WPF.Navigation;
 using SmartPOS.WPF.Session;
 using SmartPOS.WPF.ViewModels;
 using SmartPOS.WPF.Views;
+using System.IO;
 using System.Windows;
 
 namespace SmartPOS.WPF;
@@ -28,7 +29,13 @@ public partial class App : Application
             .Build();
         var services = new ServiceCollection();
         services.AddSingleton<IConfiguration>(configuration);
-        services.AddLogging(builder => builder.AddSerilog(new LoggerConfiguration().WriteTo.File("logs/smartpos-.log", rollingInterval: RollingInterval.Day).CreateLogger()));
+        var logPath = Path.Combine(ResolveLogRoot(), "logs", "smartpos-.log");
+        Directory.CreateDirectory(Path.GetDirectoryName(logPath)!);
+        Log.Logger = new LoggerConfiguration()
+            .MinimumLevel.Information()
+            .WriteTo.File(logPath, rollingInterval: RollingInterval.Day)
+            .CreateLogger();
+        services.AddLogging(builder => builder.AddSerilog(Log.Logger, dispose: true));
         var connectionString = configuration.GetConnectionString("DefaultConnection");
         services.AddDbContext<AppDbContext>(options =>
             options.UseNpgsql(connectionString, b => b.MigrationsAssembly("SmartPOS.Data")));
@@ -91,6 +98,26 @@ public partial class App : Application
         services.AddTransient<MainWindow>();
         _serviceProvider = services.BuildServiceProvider();
         _serviceProvider.GetRequiredService<MainWindow>().Show();
+    }
+
+    protected override void OnExit(ExitEventArgs e)
+    {
+        Log.CloseAndFlush();
+        base.OnExit(e);
+    }
+
+    private static string ResolveLogRoot()
+    {
+        var directory = new DirectoryInfo(AppContext.BaseDirectory);
+        while (directory is not null)
+        {
+            if (File.Exists(Path.Combine(directory.FullName, "SmartPOS.sln")))
+                return directory.FullName;
+
+            directory = directory.Parent;
+        }
+
+        return AppContext.BaseDirectory;
     }
 }
 
