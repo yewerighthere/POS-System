@@ -17,6 +17,11 @@ namespace SmartPOS.Services.Interfaces;
 
 public interface IPaymentService
 {
-    Task<PaymentResultDto> RecordCashPaymentAsync(Guid orderId, decimal amountReceived, Guid userId); Task<PaymentResultDto> CreateVNPayRequestAsync(VNPayRequestDto dto); Task<PaymentResultDto> HandleVNPayCallbackAsync(VNPayCallbackDto dto); Task<PaymentStatus> GetOrderPaymentStatusAsync(Guid orderId); Task CancelVNPayAsync(Guid orderId);
+    Task<OrderDto> CreateOrderFromCartAsync(CartSummaryDto cart, Guid shiftId, Guid userId);
+    Task<PaymentResultDto> RecordCashPaymentAsync(Guid orderId, decimal amountReceived, Guid userId);
+    Task<PaymentResultDto> CreateVNPayRequestAsync(VNPayRequestDto dto);
+    Task<PaymentResultDto> HandleVNPayCallbackAsync(VNPayCallbackDto dto);
+    Task<PaymentStatus> GetOrderPaymentStatusAsync(Guid orderId);
+    Task CancelVNPayAsync(Guid orderId);
 }
 

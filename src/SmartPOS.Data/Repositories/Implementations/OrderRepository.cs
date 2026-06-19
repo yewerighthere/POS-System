@@ -1,4 +1,5 @@
-﻿using SmartPOS.Data.Entities;
+using Microsoft.EntityFrameworkCore;
+using SmartPOS.Data.Entities;
 using SmartPOS.Data.Repositories.Interfaces;
 
 namespace SmartPOS.Data.Repositories.Implementations;
@@ -12,29 +13,37 @@ public class OrderRepository : IOrderRepository
         _context = context;
     }
 
-    public Task<Order?> GetByIdAsync(Guid id)
+    public async Task<Order?> GetByIdAsync(Guid id)
     {
-        throw new NotImplementedException();
+        return await _context.Orders
+            .FirstOrDefaultAsync(o => o.Id == id)
+            .ConfigureAwait(false);
     }
 
-    public Task<Order?> GetByIdWithItemsAsync(Guid id)
+    public async Task<Order?> GetByIdWithItemsAsync(Guid id)
     {
-        throw new NotImplementedException();
+        return await _context.Orders
+            .Include(o => o.Items)
+            .FirstOrDefaultAsync(o => o.Id == id)
+            .ConfigureAwait(false);
     }
 
-    public Task AddAsync(Order order)
+    public async Task AddAsync(Order order)
     {
-        throw new NotImplementedException();
+        await _context.Orders.AddAsync(order).ConfigureAwait(false);
+        await _context.SaveChangesAsync().ConfigureAwait(false);
     }
 
-    public Task UpdateAsync(Order order)
+    public async Task UpdateAsync(Order order)
     {
-        throw new NotImplementedException();
+        _context.Orders.Update(order);
+        await _context.SaveChangesAsync().ConfigureAwait(false);
     }
 
-    public Task AddPaymentAsync(Order order, Payment payment)
+    public async Task AddPaymentAsync(Order order, Payment payment)
     {
-        throw new NotImplementedException();
+        _context.Orders.Update(order);
+        await _context.Payments.AddAsync(payment).ConfigureAwait(false);
+        await _context.SaveChangesAsync().ConfigureAwait(false);
     }
 }
-
