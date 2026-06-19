@@ -140,20 +140,18 @@ public partial class SalesViewModel : ObservableObject
             {
                 decimal discount = Math.Round(Cart.Subtotal * 0.1m);
                 Cart.DiscountAmount = discount;
-                Cart = _cartService.Recalculate(Cart);
+                UpdateCart(_cartService.Recalculate(Cart));
                 PromotionInfo = $"KM10 (-{discount:N0} đ)";
                 BarcodeQuery = string.Empty;
-                OnPropertyChanged(nameof(Cart));
                 return;
             }
             else if (BarcodeQuery.Equals("KM20", StringComparison.OrdinalIgnoreCase))
             {
                 decimal discount = Math.Round(Cart.Subtotal * 0.2m);
                 Cart.DiscountAmount = discount;
-                Cart = _cartService.Recalculate(Cart);
+                UpdateCart(_cartService.Recalculate(Cart));
                 PromotionInfo = $"KM20 (-{discount:N0} đ)";
                 BarcodeQuery = string.Empty;
-                OnPropertyChanged(nameof(Cart));
                 return;
             }
 
@@ -163,10 +161,9 @@ public partial class SalesViewModel : ObservableObject
                 var validation = await _promotionService.ValidateCodeAsync(BarcodeQuery, Cart).ConfigureAwait(true);
                 if (validation.IsValid)
                 {
-                    Cart = await _promotionService.ApplyPromotionAsync(BarcodeQuery, Cart).ConfigureAwait(true);
+                    UpdateCart(await _promotionService.ApplyPromotionAsync(BarcodeQuery, Cart).ConfigureAwait(true));
                     PromotionInfo = $"{BarcodeQuery} (-{validation.DiscountAmount:N0} đ)";
                     BarcodeQuery = string.Empty;
-                    OnPropertyChanged(nameof(Cart));
                     return;
                 }
                 else if (!string.IsNullOrEmpty(validation.Message) && validation.Message != "Promotion not found")
@@ -196,8 +193,7 @@ public partial class SalesViewModel : ObservableObject
         ErrorMessage = string.Empty;
         try
         {
-            Cart = _cartService.AddItem(productId, 1, Cart);
-            OnPropertyChanged(nameof(Cart));
+            UpdateCart(_cartService.AddItem(productId, 1, Cart));
         }
         catch (StockInsufficientException ex)
         {
@@ -220,8 +216,7 @@ public partial class SalesViewModel : ObservableObject
         ErrorMessage = string.Empty;
         try
         {
-            Cart = _cartService.UpdateItem(item.ProductId, item.Quantity + 1, Cart);
-            OnPropertyChanged(nameof(Cart));
+            UpdateCart(_cartService.UpdateItem(item.ProductId, item.Quantity + 1, Cart));
         }
         catch (StockInsufficientException ex)
         {
@@ -244,8 +239,7 @@ public partial class SalesViewModel : ObservableObject
         ErrorMessage = string.Empty;
         try
         {
-            Cart = _cartService.UpdateItem(item.ProductId, item.Quantity - 1, Cart);
-            OnPropertyChanged(nameof(Cart));
+            UpdateCart(_cartService.UpdateItem(item.ProductId, item.Quantity - 1, Cart));
         }
         catch (BusinessException ex)
         {
@@ -264,8 +258,7 @@ public partial class SalesViewModel : ObservableObject
         ErrorMessage = string.Empty;
         try
         {
-            Cart = _cartService.RemoveItem(item.ProductId, Cart);
-            OnPropertyChanged(nameof(Cart));
+            UpdateCart(_cartService.RemoveItem(item.ProductId, Cart));
         }
         catch (Exception ex)
         {
@@ -279,7 +272,6 @@ public partial class SalesViewModel : ObservableObject
         ErrorMessage = string.Empty;
         Cart = new CartSummaryDto();
         RecalculateCart();
-        OnPropertyChanged(nameof(Cart));
     }
 
     [RelayCommand]
@@ -290,7 +282,6 @@ public partial class SalesViewModel : ObservableObject
         RecalculateCart();
         CustomerInfo = "Khách vãng lai";
         PromotionInfo = "Không áp dụng";
-        OnPropertyChanged(nameof(Cart));
     }
 
     [RelayCommand]
@@ -318,12 +309,21 @@ public partial class SalesViewModel : ObservableObject
         _navigationService.NavigateTo<ShiftViewModel>();
     }
 
+    private void UpdateCart(CartSummaryDto newCart)
+    {
+        if (newCart != null)
+        {
+            newCart.Items = new ObservableCollection<CartItemDto>(newCart.Items);
+        }
+        Cart = newCart ?? new CartSummaryDto();
+        OnPropertyChanged(nameof(Cart));
+    }
+
     private void RecalculateCart()
     {
         try
         {
-            Cart = _cartService.Recalculate(Cart);
-            OnPropertyChanged(nameof(Cart));
+            UpdateCart(_cartService.Recalculate(Cart));
         }
         catch (Exception ex)
         {

@@ -153,9 +153,9 @@
             </Grid.ColumnDefinitions>
             <TextBlock Text="🖥️ MÀN HÌNH BÁN HÀNG (POS)" Foreground="#F3F4F6" FontSize="18" FontWeight="Bold" VerticalAlignment="Center"/>
             <Button Grid.Column="1" 
-                    Content="🔑 Quản lý ca / Đóng ca" 
+                    Content="🔒 Đóng ca" 
                     Style="{StaticResource AccentButton}" 
-                    Background="#374151"
+                    Background="#DC2626"
                     Command="{Binding NavigateToShiftCommand}" 
                     Height="36" 
                     Padding="16,0"
