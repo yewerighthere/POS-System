@@ -318,7 +318,7 @@ public partial class SalesViewModel : ObservableObject
     {
         if (newCart != null)
         {
-            newCart.Items = new ObservableCollection<CartItemDto>(newCart.Items);
+            newCart.Items = new List<CartItemDto>(newCart.Items);
         }
         Cart = newCart ?? new CartSummaryDto();
         OnPropertyChanged(nameof(Cart));

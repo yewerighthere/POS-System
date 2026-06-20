@@ -62,20 +62,33 @@ public partial class ShiftViewModel : ObservableObject
     {
         if (_session.CurrentUser is null) return;
 
-        var openShift = await _shiftService.GetOpenShiftAsync(_session.CurrentUser.UserId);
-        if (openShift is not null)
+        IsLoading = true;
+        try
         {
-            CurrentShift = openShift;
-            if (_session.CurrentShift is null)
+            var openShift = await _shiftService.GetOpenShiftAsync(_session.CurrentUser.UserId);
+            if (openShift is not null)
             {
-                _session.CurrentShift = openShift;
-                HasOpenShift = true;
-                _navigation.NavigateTo<SalesViewModel>();
+                CurrentShift = openShift;
+                if (_session.CurrentShift is null)
+                {
+                    _session.CurrentShift = openShift;
+                    HasOpenShift = true;
+                    _navigation.NavigateTo<SalesViewModel>();
+                }
+                else
+                {
+                    HasOpenShift = true;
+                }
             }
-            else
-            {
-                HasOpenShift = true;
-            }
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Lỗi khi khôi phục ca làm việc");
+            ErrorMessage = "Không thể kiểm tra ca làm việc, vui lòng thử lại";
+        }
+        finally
+        {
+            IsLoading = false;
         }
     }
 
