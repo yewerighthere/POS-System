@@ -6,17 +6,9 @@ namespace SmartPOS.WPF.Converters;
 
 public class NullOrEmptyToVisibilityConverter : IValueConverter
 {
-    public object Convert(object? value, Type targetType, object? parameter, CultureInfo culture)
-    {
-        if (value is string str)
-        {
-            return string.IsNullOrWhiteSpace(str) ? Visibility.Collapsed : Visibility.Visible;
-        }
-        return value == null ? Visibility.Collapsed : Visibility.Visible;
-    }
+    public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+        => value is string s && !string.IsNullOrEmpty(s) ? Visibility.Visible : Visibility.Collapsed;
 
-    public object ConvertBack(object? value, Type targetType, object? parameter, CultureInfo culture)
-    {
-        throw new NotImplementedException();
-    }
+    public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
+        => throw new NotSupportedException();
 }
