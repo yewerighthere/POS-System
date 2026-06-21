@@ -146,7 +146,7 @@ Thư mục: `SmartPOS.Data/Repositories/Interfaces`
 
 Thư mục interface: `SmartPOS.Services/Interfaces`
 
-- `IAuthService`: đăng nhập, đăng xuất, kiểm tra token, tạo tài khoản demo khi cần.
+- `IAuthService`: đăng nhập, đăng xuất, kiểm tra JWT, tạo tài khoản demo khi cần.
 - `IShiftService`: mở ca, đóng ca, lấy ca đang mở, tóm tắt ca.
 - `IProductService`: tìm sản phẩm theo mã, tìm kiếm sản phẩm.
 - `ICartService`: thêm, sửa, xóa, tính lại giỏ hàng.
@@ -170,6 +170,16 @@ Service implementation nằm trong `SmartPOS.Services/Implementations`.
 `App.xaml.cs` cấu hình DI, nạp cấu hình, đăng ký service, repository, ViewModel và mở
 `MainWindow`.
 
+POS migration dùng `SmartPOS.Data/AppDbContextFactory` làm design-time factory theo `database-guide.md`.
+`AppDbContext` và `AppDbContextFactory` đều lấy POS connection string từ `appsettings.json`; không hard-code
+connection string trong code Data.
+`SmartPOS.WPF` vẫn tham chiếu `Microsoft.EntityFrameworkCore.Design` để hỗ trợ EF tooling khi cần dùng WPF làm startup project.
+
+Inventory sync is registered as a typed `HttpClient` service in WPF so manager/admin login can navigate to `SyncView`
+without duplicate DI registrations.
+
+Trong môi trường dev, WPF ghi log Serilog vào `logs/smartpos-yyyyMMdd.log` ở root repository nếu tìm thấy `SmartPOS.sln`.
+
 ### Session
 
 `CurrentSessionContext` giữ người dùng hiện tại và ca đang mở.
@@ -182,8 +192,8 @@ Service implementation nằm trong `SmartPOS.Services/Implementations`.
 
 Thư mục: `SmartPOS.WPF/ViewModels`
 
-- `LoginViewModel`: đăng nhập và đăng xuất.
-- `ShiftViewModel`: mở ca, đóng ca.
+- `LoginViewModel`: đăng nhập, lưu `CurrentSessionContext` và điều hướng theo role.
+- `ShiftViewModel`: mở ca, đóng ca, có `InitializeAsync` để tìm ca đang mở của user khi quay lại màn hình ca.
 - `SalesViewModel`: màn hình bán hàng, giả lập máy quét, giỏ hàng.
 - `PaymentViewModel`: tiền mặt và VNPay.
 - `InvoiceViewModel`: xem trước hóa đơn và giả lập in.
@@ -201,6 +211,8 @@ Thư mục: `SmartPOS.WPF/ViewModels`
 Thư mục: `SmartPOS.WPF/Views`
 
 Mỗi ViewModel nên có View tương ứng.
+
+- `LoginView`: giao diện split-screen theo thiết kế, có password toggle và binding về `LoginViewModel`.
 
 ### Control
 
@@ -295,6 +307,9 @@ Tập trung kiểm thử Service:
 
 Dùng xUnit, Moq và FluentAssertions nếu đã được thêm vào project test.
 
+Hiện test suite có AuthServiceTests và ShiftServiceTests đang pass 18/18 khi chạy
+`dotnet test tests/SmartPOS.Tests/SmartPOS.Tests.csproj --no-build`.
+
 ## Cấu hình chính
 
 ### POS
@@ -308,6 +323,12 @@ Dùng xUnit, Moq và FluentAssertions nếu đã được thêm vào project tes
   },
   "InventoryManager": {
     "BaseUrl": "http://localhost:5001"
+  },
+  "Jwt": {
+    "Issuer": "SmartPOS",
+    "Audience": "SmartPOS.Client",
+    "SecretKey": "SmartPOS_Demo_Secret_Key_2026_ChangeMe",
+    "ExpiresMinutes": "480"
   },
   "VNPay": {
     "TmnCode": "YOUR_TMN_CODE",
@@ -345,7 +366,7 @@ services:
 ## Gói thư viện
 
 - WPF: CommunityToolkit.Mvvm, ModernWpfUI, Serilog, QRCoder.
-- Services: logging, HttpClient.
+- Services: logging, HttpClient, BCrypt.Net-Next, System.IdentityModel.Tokens.Jwt.
 - Data: Entity Framework Core, Npgsql.
 - CallbackApi: ASP.NET Core.
 - InventoryManager.Api: ASP.NET Core, Entity Framework Core, Npgsql.

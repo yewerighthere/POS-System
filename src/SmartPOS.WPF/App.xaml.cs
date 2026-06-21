@@ -11,6 +11,7 @@ using SmartPOS.WPF.Navigation;
 using SmartPOS.WPF.Session;
 using SmartPOS.WPF.ViewModels;
 using SmartPOS.WPF.Views;
+using System.IO;
 using System.Windows;
 
 namespace SmartPOS.WPF;
@@ -22,11 +23,22 @@ public partial class App : Application
     protected override async void OnStartup(StartupEventArgs e)
     {
         base.OnStartup(e);
-        var configuration = new ConfigurationBuilder().Build();
+        var configuration = new ConfigurationBuilder()
+            .SetBasePath(AppContext.BaseDirectory)
+            .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
+            .Build();
         var services = new ServiceCollection();
         services.AddSingleton<IConfiguration>(configuration);
-        services.AddLogging(builder => builder.AddSerilog(new LoggerConfiguration().WriteTo.File("logs/smartpos-.log", rollingInterval: RollingInterval.Day).CreateLogger()));
-        services.AddDbContext<AppDbContext>(options => options.UseNpgsql("Host=localhost;Port=5433;Database=smartpos;Username=postgres;Password=1"), ServiceLifetime.Transient);
+        var logPath = Path.Combine(ResolveLogRoot(), "logs", "smartpos-.log");
+        Directory.CreateDirectory(Path.GetDirectoryName(logPath)!);
+        Log.Logger = new LoggerConfiguration()
+            .MinimumLevel.Information()
+            .WriteTo.File(logPath, rollingInterval: RollingInterval.Day)
+            .CreateLogger();
+        services.AddLogging(builder => builder.AddSerilog(Log.Logger, dispose: true));
+        var connectionString = configuration.GetConnectionString("DefaultConnection");
+        services.AddDbContext<AppDbContext>(options =>
+            options.UseNpgsql(connectionString, b => b.MigrationsAssembly("SmartPOS.Data")));
         services.AddTransient<IUserRepository, UserRepository>();
         services.AddTransient<IUserSessionRepository, UserSessionRepository>();
         services.AddTransient<IShiftRepository, ShiftRepository>();
@@ -52,7 +64,6 @@ public partial class App : Application
         services.AddTransient<ICustomerService, CustomerService>();
         services.AddTransient<IReturnService, ReturnService>();
         services.AddTransient<ICatalogService, CatalogService>();
-        services.AddTransient<IInventorySyncService, InventorySyncService>();
         services.AddTransient<IReportService, ReportService>();
         services.AddTransient<IAuditService, AuditService>();
         services.AddHttpClient<IInventorySyncService, InventorySyncService>(client => client.BaseAddress = new Uri("http://localhost:5145"));
@@ -92,6 +103,26 @@ public partial class App : Application
             await DataSeeder.SeedAsync(db);
         }
         _serviceProvider.GetRequiredService<MainWindow>().Show();
+    }
+
+    protected override void OnExit(ExitEventArgs e)
+    {
+        Log.CloseAndFlush();
+        base.OnExit(e);
+    }
+
+    private static string ResolveLogRoot()
+    {
+        var directory = new DirectoryInfo(AppContext.BaseDirectory);
+        while (directory is not null)
+        {
+            if (File.Exists(Path.Combine(directory.FullName, "SmartPOS.sln")))
+                return directory.FullName;
+
+            directory = directory.Parent;
+        }
+
+        return AppContext.BaseDirectory;
     }
 }
 

@@ -22,14 +22,14 @@ namespace SmartPOS.Services.Implementations;
 
 public class InventorySyncService : IInventorySyncService
 {
-    private readonly ILogger<InventorySyncService> _logger;
     private readonly HttpClient _httpClient;
+    private readonly ILogger<InventorySyncService> _logger;
     private readonly IInventorySyncLogRepository _syncLogRepository;
 
     public InventorySyncService(ILogger<InventorySyncService> logger, HttpClient httpClient, IInventorySyncLogRepository syncLogRepository)
     {
-        _logger = logger;
         _httpClient = httpClient;
+        _logger = logger;
         _syncLogRepository = syncLogRepository;
     }
 
