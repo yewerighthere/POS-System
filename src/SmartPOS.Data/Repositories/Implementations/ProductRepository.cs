@@ -1,4 +1,5 @@
-﻿using SmartPOS.Data.Entities;
+﻿using Microsoft.EntityFrameworkCore;
+using SmartPOS.Data.Entities;
 using SmartPOS.Data.Repositories.Interfaces;
 
 namespace SmartPOS.Data.Repositories.Implementations;
@@ -12,34 +13,45 @@ public class ProductRepository : IProductRepository
         _context = context;
     }
 
-    public Task<Product?> GetByIdAsync(Guid id)
+    public async Task<Product?> GetByIdAsync(Guid id)
     {
-        throw new NotImplementedException();
+        return await _context.Products.FirstOrDefaultAsync(p => p.Id == id);
     }
 
-    public Task<Product?> GetByBarcodeAsync(string barcode)
+    public async Task<Product?> GetByBarcodeAsync(string barcode)
     {
-        throw new NotImplementedException();
+        return await _context.Products.FirstOrDefaultAsync(p => p.Barcode == barcode);
     }
 
-    public Task<Product?> GetByExternalIdAsync(string externalId)
+    public async Task<Product?> GetByExternalIdAsync(string externalId)
     {
-        throw new NotImplementedException();
+        return await _context.Products.FirstOrDefaultAsync(p => p.ExternalInventoryId == externalId);
     }
 
-    public Task<IReadOnlyList<Product>> SearchAsync(string keyword)
+    public async Task<IReadOnlyList<Product>> SearchAsync(string keyword)
     {
-        throw new NotImplementedException();
+        return await _context.Products
+            .Where(p => p.Name.Contains(keyword)
+                     || p.Sku.Contains(keyword)
+                     || (p.Barcode != null && p.Barcode.Contains(keyword))).ToListAsync();
     }
 
-    public Task AddAsync(Product product)
+    public async Task AddAsync(Product product)
     {
-        throw new NotImplementedException();
+        await _context.Products.AddAsync(product);
+        await _context.SaveChangesAsync();
     }
 
-    public Task UpdateAsync(Product product)
+    public async Task UpdateAsync(Product product)
     {
-        throw new NotImplementedException();
+        _context.Products.Update(product);
+        await _context.SaveChangesAsync();
+    }
+    public async Task<IReadOnlyList<Product>> GetAllAsync()
+    {
+        return await _context.Products
+            .OrderBy(p => p.Name)
+            .ToListAsync();
     }
 }
 

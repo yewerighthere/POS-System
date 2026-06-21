@@ -17,6 +17,6 @@ namespace SmartPOS.Services.Interfaces;
 
 public interface ICatalogService
 {
-    Task<IReadOnlyList<CategoryDto>> GetCategoriesAsync(); Task<CategoryDto> CreateCategoryAsync(CreateCategoryDto dto); Task<ProductDto> CreateProductAsync(CreateProductDto dto); Task<ProductDto> UpdatePriceAsync(UpdatePriceDto dto);
+    Task<IReadOnlyList<CategoryDto>> GetCategoriesAsync(); Task<CategoryDto> CreateCategoryAsync(CreateCategoryDto dto); Task<ProductDto> CreateProductAsync(CreateProductDto dto); Task<ProductDto> UpdatePriceAsync(UpdatePriceDto dto); Task<IReadOnlyList<ProductDto>> GetProductsAsync();
 }
 
