@@ -20,7 +20,7 @@ public partial class App : Application
 {
     private ServiceProvider _serviceProvider = null!;
 
-    protected override void OnStartup(StartupEventArgs e)
+    protected override async void OnStartup(StartupEventArgs e)
     {
         base.OnStartup(e);
         var configuration = new ConfigurationBuilder()
@@ -66,7 +66,7 @@ public partial class App : Application
         services.AddTransient<ICatalogService, CatalogService>();
         services.AddTransient<IReportService, ReportService>();
         services.AddTransient<IAuditService, AuditService>();
-        services.AddHttpClient<IInventorySyncService, InventorySyncService>(client => client.BaseAddress = new Uri("http://localhost:5001"));
+        services.AddHttpClient<IInventorySyncService, InventorySyncService>(client => client.BaseAddress = new Uri("http://localhost:5145"));
         services.AddSingleton<CurrentSessionContext>();
         services.AddSingleton<NavigationService>();
         services.AddTransient<LoginViewModel>();
@@ -97,6 +97,11 @@ public partial class App : Application
         services.AddTransient<UserManagementView>();
         services.AddTransient<MainWindow>();
         _serviceProvider = services.BuildServiceProvider();
+        using (var scope = _serviceProvider.CreateScope())
+        {
+            var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+            await DataSeeder.SeedAsync(db);
+        }
         _serviceProvider.GetRequiredService<MainWindow>().Show();
     }
 
