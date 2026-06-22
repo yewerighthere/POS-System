@@ -95,16 +95,16 @@ Liên quan: F-03.
 
 Liên quan: F-05.
 
-- [ ] TASK-0501: Implement `IOrderRepository`.
-- [ ] TASK-0502: Implement tạo order draft từ giỏ hàng.
-- [ ] TASK-0503: Implement `PaymentService.RecordCashPaymentAsync`.
-- [ ] TASK-0504: Chặn thanh toán nếu chưa mở ca.
-- [ ] TASK-0505: Chặn thanh toán nếu tiền khách đưa không đủ.
-- [ ] TASK-0506: Cập nhật `OrderStatus`, `PaymentStatus`, `PaymentMethod` sau khi thanh toán.
-- [ ] TASK-0507: Ghi payment record.
-- [ ] TASK-0508: Gửi sự kiện trừ kho sau khi thanh toán thành công.
-- [ ] TASK-0509: Implement `PaymentViewModel` cho tiền mặt.
-- [ ] TASK-0510: Viết test thanh toán tiền mặt thành công, thiếu tiền, order bị khóa.
+- [x] TASK-0501: Implement `IOrderRepository`.
+- [x] TASK-0502: Implement tạo order draft từ giỏ hàng.
+- [x] TASK-0503: Implement `PaymentService.RecordCashPaymentAsync`.
+- [x] TASK-0504: Chặn thanh toán nếu chưa mở ca.
+- [x] TASK-0505: Chặn thanh toán nếu tiền khách đưa không đủ.
+- [x] TASK-0506: Cập nhật `OrderStatus`, `PaymentStatus`, `PaymentMethod` sau khi thanh toán.
+- [x] TASK-0507: Ghi payment record.
+- [x] TASK-0508: Gửi sự kiện trừ kho sau khi thanh toán thành công.
+- [x] TASK-0509: Implement `PaymentViewModel` cho tiền mặt.
+- [x] TASK-0510: Viết test thanh toán tiền mặt thành công, thiếu tiền, order bị khóa.
 
 ## Phase 6 - VNPay Callback
 

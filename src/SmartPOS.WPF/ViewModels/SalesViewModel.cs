@@ -6,6 +6,7 @@ using SmartPOS.Shared.DTOs.Cart;
 using SmartPOS.Shared.DTOs.Product;
 using SmartPOS.Shared.Exceptions;
 using SmartPOS.WPF.Navigation;
+using SmartPOS.WPF.Session;
 
 namespace SmartPOS.WPF.ViewModels;
 
@@ -16,6 +17,7 @@ public partial class SalesViewModel : ObservableObject
     private readonly NavigationService _navigationService;
     private readonly ICustomerService _customerService;
     private readonly IPromotionService _promotionService;
+    private readonly CurrentSessionContext _session;
 
     [ObservableProperty]
     private bool _isLoading;
@@ -45,14 +47,16 @@ public partial class SalesViewModel : ObservableObject
         ICartService cartService,
         NavigationService navigationService,
         ICustomerService customerService,
-        IPromotionService promotionService)
+        IPromotionService promotionService,
+        CurrentSessionContext session)
     {
         _productService = productService;
         _cartService = cartService;
         _navigationService = navigationService;
         _customerService = customerService;
         _promotionService = promotionService;
-        
+        _session = session;
+
         RecalculateCart();
     }
 
@@ -299,7 +303,8 @@ public partial class SalesViewModel : ObservableObject
             ErrorMessage = "Giỏ hàng đang trống. Không thể thanh toán.";
             return;
         }
-        
+
+        _session.CurrentCart = Cart;
         _navigationService.NavigateTo<PaymentViewModel>();
     }
 
