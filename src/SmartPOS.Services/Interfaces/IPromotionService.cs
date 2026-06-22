@@ -1,4 +1,4 @@
-﻿using SmartPOS.Shared.DTOs.Auth;
+using SmartPOS.Shared.DTOs.Auth;
 using SmartPOS.Shared.DTOs.Shift;
 using SmartPOS.Shared.DTOs.Product;
 using SmartPOS.Shared.DTOs.Cart;
@@ -35,6 +35,7 @@ public interface IPromotionService
 
     // CRUD
     Task DeleteAsync(Guid id);
+    Task UpdateAsync(PromotionDto dto);
 
     // INDIVIDUAL UPDATES
     Task UpdateCodeAsync(Guid id, string code);

@@ -1,4 +1,4 @@
-﻿using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Logging;
 using SmartPOS.Data.Entities;
 using SmartPOS.Data.Repositories.Interfaces;
 using SmartPOS.Services.Interfaces;
@@ -144,6 +144,29 @@ public class PromotionService : IPromotionService
     public async Task DeleteAsync(Guid id)
     {
         await _promotionRepository.DeleteAsync(id);
+    }
+
+    public async Task UpdateAsync(PromotionDto dto)
+    {
+        var promotion = await _promotionRepository.GetByIdAsync(dto.Id);
+        if (promotion != null)
+        {
+            promotion.Code = dto.Code;
+            promotion.Name = dto.Name;
+            promotion.Description = dto.Description;
+            promotion.Type = dto.Type;
+            promotion.DiscountValue = dto.DiscountValue;
+            promotion.MinOrderAmount = dto.MinOrderAmount;
+            promotion.StartDate = dto.StartDate;
+            promotion.EndDate = dto.EndDate;
+            promotion.IsActive = dto.IsActive;
+            
+            await _promotionRepository.UpdateAsync(promotion);
+        }
+        else
+        {
+            throw new Exception("Promotion not found.");
+        }
     }
 
     public async Task UpdateCodeAsync(Guid id, string code)

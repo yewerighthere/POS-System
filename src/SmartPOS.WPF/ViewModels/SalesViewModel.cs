@@ -40,6 +40,9 @@ public partial class SalesViewModel : ObservableObject
     [ObservableProperty]
     private string _promotionInfo = "Không áp dụng";
 
+    [ObservableProperty]
+    private string? _customerPhoneInput;
+
     public ObservableCollection<ProductDto> SearchResults { get; } = new();
 
     public SalesViewModel(
@@ -57,6 +60,21 @@ public partial class SalesViewModel : ObservableObject
         _promotionService = promotionService;
         _session = session;
 
+        if (_session.CurrentCart != null)
+        {
+            Cart = _session.CurrentCart;
+        }
+        
+        if (!string.IsNullOrEmpty(_session.CustomerPhoneInput))
+        {
+            CustomerPhoneInput = _session.CustomerPhoneInput;
+        }
+        
+        if (!string.IsNullOrEmpty(_session.CustomerInfo))
+        {
+            CustomerInfo = _session.CustomerInfo;
+        }
+        
         RecalculateCart();
     }
 
@@ -312,6 +330,57 @@ public partial class SalesViewModel : ObservableObject
     private void NavigateToShift()
     {
         _navigationService.NavigateTo<ShiftViewModel>();
+    }
+
+    [RelayCommand]
+    private async Task ApplyCustomerAsync()
+    {
+        ErrorMessage = string.Empty;
+        if (string.IsNullOrWhiteSpace(CustomerPhoneInput))
+        {
+            ErrorMessage = "Vui lòng nhập số điện thoại.";
+            return;
+        }
+
+        try
+        {
+            IsLoading = true;
+            var customer = await _customerService.FindByPhoneAsync(CustomerPhoneInput).ConfigureAwait(true);
+            if (customer != null)
+            {
+                string displayName = !string.IsNullOrWhiteSpace(customer.FullName) ? customer.FullName : (customer.MemberCode ?? "Khách hàng");
+                CustomerInfo = $"{displayName} ({customer.Phone})";
+                _session.CustomerInfo = CustomerInfo;
+                _session.CustomerPhoneInput = CustomerPhoneInput;
+            }
+            else
+            {
+                var result = System.Windows.MessageBox.Show(
+                    "Thông tin customer không tồn tại, bạn có muốn tạo customer mới không?",
+                    "Không tìm thấy",
+                    System.Windows.MessageBoxButton.YesNo,
+                    System.Windows.MessageBoxImage.Question);
+
+                if (result == System.Windows.MessageBoxResult.Yes)
+                {
+                    _session.CurrentCart = Cart;
+                    _session.CustomerPhoneInput = CustomerPhoneInput;
+                    _session.CustomerInfo = CustomerInfo;
+                    
+                    // Dispatch to UI thread if we used ConfigureAwait(true), but since we are in WPF, MessageBox blocks the UI thread.
+                    // To avoid thread issues with navigation, we just navigate normally.
+                    _navigationService.NavigateTo<CustomerViewModel>();
+                }
+            }
+        }
+        catch (Exception ex)
+        {
+            ErrorMessage = $"Lỗi tìm khách hàng: {ex.Message}";
+        }
+        finally
+        {
+            IsLoading = false;
+        }
     }
 
     private void UpdateCart(CartSummaryDto newCart)

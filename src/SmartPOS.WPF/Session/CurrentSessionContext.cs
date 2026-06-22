@@ -12,6 +12,9 @@ public class CurrentSessionContext
     public ShiftDto? CurrentShift { get; set; }
     public CartSummaryDto? CurrentCart { get; set; }
     public Guid? PendingOrderId { get; set; }
+    public Guid? SelectedPromotionId { get; set; }
+    public string? CustomerPhoneInput { get; set; }
+    public string? CustomerInfo { get; set; }
     public bool IsAuthenticated => CurrentUser is not null;
     public bool HasOpenShift => CurrentShift is not null;
 

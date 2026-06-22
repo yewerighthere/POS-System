@@ -1,4 +1,4 @@
-﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Serilog;
@@ -78,6 +78,7 @@ public partial class App : Application
         services.AddTransient<ReturnViewModel>();
         services.AddTransient<CatalogViewModel>();
         services.AddTransient<PromotionViewModel>();
+        services.AddTransient<PromotionDetailViewModel>();
         services.AddTransient<ReportViewModel>();
         services.AddTransient<AuditLogViewModel>();
         services.AddTransient<SyncViewModel>();
@@ -91,6 +92,7 @@ public partial class App : Application
         services.AddTransient<ReturnView>();
         services.AddTransient<CatalogView>();
         services.AddTransient<PromotionView>();
+        services.AddTransient<PromotionDetailView>();
         services.AddTransient<ReportView>();
         services.AddTransient<AuditLogView>();
         services.AddTransient<SyncView>();

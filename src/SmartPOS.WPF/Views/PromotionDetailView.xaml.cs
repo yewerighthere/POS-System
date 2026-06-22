@@ -2,9 +2,9 @@ using System.Windows.Controls;
 
 namespace SmartPOS.WPF.Views;
 
-public partial class CustomerView : UserControl
+public partial class PromotionDetailView : UserControl
 {
-    public CustomerView()
+    public PromotionDetailView()
     {
         InitializeComponent();
     }

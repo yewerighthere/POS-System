@@ -423,6 +423,28 @@
                 <!-- 3. Cart Totals & Checkout -->
                 <Border Grid.Row="2" Style="{StaticResource CardBorder}" Padding="16">
                     <StackPanel>
+                        <!-- Phone Input -->
+                        <Grid Margin="0,0,0,12">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="Auto"/>
+                            </Grid.ColumnDefinitions>
+                            <TextBox Grid.Column="0" 
+                                     Style="{StaticResource ModernTextBox}" 
+                                     Text="{Binding CustomerPhoneInput, UpdateSourceTrigger=PropertyChanged}" 
+                                     Padding="8,6" 
+                                     ToolTip="Nhập SĐT khách tích điểm...">
+                                <TextBox.InputBindings>
+                                    <KeyBinding Key="Enter" Command="{Binding ApplyCustomerCommand}"/>
+                                </TextBox.InputBindings>
+                            </TextBox>
+                            <Button Grid.Column="1" 
+                                    Content="Áp dụng" 
+                                    Style="{StaticResource AccentButton}" 
+                                    Command="{Binding ApplyCustomerCommand}" 
+                                    Margin="6,0,0,0" 
+                                    Padding="12,4"/>
+                        </Grid>
                         <!-- Row: Customer info -->
                         <Grid Margin="0,4">
                             <TextBlock Text="👤 Khách hàng:" Foreground="#9CA3AF"/>

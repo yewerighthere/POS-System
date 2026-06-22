@@ -1,43 +1,68 @@
-﻿using Microsoft.EntityFrameworkCore;
-using SmartPOS.Data.Entities;
+using System;
+using System.Threading.Tasks;
+using SmartPOS.Services.Interfaces;
+using SmartPOS.Shared.DTOs.Customer;
 using SmartPOS.Data.Repositories.Interfaces;
+using SmartPOS.Data.Entities;
 
-namespace SmartPOS.Data.Repositories.Implementations;
+namespace SmartPOS.Services.Implementations;
 
-public class CustomerRepository : ICustomerRepository
+public class CustomerService : ICustomerService
 {
-    private readonly AppDbContext _context;
+    private readonly ICustomerRepository _customerRepository;
 
-    public CustomerRepository(AppDbContext context)
+    public CustomerService(ICustomerRepository customerRepository)
     {
-        _context = context;
+        _customerRepository = customerRepository;
     }
 
-    public async Task<Customer?> GetByIdAsync(Guid id)
+    public async Task<CustomerDto?> FindByPhoneAsync(string phone)
     {
-        return await _context.Customers.FirstOrDefaultAsync(c => c.Id == id);
+        // Simple mock implementation for now to make it build
+        var customer = await _customerRepository.GetByPhoneAsync(phone);
+        if (customer == null) return null;
+        
+        return new CustomerDto
+        {
+            Id = customer.Id,
+            Phone = customer.Phone,
+            MemberCode = customer.MemberCode ?? string.Empty
+        };
     }
 
-    public async Task<Customer?> GetByPhoneAsync(string phone)
+    public async Task<CustomerDto> CreateAsync(CreateCustomerDto dto)
     {
-        return await _context.Customers.FirstOrDefaultAsync(c => c.Phone == phone);
+        var newCustomer = new Customer
+        {
+            Id = Guid.NewGuid(),
+            FullName = dto.FullName,
+            Email = dto.Email,
+            Phone = dto.Phone,
+            MemberCode = dto.Phone // fallback
+        };
+        await _customerRepository.AddAsync(newCustomer);
+        
+        return new CustomerDto
+        {
+            Id = newCustomer.Id,
+            FullName = newCustomer.FullName,
+            Phone = newCustomer.Phone,
+            MemberCode = newCustomer.MemberCode
+        };
     }
 
-    public async Task<Customer?> GetByMemberCodeAsync(string memberCode)
+    public async Task AddLoyaltyPointsAsync(Guid customerId, int points)
     {
-        return await _context.Customers.FirstOrDefaultAsync(c => c.MemberCode == memberCode);
+        var customer = await _customerRepository.GetByIdAsync(customerId);
+        if (customer != null)
+        {
+            customer.LoyaltyPoints += points;
+            await _customerRepository.UpdateAsync(customer);
+        }
     }
 
-    public async Task AddAsync(Customer customer)
+    public int CalculatePoints(decimal subtotal)
     {
-        await _context.Customers.AddAsync(customer);
-        await _context.SaveChangesAsync();
-    }
-
-    public async Task UpdateAsync(Customer customer)
-    {
-        _context.Customers.Update(customer);
-        await _context.SaveChangesAsync();
+        return (int)(subtotal / 100);
     }
 }
-
