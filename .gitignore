@@ -4,13 +4,18 @@ target/
 *.jar
 *.war
 
+# .NET / Visual Studio
+bin/
+obj/
+.vs/
+*.user
+.vscode/
+
 # IDE
 .idea/
-.vscode/
 *.swp
 *.swo
 *~
-.DS_Store
 
 # Logs
 logs/

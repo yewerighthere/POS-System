@@ -1,0 +1,14 @@
+﻿using SmartPOS.Data.Entities;
+
+namespace SmartPOS.Data.Repositories.Interfaces;
+
+public interface IShiftRepository
+{
+    Task<Shift?> GetOpenShiftAsync(Guid userId);
+    Task<Shift?> GetByIdAsync(Guid id);
+    Task AddAsync(Shift shift);
+    Task UpdateAsync(Shift shift);
+    Task<decimal> GetCashRevenueAsync(Guid shiftId);
+    Task<decimal> GetTotalSalesAsync(Guid shiftId);
+}
+
