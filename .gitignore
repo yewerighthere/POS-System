@@ -1,0 +1,29 @@
+# Maven
+target/
+.m2/
+*.jar
+*.war
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+.DS_Store
+
+# Logs
+logs/
+*.log
+
+# Build
+build/
+dist/
+
+# Node (if applicable)
+node_modules/
+npm-debug.log
+
+# OS
+.DS_Store
+Thumbs.db
