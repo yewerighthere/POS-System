@@ -17,6 +17,6 @@ namespace SmartPOS.Services.Interfaces;
 
 public interface ICustomerService
 {
-    Task<CustomerDto?> FindByPhoneAsync(string phone); Task<CustomerDto> CreateAsync(CreateCustomerDto dto); Task AddLoyaltyPointsAsync(Guid customerId, int points);
+    Task<CustomerDto?> FindByPhoneAsync(string phone); Task<CustomerDto> CreateAsync(CreateCustomerDto dto); Task AddLoyaltyPointsAsync(Guid customerId, int points); int CalculatePoints(decimal subtotal);
 }
 

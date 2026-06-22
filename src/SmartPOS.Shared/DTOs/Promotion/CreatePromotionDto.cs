@@ -1,7 +1,7 @@
-﻿namespace SmartPOS.Shared.DTOs.Promotion;
+namespace SmartPOS.Shared.DTOs.Promotion;
 
-public class PromotionDto { 
-    public Guid Id { get; set; }
+public class CreatePromotionDto
+{
     public string Code { get; set; } = string.Empty;
     public string Name { get; set; } = string.Empty;
     public string? Description { get; set; }
@@ -12,4 +12,3 @@ public class PromotionDto {
     public DateOnly EndDate { get; set; }
     public bool IsActive { get; set; } = true;
 }
-
