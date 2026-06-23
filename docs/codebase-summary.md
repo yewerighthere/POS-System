@@ -175,8 +175,8 @@ POS migration dùng `SmartPOS.Data/AppDbContextFactory` làm design-time factory
 connection string trong code Data.
 `SmartPOS.WPF` vẫn tham chiếu `Microsoft.EntityFrameworkCore.Design` để hỗ trợ EF tooling khi cần dùng WPF làm startup project.
 
-Inventory sync is registered as a typed `HttpClient` service in WPF so manager/admin login can navigate to `SyncView`
-without duplicate DI registrations.
+Inventory sync is registered as a typed `HttpClient` service in WPF and reads `InventoryManager:BaseUrl`
+from `appsettings.json`. The current demo port is `http://localhost:5145`.
 
 Trong môi trường dev, WPF ghi log Serilog vào `logs/smartpos-yyyyMMdd.log` ở root repository nếu tìm thấy `SmartPOS.sln`.
 
@@ -186,7 +186,8 @@ Trong môi trường dev, WPF ghi log Serilog vào `logs/smartpos-yyyyMMdd.log` 
 
 ### Navigation
 
-`NavigationService` điều hướng giữa các màn hình bằng ViewModel.
+`NavigationService` điều hướng giữa các màn hình bằng ViewModel. Nếu ViewModel chưa được map sang View,
+service hiện ném `NotImplementedException`.
 
 ### ViewModel
 
@@ -196,15 +197,15 @@ Thư mục: `SmartPOS.WPF/ViewModels`
 - `ShiftViewModel`: mở ca, đóng ca, có `InitializeAsync` để tìm ca đang mở của user khi quay lại màn hình ca.
 - `SalesViewModel`: màn hình bán hàng, giả lập máy quét, giỏ hàng.
 - `PaymentViewModel`: tiền mặt và VNPay.
-- `InvoiceViewModel`: xem trước hóa đơn và giả lập in.
-- `CustomerViewModel`: tìm và tạo khách hàng.
-- `ReturnViewModel`: tạo, duyệt, từ chối trả hàng.
+- `InvoiceViewModel`: hiện còn TODO.
+- `CustomerViewModel`: hiện còn TODO.
+- `ReturnViewModel`: hiện còn TODO.
 - `CatalogViewModel`: danh mục, sản phẩm, giá.
-- `PromotionViewModel`: khuyến mãi.
-- `ReportViewModel`: báo cáo.
-- `AuditLogViewModel`: nhật ký thao tác.
-- `SyncViewModel`: đồng bộ Inventory Manager.
-- `UserManagementViewModel`: tạo tài khoản khi demo cần.
+- `PromotionViewModel`: hiện còn TODO.
+- `ReportViewModel`: hiện còn TODO.
+- `AuditLogViewModel`: hiện còn TODO.
+- `SyncViewModel`: hiện còn TODO.
+- `UserManagementViewModel`: hiện còn TODO.
 
 ### View
 
@@ -213,10 +214,14 @@ Thư mục: `SmartPOS.WPF/Views`
 Mỗi ViewModel nên có View tương ứng.
 
 - `LoginView`: giao diện split-screen theo thiết kế, có password toggle và binding về `LoginViewModel`.
+- `ShiftView`, `SalesView`, `PaymentView`, `CatalogView`: đã có UI mức cơ bản.
+- `InvoiceView`, `CustomerView`, `ReturnView`, `PromotionView`, `ReportView`, `AuditLogView`, `SyncView`, `UserManagementView`: hiện vẫn là placeholder TODO.
 
-### Control
+### Control Dự Kiến
 
 Thư mục: `SmartPOS.WPF/Controls`
+
+Thư mục control riêng hiện chưa có trong source. Các control dưới đây là hướng tách UI sau này nếu cần:
 
 - `CartItemControl`
 - `ProductSearchBox`
@@ -231,8 +236,10 @@ Thư mục: `SmartPOS.WPF/Converters`
 
 - `BoolToVisibilityConverter`
 - `StringToVisibilityConverter`
-- `CurrencyFormatter`
-- `InverseBoolConverter`
+- `NullToVisibilityConverter`
+- `NullOrEmptyToVisibilityConverter`
+- `DecimalToVisibilityConverter`
+- `InverseBoolToVisibilityConverter`
 
 ## SmartPOS.CallbackApi
 
@@ -244,12 +251,11 @@ Endpoint:
 POST /api/vnpay/callback
 ```
 
-Nhiệm vụ:
+Trạng thái hiện tại:
 
-- Đọc form callback.
-- Kiểm tra chữ ký VNPay.
-- Gọi `IPaymentService.HandleVNPayCallbackAsync`.
-- Trả kết quả cho VNPay.
+- Minimal API đã map `POST /api/vnpay/callback`.
+- Endpoint hiện chỉ trả `OK`.
+- Chưa đọc form callback, chưa kiểm tra chữ ký VNPay và chưa gọi `IPaymentService.HandleVNPayCallbackAsync`.
 
 Thông báo nhật ký:
 
@@ -276,11 +282,11 @@ Entities:
 - `StockItem`
 - `StockTransaction`
 
-Controller đề xuất:
+Controller hiện tại:
 
-- `ProductsController`: danh sách sản phẩm tồn kho.
-- `SyncController`: danh mục và tồn kho cho POS đồng bộ.
-- `StockController`: trừ kho và nhập lại hàng.
+- `ProductsController`: hiện trả `Ok()` rỗng.
+- `SyncController`: trả danh mục và tồn kho cho POS đồng bộ.
+- `StockController`: xử lý trừ kho và nhập lại hàng ở mức cơ bản, đồng thời ghi `StockTransaction`.
 
 Endpoint:
 
@@ -307,7 +313,7 @@ Tập trung kiểm thử Service:
 
 Dùng xUnit, Moq và FluentAssertions nếu đã được thêm vào project test.
 
-Hiện test suite có AuthServiceTests và ShiftServiceTests đang pass 18/18 khi chạy
+Hiện test suite pass 20/20 khi chạy
 `dotnet test tests/SmartPOS.Tests/SmartPOS.Tests.csproj --no-build`.
 
 ## Cấu hình chính
@@ -322,7 +328,7 @@ Hiện test suite có AuthServiceTests và ShiftServiceTests đang pass 18/18 kh
     "DefaultConnection": "Host=localhost;Port=5433;Database=smartpos;Username=postgres;Password=1"
   },
   "InventoryManager": {
-    "BaseUrl": "http://localhost:5001"
+    "BaseUrl": "http://localhost:5145"
   },
   "Jwt": {
     "Issuer": "SmartPOS",

@@ -20,12 +20,12 @@ Solution skeleton đã được scaffold:
 - Đã có các project trong `src/`.
 - Đã có project test trong `tests/`.
 - Đã có DTO, enum, exception, entity, repository interface, service interface, ViewModel/View shell và API shell.
-- Business logic hầu hết chưa được implement, ngoại trừ F-01 Auth/JWT và phần chính của F-02 Shift.
-- Repository và service implementation hiện vẫn chủ yếu là stub, ngoại trừ Auth và Shift repository/service.
+- Business logic đã có cho F-01 Auth/JWT, F-02 Shift, F-03 Product/Search/Cart mức cơ bản, F-05 Cash Payment, F-11 Catalog mức cơ bản và một phần F-13 Inventory API/Sync.
+- Repository và service implementation vẫn còn nhiều stub ở Invoice, Return, Report, Audit, Device, Customer, Promotion và VNPay.
 - Đã có migration POS `InitialCreate` và `AddUserContactFields`.
 - Đã apply migration POS vào PostgreSQL Docker container qua port `5433`.
-- Đã có seed user demo cho Auth: `quantri`, `quanly`, `nhanvien`.
-- Đã có UI flow đăng nhập và điều hướng theo role; các flow nghiệp vụ còn lại chưa hoàn chỉnh.
+- AuthService có hàm tạo user demo `quantri`, `quanly`, `nhanvien`; `DataSeeder` hiện seed danh mục và 10 sản phẩm mẫu.
+- Đã có UI flow đăng nhập, mở ca, bán hàng/cash payment ở mức cơ bản và điều hướng theo role; nhiều flow nghiệp vụ còn lại chưa hoàn chỉnh.
 
 Vì vậy, trạng thái hiện tại nên hiểu là: **nền project đã có, tính năng nghiệp vụ chưa hoàn thành**.
 
@@ -35,17 +35,17 @@ Vì vậy, trạng thái hiện tại nên hiểu là: **nền project đã có,
 |---|---|---|---|
 | F-01 | Đăng nhập, đăng xuất, tạo tài khoản | Đã xong | Đã implement repository, AuthService với BCrypt/JWT, seed 3 user demo, LoginViewModel, LoginView theo thiết kế, điều hướng theo role và kiểm thử thủ công 3 tài khoản demo |
 | F-02 | Mở ca, đóng ca | Đã xong | Đã implement IShiftRepository (GetOpenShiftAsync, GetByIdAsync, AddAsync, UpdateAsync, GetCashRevenueAsync, GetTotalSalesAsync), ShiftService (OpenShiftAsync, CloseShiftAsync, GetOpenShiftAsync, GetShiftSummaryAsync), ShiftViewModel với CommunityToolkit.Mvvm, ShiftView.xaml UI mở/đóng ca, lưu ca vào CurrentSessionContext; 5 unit test pass. ShiftView.xaml.cs gọi InitializeAsync khi Loaded để tự nạp ca đang mở sau khi app khởi động lại; sau khi mở ca thành công tự điều hướng sang SalesView. |
-| F-03 | Bán hàng: chọn sản phẩm, tìm kiếm, giỏ hàng, tính tiền | Chưa làm | Đã có skeleton ProductService/CartService/SalesViewModel; cần implement search, cart, kiểm tra tồn kho và UI |
+| F-03 | Bán hàng: chọn sản phẩm, tìm kiếm, giỏ hàng, tính tiền | Đang làm | Đã implement ProductRepository/ProductService tìm barcode/search, CartService thêm/sửa/xóa/tính lại và SalesViewModel/SalesView mức cơ bản. Còn cần hoàn thiện kiểm tra inactive/giá thay đổi, thuế, UX và test search/sales. |
 | F-04 | Khuyến mãi và giảm giá | Chưa làm | Entity `Promotion` đã có `Code`; cần implement validation, áp dụng mã và approval |
-| F-05 | Thanh toán tiền mặt | Đã xong | Đã implement OrderRepository (5 methods), PaymentService.CreateOrderFromCartAsync và RecordCashPaymentAsync (đầy đủ business rules), PaymentViewModel với quick-cash buttons, PaymentView.xaml theo design mockup (white modal card, tiền thừa tự tính, nút 50K/100K/200K/500K/1M); 3 unit test pass. IInventorySyncService và IAuditService được gọi nhưng bọc try/catch NotImplementedException do F-13/F-15 chưa xong. |
+| F-05 | Thanh toán tiền mặt | Đã xong | Đã implement OrderRepository, PaymentService.CreateOrderFromCartAsync và RecordCashPaymentAsync, PaymentViewModel với quick-cash buttons, PaymentView.xaml, kiểm tra thiếu tiền/order khóa và tạo payment/order status. Inventory/audit side effect vẫn bọc lỗi vì F-13/F-15 chưa hoàn chỉnh. |
 | F-06 | Thanh toán VNPay | Chưa làm | Cần tạo URL, QR, khóa order và poll trạng thái |
 | F-07 | Callback thanh toán | Chưa làm | Đã có CallbackApi shell; cần callback endpoint, chữ ký và xử lý trạng thái |
 | F-08 | Hóa đơn và giả lập in | Chưa làm | Cần invoice number, preview, fake print và device log |
 | F-09 | Khách hàng và điểm tích lũy | Chưa làm | Cần implement customer lookup, create, cộng/trừ điểm |
 | F-10 | Trả hàng và hoàn tiền | Chưa làm | Bắt buộc cho demo cuối; cần approve/reject và restock |
-| F-11 | Danh mục sản phẩm | Chưa làm | Cần implement quản lý danh mục, sản phẩm, SKU/barcode/QR duy nhất |
+| F-11 | Danh mục sản phẩm | Đang làm | Đã implement CategoryRepository/ProductRepository và CatalogService tạo danh mục, tạo sản phẩm, cập nhật giá, lấy danh sách ở mức cơ bản; DataSeeder có 3 danh mục và 10 sản phẩm. Còn thiếu validate SKU/barcode/QR duy nhất đầy đủ, deactivate, audit và UI quản lý hoàn chỉnh. |
 | F-12 | Giá, thuế và khuyến mãi | Chưa làm | Cần implement quản lý giá, thuế, khuyến mãi và audit sửa giá |
-| F-13 | Đồng bộ Inventory Manager | Đang làm | Đã tách `InventoryDbContext`, entity riêng và migration `InitialInventoryCreate`; API shell cần implement sync/stock |
+| F-13 | Đồng bộ Inventory Manager | Đang làm | Đã tách `InventoryDbContext`, entity riêng và migration `InitialInventoryCreate`; Inventory API đã có `GET /api/sync/catalog`, `GET /api/sync/stock`, `POST /api/stock/deduct`, `POST /api/stock/restock`. POS `InventorySyncService` đã gọi API và ghi log dự kiến, nhưng `InventorySyncLogRepository` còn stub nên sync sẽ lỗi khi ghi DB log. |
 | F-14 | Thiết bị giả lập và nhật ký thiết bị | Chưa làm | Cần fake scanner/printer, device config và device logs |
 | F-15 | Báo cáo, audit log và cấu hình cửa hàng | Chưa làm | Ưu tiên báo cáo ca và audit log trước |
 
@@ -54,22 +54,22 @@ Vì vậy, trạng thái hiện tại nên hiểu là: **nền project đã có,
 | Project | Trạng thái | Ghi chú |
 |---|---|---|
 | SmartPOS.Shared | Cần kiểm thử | Đã có enum, DTO, exception, constant; cần rà lại shape DTO khi implement thật |
-| SmartPOS.Data | Đang làm | Đã có entity, DbContext, design-time factory, migration POS, Auth repository và Shift repository; AppDbContext/AppDbContextFactory đọc POS connection string từ appsettings thay vì hard-code; repository nghiệp vụ khác chưa implement |
-| SmartPOS.Services | Đang làm | AuthService đã có logic BCrypt/JWT; các service nghiệp vụ khác vẫn chủ yếu là skeleton |
-| SmartPOS.WPF | Đang làm | Login flow đã có giao diện theo thiết kế và điều hướng theo role; các màn hình còn lại vẫn placeholder/skeleton |
+| SmartPOS.Data | Đang làm | Đã có entity, DbContext, design-time factory, migrations POS, Auth/Shift/Product/Category/Order repository và DataSeeder sản phẩm mẫu. Repository Invoice, Return, InventorySyncLog, Device, DeviceLog, AuditLog còn stub. |
+| SmartPOS.Services | Đang làm | Auth, Shift, Product, Cart, Catalog, Cash Payment và một phần InventorySync đã có logic. VNPay, Invoice, Promotion, Customer, Return, Report, Audit, Device còn stub hoặc mới mức skeleton. |
+| SmartPOS.WPF | Đang làm | Login, Shift, Sales, Payment có UI/ViewModel mức cơ bản. Invoice, Customer, Return, Promotion, Report, AuditLog, Sync, UserManagement vẫn placeholder/TODO. |
 | SmartPOS.CallbackApi | Đang làm | Đã có Minimal API shell; callback chỉ trả `OK` |
-| InventoryManager.Api | Đang làm | Đã có `InventoryDbContext`, entity inventory riêng, migration `InitialInventoryCreate` và controller shell; action chỉ trả `Ok()` |
-| SmartPOS.Tests | Đang làm | AuthService và ShiftService đã có test nghiệp vụ; test suite hiện pass 18/18; các module khác vẫn cần bổ sung test |
+| InventoryManager.Api | Đang làm | Đã có `InventoryDbContext`, entity inventory riêng, migration `InitialInventoryCreate`, SyncController và StockController có logic cơ bản. ProductsController vẫn trả `Ok()` rỗng. |
+| SmartPOS.Tests | Đang làm | Test suite hiện pass 20/20; có test cho Auth, Shift, Cart, Payment, Promotion, InventorySync và Return ở mức hiện tại. Cần bổ sung test cho search/catalog/invoice/audit/report và các luồng UI/demo. |
 
 ## Việc nên làm tiếp theo
 
 Chi tiết task nằm trong `docs/development-task-list.md`. Thứ tự ưu tiên ngắn gọn:
 
-1. Bổ sung seed data demo còn thiếu: danh mục, sản phẩm, tồn kho và mã `GIAM10`.
-2. Implement Product/Search và Cart.
-4. Implement Cash Payment.
-5. Implement Invoice.
-6. Implement Inventory Sync, VNPay, Return, Report và Audit theo thứ tự demo.
+1. Bổ sung/kiểm tra seed user demo, external_inventory_id cho sản phẩm và mã khuyến mãi `GIAM10`.
+2. Hoàn thiện `InventorySyncLogRepository` để POS sync không lỗi khi ghi log.
+3. Hoàn thiện Product/Search/Cart/Sales: inactive, thuế, giá thay đổi, test search.
+4. Implement Invoice.
+5. Implement VNPay, Return, Report và Audit theo thứ tự demo.
 
 ## Dữ liệu demo cần có
 

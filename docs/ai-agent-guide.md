@@ -188,7 +188,7 @@ Lỗi máy in, vui lòng kiểm tra cấu hình và thử lại
 - Docker đang chạy.
 - Cơ sở dữ liệu `smartpos` đã cập nhật migration.
 - Cơ sở dữ liệu `inventory_manager` đã có dữ liệu mẫu.
-- Inventory Manager chạy ở `localhost:5001`.
+- Inventory Manager chạy ở `localhost:5145`.
 - Callback VNPay chạy ở `localhost:5000`.
 - ngrok trỏ về cổng 5000.
 - Cấu hình callback VNPay đúng địa chỉ HTTPS của ngrok.

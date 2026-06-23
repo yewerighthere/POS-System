@@ -1,6 +1,6 @@
 ## SmartPOS - SWD392 FPT University
 
-SmartPOS là solution .NET 8 cho hệ thống bán hàng POS demo. Hiện tại project đang ở dạng skeleton: đã có cấu trúc layer, DTO, entity, repository, service, WPF shell, API và test stub. Business logic chưa được implement.
+SmartPOS là solution .NET 8 cho hệ thống bán hàng POS demo. Hiện tại project đã có cấu trúc layer, DTO, entity, repository, service, WPF shell, API và test project. Một số luồng chính đã có logic cơ bản như Auth, Shift, Product/Search, Cart, Cash Payment, Catalog và Inventory API; các module VNPay, Invoice, Return, Report, Audit, Device và Customer vẫn đang triển khai.
 
 ## Cấu Trúc Project
 
@@ -27,7 +27,7 @@ Vai trò từng project:
 - `SmartPOS.WPF`: ứng dụng desktop POS, ViewModel, View và cấu hình DI.
 - `SmartPOS.CallbackApi`: API nhận callback thanh toán VNPay.
 - `InventoryManager.Api`: API quản lý tồn kho.
-- `SmartPOS.Tests`: test stub cho service layer.
+- `SmartPOS.Tests`: test cho service layer.
 
 ## Tài Liệu Quan Trọng
 
@@ -179,14 +179,14 @@ Chỉ rollback hoặc xoá migration khi chắc chắn migration đó chưa đư
 
 ### Inventory Manager Database
 
-Trong skeleton hiện tại, `InventoryManager.Api` vẫn reference `SmartPOS.Data`. Khi team tách riêng DbContext cho Inventory Manager, migration của Inventory Manager nên dùng API project làm startup project, ví dụ:
+`InventoryManager.Api` đã tách `InventoryDbContext` riêng và dùng database `inventory_manager`. Migration của Inventory Manager dùng API project làm startup project:
 
 ```powershell
-dotnet ef migrations add InitialInventoryCreate --project src/InventoryManager.Api --startup-project src/InventoryManager.Api --context <InventoryDbContext> --output-dir Migrations
-dotnet ef database update --project src/InventoryManager.Api --startup-project src/InventoryManager.Api --context <InventoryDbContext>
+dotnet ef migrations add InitialInventoryCreate --project src/InventoryManager.Api --startup-project src/InventoryManager.Api --context InventoryDbContext --output-dir Migrations
+dotnet ef database update --project src/InventoryManager.Api --startup-project src/InventoryManager.Api --context InventoryDbContext
 ```
 
-Hiện tại, nếu chỉ dùng `AppDbContext` scaffold sẵn, dùng lệnh migration của POS ở trên.
+Inventory Manager demo chạy theo launch profile hiện tại ở `http://localhost:5145`.
 
 ## Chạy Project
 
@@ -232,7 +232,7 @@ Chạy riêng project test:
 dotnet test tests/SmartPOS.Tests/SmartPOS.Tests.csproj
 ```
 
-Hiện tại test class chỉ là placeholder. Khi implement service logic, thêm test thật vào `tests/SmartPOS.Tests`.
+Hiện tại test suite pass 20/20 ở trạng thái source hiện tại. Khi implement thêm service logic, bổ sung test tương ứng vào `tests/SmartPOS.Tests`.
 
 ## Lệnh Hay Dùng
 
@@ -271,5 +271,5 @@ docker compose down -v
 - Service trả DTO, không trả EF entity cho UI.
 - Repository trả entity, không trả DTO.
 - Method async phải kết thúc bằng `Async`.
-- Skeleton hiện tại cố ý để method body là `throw new NotImplementedException();`.
-- ViewModel command hiện tại chỉ để `// TODO` cho đến khi implement UI flow thật.
+- Một số module chưa hoàn thiện vẫn còn `throw new NotImplementedException()` hoặc `// TODO`; kiểm tra source và `docs/implementation-status.md` trước khi nối vào luồng demo.
+- Khi hoàn thành một task có logic thật, cập nhật lại `docs/development-task-list.md` và `docs/implementation-status.md`.

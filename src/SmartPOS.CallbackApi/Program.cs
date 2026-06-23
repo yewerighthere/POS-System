@@ -35,7 +35,7 @@ builder.Services.AddScoped<ICatalogService, CatalogService>();
 builder.Services.AddScoped<IInventorySyncService, InventorySyncService>();
 builder.Services.AddScoped<IReportService, ReportService>();
 builder.Services.AddScoped<IAuditService, AuditService>();
-builder.Services.AddHttpClient<IInventorySyncService, InventorySyncService>(client => client.BaseAddress = new Uri(builder.Configuration["InventoryManager:BaseUrl"] ?? "http://localhost:5001"));
+builder.Services.AddHttpClient<IInventorySyncService, InventorySyncService>(client => client.BaseAddress = new Uri(builder.Configuration["InventoryManager:BaseUrl"] ?? "http://localhost:5145"));
 var app = builder.Build();
 app.MapPost("/api/vnpay/callback", () => Results.Ok("OK"));
 app.Run();

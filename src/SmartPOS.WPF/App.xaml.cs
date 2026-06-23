@@ -73,7 +73,8 @@ public partial class App : Application
         services.AddTransient<ICatalogService, CatalogService>();
         services.AddTransient<IReportService, ReportService>();
         services.AddTransient<IAuditService, AuditService>();
-        services.AddHttpClient<IInventorySyncService, InventorySyncService>(client => client.BaseAddress = new Uri("http://localhost:5145"));
+        services.AddHttpClient<IInventorySyncService, InventorySyncService>(client =>
+            client.BaseAddress = new Uri(configuration["InventoryManager:BaseUrl"] ?? "http://localhost:5145"));
         services.AddSingleton<CurrentSessionContext>();
         services.AddSingleton<NavigationService>();
         services.AddTransient<LoginViewModel>();
