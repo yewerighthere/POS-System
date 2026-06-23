@@ -23,6 +23,13 @@ public partial class App : Application
     protected override async void OnStartup(StartupEventArgs e)
     {
         base.OnStartup(e);
+        DispatcherUnhandledException += (_, ex) =>
+        {
+            Log.Fatal(ex.Exception, "Unhandled dispatcher exception");
+            Log.CloseAndFlush();
+            ex.Handled = true;
+            MessageBox.Show($"Lỗi không xử lý được:\n{ex.Exception.GetType().Name}: {ex.Exception.Message}\n\nXem logs/smartpos-*.log để biết chi tiết.", "Lỗi ứng dụng", MessageBoxButton.OK, MessageBoxImage.Error);
+        };
         var configuration = new ConfigurationBuilder()
             .SetBasePath(AppContext.BaseDirectory)
             .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)

@@ -1,43 +1,30 @@
-﻿using Microsoft.EntityFrameworkCore;
-using SmartPOS.Data.Entities;
+using Microsoft.Extensions.Logging;
 using SmartPOS.Data.Repositories.Interfaces;
+using SmartPOS.Services.Interfaces;
+using SmartPOS.Shared.DTOs.Customer;
 
-namespace SmartPOS.Data.Repositories.Implementations;
+namespace SmartPOS.Services.Implementations;
 
-public class CustomerRepository : ICustomerRepository
+public class CustomerService : ICustomerService
 {
-    private readonly AppDbContext _context;
+    private readonly ICustomerRepository _customerRepository;
+    private readonly ILogger<CustomerService> _logger;
 
-    public CustomerRepository(AppDbContext context)
+    public CustomerService(ICustomerRepository customerRepository, ILogger<CustomerService> logger)
     {
-        _context = context;
+        _customerRepository = customerRepository;
+        _logger = logger;
     }
 
-    public async Task<Customer?> GetByIdAsync(Guid id)
-    {
-        return await _context.Customers.FirstOrDefaultAsync(c => c.Id == id);
-    }
+    public Task<CustomerDto?> FindByPhoneAsync(string phone)
+        => throw new NotImplementedException();
 
-    public async Task<Customer?> GetByPhoneAsync(string phone)
-    {
-        return await _context.Customers.FirstOrDefaultAsync(c => c.Phone == phone);
-    }
+    public Task<CustomerDto> CreateAsync(CreateCustomerDto dto)
+        => throw new NotImplementedException();
 
-    public async Task<Customer?> GetByMemberCodeAsync(string memberCode)
-    {
-        return await _context.Customers.FirstOrDefaultAsync(c => c.MemberCode == memberCode);
-    }
+    public Task AddLoyaltyPointsAsync(Guid customerId, int points)
+        => throw new NotImplementedException();
 
-    public async Task AddAsync(Customer customer)
-    {
-        await _context.Customers.AddAsync(customer);
-        await _context.SaveChangesAsync();
-    }
-
-    public async Task UpdateAsync(Customer customer)
-    {
-        _context.Customers.Update(customer);
-        await _context.SaveChangesAsync();
-    }
+    public int CalculatePoints(decimal subtotal)
+        => throw new NotImplementedException();
 }
-

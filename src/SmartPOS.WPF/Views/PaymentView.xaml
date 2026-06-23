@@ -188,7 +188,7 @@
                                            HorizontalAlignment="Right"/>
                                 <TextBlock FontSize="22" FontWeight="Black" Foreground="#0F172A"
                                            HorizontalAlignment="Right">
-                                    <Run Text="{Binding TotalAmount, StringFormat={}{0:N0}}"/>
+                                    <Run Text="{Binding TotalAmount, StringFormat={}{0:N0}, Mode=OneWay}"/>
                                     <Run Text=" đ" FontSize="14" Foreground="#64748B"/>
                                 </TextBlock>
                             </StackPanel>
@@ -270,7 +270,7 @@
                                 <TextBlock HorizontalAlignment="Center"
                                            FontSize="28" FontWeight="Black"
                                            Foreground="#16A34A">
-                                    <Run Text="{Binding ChangeAmount, StringFormat={}{0:N0}}"/>
+                                    <Run Text="{Binding ChangeAmount, StringFormat={}{0:N0}, Mode=OneWay}"/>
                                     <Run Text=" đ" FontSize="16"/>
                                 </TextBlock>
                                 <TextBlock Text="{Binding ChangeHint}"

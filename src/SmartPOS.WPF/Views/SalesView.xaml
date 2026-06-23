@@ -292,8 +292,8 @@
                                             <Button Grid.Row="2" 
                                                     Content="Thêm vào giỏ" 
                                                     Style="{StaticResource AccentButton}" 
-                                                    Command="{Binding DataContext.AddToCartCommand, RelativeSource={RelativeSource AncestorType=UserControl}}" 
-                                                    CommandParameter="{Binding Id}"
+                                                    Command="{Binding DataContext.AddToCartCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                                    CommandParameter="{Binding}"
                                                     Padding="0,6"
                                                     Height="28"
                                                     FontSize="12"/>
