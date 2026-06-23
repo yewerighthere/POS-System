@@ -1,45 +1,30 @@
-﻿using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Logging;
 using SmartPOS.Data.Repositories.Interfaces;
 using SmartPOS.Services.Interfaces;
-using SmartPOS.Shared.DTOs.Auth;
-using SmartPOS.Shared.DTOs.Shift;
-using SmartPOS.Shared.DTOs.Product;
-using SmartPOS.Shared.DTOs.Cart;
-using SmartPOS.Shared.DTOs.Order;
-using SmartPOS.Shared.DTOs.Payment;
-using SmartPOS.Shared.DTOs.Invoice;
 using SmartPOS.Shared.DTOs.Customer;
-using SmartPOS.Shared.DTOs.Return;
-using SmartPOS.Shared.DTOs.Catalog;
-using SmartPOS.Shared.DTOs.Inventory;
-using SmartPOS.Shared.DTOs.Report;
-using SmartPOS.Shared.DTOs.Promotion;
-using SmartPOS.Shared.Enums;
 
 namespace SmartPOS.Services.Implementations;
 
 public class CustomerService : ICustomerService
 {
+    private readonly ICustomerRepository _customerRepository;
     private readonly ILogger<CustomerService> _logger;
 
-    public CustomerService(ILogger<CustomerService> logger)
+    public CustomerService(ICustomerRepository customerRepository, ILogger<CustomerService> logger)
     {
+        _customerRepository = customerRepository;
         _logger = logger;
     }
 
     public Task<CustomerDto?> FindByPhoneAsync(string phone)
-    {
-        throw new NotImplementedException();
-    }
+        => throw new NotImplementedException();
 
     public Task<CustomerDto> CreateAsync(CreateCustomerDto dto)
-    {
-        throw new NotImplementedException();
-    }
+        => throw new NotImplementedException();
 
     public Task AddLoyaltyPointsAsync(Guid customerId, int points)
-    {
-        throw new NotImplementedException();
-    }
-}
+        => throw new NotImplementedException();
 
+    public int CalculatePoints(decimal subtotal)
+        => throw new NotImplementedException();
+}

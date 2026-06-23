@@ -17,6 +17,6 @@ namespace SmartPOS.Services.Interfaces;
 
 public interface ICartService
 {
-    CartSummaryDto AddItem(Guid productId, int quantity, CartSummaryDto cart); CartSummaryDto UpdateItem(Guid productId, int quantity, CartSummaryDto cart); CartSummaryDto RemoveItem(Guid productId, CartSummaryDto cart); CartSummaryDto Recalculate(CartSummaryDto cart);
+    CartSummaryDto AddItem(ProductDto product, int quantity, CartSummaryDto cart); CartSummaryDto UpdateItem(Guid productId, int quantity, CartSummaryDto cart); CartSummaryDto RemoveItem(Guid productId, CartSummaryDto cart); CartSummaryDto Recalculate(CartSummaryDto cart);
 }
 

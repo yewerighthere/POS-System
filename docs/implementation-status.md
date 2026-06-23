@@ -37,7 +37,7 @@ Vì vậy, trạng thái hiện tại nên hiểu là: **nền project đã có,
 | F-02 | Mở ca, đóng ca | Đã xong | Đã implement IShiftRepository (GetOpenShiftAsync, GetByIdAsync, AddAsync, UpdateAsync, GetCashRevenueAsync, GetTotalSalesAsync), ShiftService (OpenShiftAsync, CloseShiftAsync, GetOpenShiftAsync, GetShiftSummaryAsync), ShiftViewModel với CommunityToolkit.Mvvm, ShiftView.xaml UI mở/đóng ca, lưu ca vào CurrentSessionContext; 5 unit test pass. ShiftView.xaml.cs gọi InitializeAsync khi Loaded để tự nạp ca đang mở sau khi app khởi động lại; sau khi mở ca thành công tự điều hướng sang SalesView. |
 | F-03 | Bán hàng: chọn sản phẩm, tìm kiếm, giỏ hàng, tính tiền | Chưa làm | Đã có skeleton ProductService/CartService/SalesViewModel; cần implement search, cart, kiểm tra tồn kho và UI |
 | F-04 | Khuyến mãi và giảm giá | Chưa làm | Entity `Promotion` đã có `Code`; cần implement validation, áp dụng mã và approval |
-| F-05 | Thanh toán tiền mặt | Chưa làm | Cần implement order/payment flow và trừ kho sau thanh toán |
+| F-05 | Thanh toán tiền mặt | Đã xong | Đã implement OrderRepository (5 methods), PaymentService.CreateOrderFromCartAsync và RecordCashPaymentAsync (đầy đủ business rules), PaymentViewModel với quick-cash buttons, PaymentView.xaml theo design mockup (white modal card, tiền thừa tự tính, nút 50K/100K/200K/500K/1M); 3 unit test pass. IInventorySyncService và IAuditService được gọi nhưng bọc try/catch NotImplementedException do F-13/F-15 chưa xong. |
 | F-06 | Thanh toán VNPay | Chưa làm | Cần tạo URL, QR, khóa order và poll trạng thái |
 | F-07 | Callback thanh toán | Chưa làm | Đã có CallbackApi shell; cần callback endpoint, chữ ký và xử lý trạng thái |
 | F-08 | Hóa đơn và giả lập in | Chưa làm | Cần invoice number, preview, fake print và device log |

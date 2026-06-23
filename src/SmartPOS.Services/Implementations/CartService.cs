@@ -15,36 +15,87 @@ using SmartPOS.Shared.DTOs.Inventory;
 using SmartPOS.Shared.DTOs.Report;
 using SmartPOS.Shared.DTOs.Promotion;
 using SmartPOS.Shared.Enums;
+using SmartPOS.Shared.Exceptions;
 
 namespace SmartPOS.Services.Implementations;
 
 public class CartService : ICartService
 {
-    private readonly ILogger<CartService> _logger;
-
-    public CartService(ILogger<CartService> logger)
+    public CartSummaryDto AddItem(ProductDto product, int quantity, CartSummaryDto cart)
     {
-        _logger = logger;
-    }
+        var items = CloneItems(cart);
+        var existing = items.FirstOrDefault(i => i.ProductId == product.Id);
+        var currentQty = existing?.Quantity ?? 0;
+        var newQty = currentQty + quantity;
 
-    public CartSummaryDto AddItem(Guid productId, int quantity, CartSummaryDto cart)
-    {
-        throw new NotImplementedException();
+        if (product.LocalStockQuantity > 0 && newQty > product.LocalStockQuantity)
+            throw new StockInsufficientException($"Sản phẩm \"{product.Name}\" không đủ hàng. Tồn kho: {product.LocalStockQuantity}");
+
+        if (existing != null)
+        {
+            existing.Quantity = newQty;
+            existing.Subtotal = existing.UnitPrice * newQty;
+        }
+        else
+        {
+            items.Add(new CartItemDto
+            {
+                ProductId = product.Id,
+                ProductName = product.Name,
+                UnitPrice = product.UnitPrice,
+                Quantity = quantity,
+                Subtotal = product.UnitPrice * quantity
+            });
+        }
+
+        return Recalculate(new CartSummaryDto { Items = items, DiscountAmount = cart.DiscountAmount });
     }
 
     public CartSummaryDto UpdateItem(Guid productId, int quantity, CartSummaryDto cart)
     {
-        throw new NotImplementedException();
+        var items = CloneItems(cart);
+        var item = items.FirstOrDefault(i => i.ProductId == productId);
+        if (item == null) return cart;
+
+        if (quantity <= 0)
+            items.Remove(item);
+        else
+        {
+            item.Quantity = quantity;
+            item.Subtotal = item.UnitPrice * quantity;
+        }
+
+        return Recalculate(new CartSummaryDto { Items = items, DiscountAmount = cart.DiscountAmount });
     }
 
     public CartSummaryDto RemoveItem(Guid productId, CartSummaryDto cart)
     {
-        throw new NotImplementedException();
+        var items = CloneItems(cart).Where(i => i.ProductId != productId).ToList();
+        return Recalculate(new CartSummaryDto { Items = items, DiscountAmount = cart.DiscountAmount });
     }
 
     public CartSummaryDto Recalculate(CartSummaryDto cart)
     {
-        throw new NotImplementedException();
+        var subtotal = cart.Items.Sum(i => i.Subtotal);
+        var discount = Math.Min(cart.DiscountAmount, subtotal);
+        return new CartSummaryDto
+        {
+            Items = cart.Items,
+            Subtotal = subtotal,
+            DiscountAmount = discount,
+            TaxAmount = 0,
+            TotalAmount = Math.Max(0, subtotal - discount)
+        };
     }
+
+    private static List<CartItemDto> CloneItems(CartSummaryDto cart) =>
+        cart.Items.Select(i => new CartItemDto
+        {
+            ProductId = i.ProductId,
+            ProductName = i.ProductName,
+            UnitPrice = i.UnitPrice,
+            Quantity = i.Quantity,
+            Subtotal = i.Subtotal
+        }).ToList();
 }
 

@@ -6,6 +6,7 @@ using SmartPOS.Shared.DTOs.Cart;
 using SmartPOS.Shared.DTOs.Product;
 using SmartPOS.Shared.Exceptions;
 using SmartPOS.WPF.Navigation;
+using SmartPOS.WPF.Session;
 
 namespace SmartPOS.WPF.ViewModels;
 
@@ -16,6 +17,7 @@ public partial class SalesViewModel : ObservableObject
     private readonly NavigationService _navigationService;
     private readonly ICustomerService _customerService;
     private readonly IPromotionService _promotionService;
+    private readonly CurrentSessionContext _session;
 
     [ObservableProperty]
     private bool _isLoading;
@@ -45,14 +47,16 @@ public partial class SalesViewModel : ObservableObject
         ICartService cartService,
         NavigationService navigationService,
         ICustomerService customerService,
-        IPromotionService promotionService)
+        IPromotionService promotionService,
+        CurrentSessionContext session)
     {
         _productService = productService;
         _cartService = cartService;
         _navigationService = navigationService;
         _customerService = customerService;
         _promotionService = promotionService;
-        
+        _session = session;
+
         RecalculateCart();
     }
 
@@ -94,7 +98,7 @@ public partial class SalesViewModel : ObservableObject
             var product = await _productService.FindByBarcodeAsync(BarcodeQuery).ConfigureAwait(true);
             if (product != null)
             {
-                AddToCart(product.Id);
+                AddToCart(product);
                 BarcodeQuery = string.Empty;
                 return;
             }
@@ -188,12 +192,13 @@ public partial class SalesViewModel : ObservableObject
     }
 
     [RelayCommand]
-    private void AddToCart(Guid productId)
+    private void AddToCart(ProductDto product)
     {
+        if (product == null) return;
         ErrorMessage = string.Empty;
         try
         {
-            UpdateCart(_cartService.AddItem(productId, 1, Cart));
+            UpdateCart(_cartService.AddItem(product, 1, Cart));
         }
         catch (StockInsufficientException ex)
         {
@@ -299,7 +304,8 @@ public partial class SalesViewModel : ObservableObject
             ErrorMessage = "Giỏ hàng đang trống. Không thể thanh toán.";
             return;
         }
-        
+
+        _session.CurrentCart = Cart;
         _navigationService.NavigateTo<PaymentViewModel>();
     }
 

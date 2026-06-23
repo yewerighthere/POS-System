@@ -20,26 +20,46 @@ namespace SmartPOS.Services.Implementations;
 
 public class ProductService : IProductService
 {
+    private readonly IProductRepository _productRepository;
     private readonly ILogger<ProductService> _logger;
 
-    public ProductService(ILogger<ProductService> logger)
+    public ProductService(IProductRepository productRepository, ILogger<ProductService> logger)
     {
+        _productRepository = productRepository;
         _logger = logger;
     }
 
-    public Task<ProductDto?> FindByBarcodeAsync(string barcode)
+    public async Task<ProductDto?> FindByBarcodeAsync(string barcode)
     {
-        throw new NotImplementedException();
+        var product = await _productRepository.GetByBarcodeAsync(barcode).ConfigureAwait(false);
+        return product is null ? null : MapToDto(product);
     }
 
-    public Task<ProductDto?> FindByIdAsync(Guid id)
+    public async Task<ProductDto?> FindByIdAsync(Guid id)
     {
-        throw new NotImplementedException();
+        var product = await _productRepository.GetByIdAsync(id).ConfigureAwait(false);
+        return product is null ? null : MapToDto(product);
     }
 
-    public Task<ProductSearchResultDto> SearchAsync(string keyword)
+    public async Task<ProductSearchResultDto> SearchAsync(string keyword)
     {
-        throw new NotImplementedException();
+        var products = string.IsNullOrWhiteSpace(keyword)
+            ? await _productRepository.GetAllAsync().ConfigureAwait(false)
+            : await _productRepository.SearchAsync(keyword).ConfigureAwait(false);
+        return new ProductSearchResultDto
+        {
+            Products = products.Select(MapToDto).ToList()
+        };
     }
+
+    private static ProductDto MapToDto(SmartPOS.Data.Entities.Product p) => new()
+    {
+        Id = p.Id,
+        Name = p.Name,
+        Sku = p.Sku,
+        Barcode = p.Barcode,
+        UnitPrice = p.UnitPrice,
+        LocalStockQuantity = p.LocalStockQuantity
+    };
 }
 
