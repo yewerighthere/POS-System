@@ -1,4 +1,5 @@
-﻿using SmartPOS.Data.Entities;
+using Microsoft.EntityFrameworkCore;
+using SmartPOS.Data.Entities;
 using SmartPOS.Data.Repositories.Interfaces;
 
 namespace SmartPOS.Data.Repositories.Implementations;
@@ -12,14 +13,17 @@ public class InventorySyncLogRepository : IInventorySyncLogRepository
         _context = context;
     }
 
-    public Task AddAsync(InventorySyncLog log)
+    public async Task AddAsync(InventorySyncLog log)
     {
-        throw new NotImplementedException();
+        await _context.InventorySyncLogs.AddAsync(log);
+        await _context.SaveChangesAsync();
     }
 
-    public Task<InventorySyncLog?> GetLatestAsync(string syncType)
+    public async Task<InventorySyncLog?> GetLatestAsync(string syncType)
     {
-        throw new NotImplementedException();
+        return await _context.InventorySyncLogs
+            .Where(l => l.SyncType == syncType)
+            .OrderByDescending(l => l.SyncedAt)
+            .FirstOrDefaultAsync();
     }
 }
-

@@ -1,4 +1,4 @@
-﻿using SmartPOS.Shared.DTOs.Auth;
+using SmartPOS.Shared.DTOs.Auth;
 using SmartPOS.Shared.DTOs.Shift;
 using SmartPOS.Shared.DTOs.Product;
 using SmartPOS.Shared.DTOs.Cart;
@@ -17,6 +17,11 @@ namespace SmartPOS.Services.Interfaces;
 
 public interface ICatalogService
 {
-    Task<IReadOnlyList<CategoryDto>> GetCategoriesAsync(); Task<CategoryDto> CreateCategoryAsync(CreateCategoryDto dto); Task<ProductDto> CreateProductAsync(CreateProductDto dto); Task<ProductDto> UpdatePriceAsync(UpdatePriceDto dto); Task<IReadOnlyList<ProductDto>> GetProductsAsync();
+    Task<IReadOnlyList<CategoryDto>> GetCategoriesAsync();
+    Task<CategoryDto> CreateCategoryAsync(CreateCategoryDto dto);
+    Task<ProductDto> CreateProductAsync(CreateProductDto dto);
+    Task<ProductDto> UpdatePriceAsync(UpdatePriceDto dto, Guid userId);
+    Task<ProductDto> DeactivateProductAsync(Guid productId, Guid userId);
+    Task<IReadOnlyList<ProductDto>> GetProductsAsync();
 }
 

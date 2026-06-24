@@ -1,4 +1,4 @@
-﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
 using SmartPOS.Data.Entities;
 using SmartPOS.Data.Repositories.Interfaces;
 
@@ -21,6 +21,11 @@ public class ProductRepository : IProductRepository
     public async Task<Product?> GetByBarcodeAsync(string barcode)
     {
         return await _context.Products.FirstOrDefaultAsync(p => p.Barcode == barcode);
+    }
+
+    public async Task<Product?> GetBySkuAsync(string sku)
+    {
+        return await _context.Products.FirstOrDefaultAsync(p => p.Sku == sku);
     }
 
     public async Task<Product?> GetByExternalIdAsync(string externalId)

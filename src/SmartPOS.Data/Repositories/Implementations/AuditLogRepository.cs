@@ -1,4 +1,5 @@
-﻿using SmartPOS.Data.Entities;
+using Microsoft.EntityFrameworkCore;
+using SmartPOS.Data.Entities;
 using SmartPOS.Data.Repositories.Interfaces;
 
 namespace SmartPOS.Data.Repositories.Implementations;
@@ -12,19 +13,25 @@ public class AuditLogRepository : IAuditLogRepository
         _context = context;
     }
 
-    public Task AddAsync(AuditLog log)
+    public async Task AddAsync(AuditLog log)
     {
-        throw new NotImplementedException();
+        await _context.AuditLogs.AddAsync(log);
+        await _context.SaveChangesAsync();
     }
 
-    public Task<IReadOnlyList<AuditLog>> GetByEntityAsync(string entity, Guid entityId)
+    public async Task<IReadOnlyList<AuditLog>> GetByEntityAsync(string entity, Guid entityId)
     {
-        throw new NotImplementedException();
+        return await _context.AuditLogs
+            .Where(a => a.Entity == entity && a.EntityId == entityId)
+            .OrderByDescending(a => a.CreatedAt)
+            .ToListAsync();
     }
 
-    public Task<IReadOnlyList<AuditLog>> GetRecentAsync(int count)
+    public async Task<IReadOnlyList<AuditLog>> GetRecentAsync(int count)
     {
-        throw new NotImplementedException();
+        return await _context.AuditLogs
+            .OrderByDescending(a => a.CreatedAt)
+            .Take(count)
+            .ToListAsync();
     }
 }
-

@@ -1,35 +1,44 @@
-﻿using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Logging;
+using SmartPOS.Data.Entities;
 using SmartPOS.Data.Repositories.Interfaces;
 using SmartPOS.Services.Interfaces;
-using SmartPOS.Shared.DTOs.Auth;
-using SmartPOS.Shared.DTOs.Shift;
-using SmartPOS.Shared.DTOs.Product;
-using SmartPOS.Shared.DTOs.Cart;
-using SmartPOS.Shared.DTOs.Order;
-using SmartPOS.Shared.DTOs.Payment;
-using SmartPOS.Shared.DTOs.Invoice;
-using SmartPOS.Shared.DTOs.Customer;
-using SmartPOS.Shared.DTOs.Return;
-using SmartPOS.Shared.DTOs.Catalog;
-using SmartPOS.Shared.DTOs.Inventory;
-using SmartPOS.Shared.DTOs.Report;
-using SmartPOS.Shared.DTOs.Promotion;
-using SmartPOS.Shared.Enums;
+using System.Text.Json;
 
 namespace SmartPOS.Services.Implementations;
 
 public class AuditService : IAuditService
 {
+    private readonly IAuditLogRepository _auditLogRepository;
     private readonly ILogger<AuditService> _logger;
 
-    public AuditService(ILogger<AuditService> logger)
+    public AuditService(IAuditLogRepository auditLogRepository, ILogger<AuditService> logger)
     {
+        _auditLogRepository = auditLogRepository;
         _logger = logger;
     }
 
-    public Task LogAsync(string action, string? entity, Guid? entityId, object? oldValue, object? newValue, Guid userId)
+    public async Task LogAsync(string action, string? entity, Guid? entityId, object? oldValue, object? newValue, Guid userId)
     {
-        throw new NotImplementedException();
+        try
+        {
+            var log = new AuditLog
+            {
+                Id = Guid.NewGuid(),
+                UserId = userId,
+                Action = action,
+                Entity = entity,
+                EntityId = entityId,
+                OldValue = oldValue != null ? JsonSerializer.Serialize(oldValue) : null,
+                NewValue = newValue != null ? JsonSerializer.Serialize(newValue) : null,
+                CreatedAt = DateTime.UtcNow
+            };
+
+            await _auditLogRepository.AddAsync(log);
+        }
+        catch (Exception ex)
+        {
+            // Ghi log lỗi nhưng không để audit làm crash flow chính
+            _logger.LogError(ex, "Không thể ghi audit log cho action {Action} entity {Entity}", action, entity);
+        }
     }
 }
-
