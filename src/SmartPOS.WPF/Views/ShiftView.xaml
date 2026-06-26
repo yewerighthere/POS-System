@@ -432,8 +432,7 @@
                                                    Foreground="{StaticResource TextSecondaryBrush}"/>
                                         <TextBlock Grid.Column="1" FontSize="13" FontWeight="Medium"
                                                    Foreground="{StaticResource TextPrimaryBrush}"
-                                                   Text="{Binding CurrentShift.OpenedAt,
-                                                          StringFormat=HH:mm dd/MM/yyyy}"/>
+                                                   Text="{Binding ShiftOpenedAtDisplay}"/>
                                     </Grid>
                                     <Grid>
                                         <Grid.ColumnDefinitions>
