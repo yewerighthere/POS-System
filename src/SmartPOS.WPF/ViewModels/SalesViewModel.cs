@@ -315,6 +315,18 @@ public partial class SalesViewModel : ObservableObject
         _navigationService.NavigateTo<ShiftViewModel>();
     }
 
+    [RelayCommand]
+    private void NavigateToCatalog()
+    {
+        _navigationService.NavigateTo<CatalogViewModel>();
+    }
+
+    [RelayCommand]
+    private void NavigateToSync()
+    {
+        _navigationService.NavigateTo<SyncViewModel>();
+    }
+
     private void UpdateCart(CartSummaryDto newCart)
     {
         if (newCart != null)

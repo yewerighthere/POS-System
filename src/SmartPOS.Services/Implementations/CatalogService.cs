@@ -56,7 +56,9 @@ public class CatalogService : ICatalogService
     public async Task<IReadOnlyList<ProductDto>> GetProductsAsync()
     {
         var products = await _productRepository.GetAllAsync();
-        return products.Select(MapToDto).ToList();
+        var categories = await _categoryRepository.GetAllAsync();
+        var catMap = categories.ToDictionary(c => c.Id, c => c.Name);
+        return products.Select(p => MapToDto(p, catMap)).ToList();
     }
 
     public async Task<ProductDto> CreateProductAsync(CreateProductDto dto)
@@ -154,13 +156,15 @@ public class CatalogService : ICatalogService
 
     // ── Helpers ───────────────────────────────────────────────────────────────
 
-    private static ProductDto MapToDto(Product p) => new()
+    private static ProductDto MapToDto(Product p, Dictionary<Guid, string>? catMap = null) => new()
     {
         Id = p.Id,
         Name = p.Name,
         Sku = p.Sku,
         Barcode = p.Barcode,
         UnitPrice = p.UnitPrice,
-        LocalStockQuantity = p.LocalStockQuantity
+        LocalStockQuantity = p.LocalStockQuantity,
+        IsActive = p.IsActive,
+        CategoryName = catMap != null && p.CategoryId.HasValue && catMap.TryGetValue(p.CategoryId.Value, out var name) ? name : string.Empty
     };
 }

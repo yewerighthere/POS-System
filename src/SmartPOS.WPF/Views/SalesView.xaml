@@ -392,10 +392,10 @@
                      </Border>
                      <!-- Inactive buttons -->
                      <Button Style="{StaticResource SidebarInactiveButton}" Tag="🧾" Content="Transactions"/>
-                     <Button Style="{StaticResource SidebarInactiveButton}" Tag="📦" Content="Inventory"/>
+                     <Button Style="{StaticResource SidebarInactiveButton}" Tag="📦" Content="Inventory" Command="{Binding NavigateToSyncCommand}"/>
                      <Button Style="{StaticResource SidebarInactiveButton}" Tag="👤" Content="Customers"/>
                      <Button Style="{StaticResource SidebarInactiveButton}" Tag="🔄" Content="Returns &amp; Refunds"/>
-                     <Button Style="{StaticResource SidebarInactiveButton}" Tag="🗂️" Content="Product Catalog"/>
+                     <Button Style="{StaticResource SidebarInactiveButton}" Tag="🗂️" Content="Product Catalog" Command="{Binding NavigateToCatalogCommand}"/>
                      <!-- Shift Reports link (navigates back to shift screen) -->
                      <Button Style="{StaticResource SidebarInactiveButton}" Tag="📊" Content="Shift Reports" Command="{Binding NavigateToShiftCommand}"/>
                      <Button Style="{StaticResource SidebarInactiveButton}" Tag="⚙️" Content="Settings"/>

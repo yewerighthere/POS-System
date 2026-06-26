@@ -109,15 +109,8 @@ public class InventorySyncService : IInventorySyncService
         catch (Exception ex)
         {
             _logger.LogError(ex, "SyncCatalog thất bại");
-
-            await _syncLogRepository.AddAsync(new InventorySyncLog
-            {
-                Id = Guid.NewGuid(),
-                SyncType = "CATALOG",
-                Status = SyncStatus.Failed,
-                Message = ex.Message,
-                SyncedAt = DateTime.UtcNow
-            });
+            try { await _syncLogRepository.AddAsync(new InventorySyncLog { Id = Guid.NewGuid(), SyncType = "CATALOG", Status = SyncStatus.Failed, Message = ex.Message, SyncedAt = DateTime.UtcNow }); }
+            catch (Exception logEx) { _logger.LogWarning(logEx, "Không ghi được sync log"); }
 
             return new SyncResultDto
             {
@@ -186,15 +179,8 @@ public class InventorySyncService : IInventorySyncService
         catch (Exception ex)
         {
             _logger.LogError(ex, "SyncStock thất bại");
-
-            await _syncLogRepository.AddAsync(new InventorySyncLog
-            {
-                Id = Guid.NewGuid(),
-                SyncType = "STOCK",
-                Status = SyncStatus.Failed,
-                Message = ex.Message,
-                SyncedAt = DateTime.UtcNow
-            });
+            try { await _syncLogRepository.AddAsync(new InventorySyncLog { Id = Guid.NewGuid(), SyncType = "STOCK", Status = SyncStatus.Failed, Message = ex.Message, SyncedAt = DateTime.UtcNow }); }
+            catch (Exception logEx) { _logger.LogWarning(logEx, "Không ghi được sync log"); }
 
             return new SyncResultDto
             {
