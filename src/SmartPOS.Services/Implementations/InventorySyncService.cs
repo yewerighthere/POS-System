@@ -1,20 +1,9 @@
-﻿using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Logging;
 using SmartPOS.Data.Entities;
 using SmartPOS.Data.Repositories.Interfaces;
 using SmartPOS.Services.Interfaces;
-using SmartPOS.Shared.DTOs.Auth;
-using SmartPOS.Shared.DTOs.Cart;
-using SmartPOS.Shared.DTOs.Catalog;
-using SmartPOS.Shared.DTOs.Customer;
 using SmartPOS.Shared.DTOs.Inventory;
-using SmartPOS.Shared.DTOs.Invoice;
 using SmartPOS.Shared.DTOs.Order;
-using SmartPOS.Shared.DTOs.Payment;
-using SmartPOS.Shared.DTOs.Product;
-using SmartPOS.Shared.DTOs.Promotion;
-using SmartPOS.Shared.DTOs.Report;
-using SmartPOS.Shared.DTOs.Return;
-using SmartPOS.Shared.DTOs.Shift;
 using SmartPOS.Shared.Enums;
 using System.Net.Http.Json;
 
@@ -25,13 +14,21 @@ public class InventorySyncService : IInventorySyncService
     private readonly HttpClient _httpClient;
     private readonly ILogger<InventorySyncService> _logger;
     private readonly IInventorySyncLogRepository _syncLogRepository;
+    private readonly IProductRepository _productRepository;
 
-    public InventorySyncService(ILogger<InventorySyncService> logger, HttpClient httpClient, IInventorySyncLogRepository syncLogRepository)
+    public InventorySyncService(
+        ILogger<InventorySyncService> logger,
+        HttpClient httpClient,
+        IInventorySyncLogRepository syncLogRepository,
+        IProductRepository productRepository)
     {
         _httpClient = httpClient;
         _logger = logger;
         _syncLogRepository = syncLogRepository;
+        _productRepository = productRepository;
     }
+
+    // ── TASK-1105: SyncCatalogAsync ───────────────────────────────────────────
 
     public async Task<SyncResultDto> SyncCatalogAsync()
     {
@@ -43,27 +40,75 @@ public class InventorySyncService : IInventorySyncService
             var items = await response.Content
                 .ReadFromJsonAsync<List<InventoryCatalogItemDto>>() ?? new();
 
-            _logger.LogInformation("SyncCatalog: {Count} items", items.Count);
+            _logger.LogInformation("SyncCatalog: nhận {Count} sản phẩm từ Inventory API", items.Count);
+
+            int created = 0, updated = 0;
+
+            foreach (var item in items)
+            {
+                var externalId = item.Id.ToString();
+                var existing = await _productRepository.GetByExternalIdAsync(externalId);
+
+                if (existing is null)
+                {
+                    // Tạo mới sản phẩm trong POS từ dữ liệu Inventory Manager
+                    var newProduct = new Product
+                    {
+                        Id = Guid.NewGuid(),
+                        ExternalInventoryId = externalId,
+                        Name = item.Name,
+                        Sku = item.Sku,
+                        Barcode = item.Barcode,
+                        UnitPrice = item.UnitPrice,
+                        TaxRate = item.TaxRate,
+                        IsActive = item.IsActive,
+                        LocalStockQuantity = 0,
+                        CreatedAt = DateTime.UtcNow,
+                        UpdatedAt = DateTime.UtcNow,
+                        LastSyncedAt = DateTime.UtcNow
+                    };
+                    await _productRepository.AddAsync(newProduct);
+                    created++;
+                    _logger.LogInformation("SyncCatalog: tạo mới sản phẩm {Name} (ExternalId: {Id})", item.Name, externalId);
+                }
+                else
+                {
+                    // Cập nhật sản phẩm đã có trong POS
+                    existing.Name = item.Name;
+                    existing.Sku = item.Sku;
+                    existing.Barcode = item.Barcode;
+                    existing.UnitPrice = item.UnitPrice;
+                    existing.TaxRate = item.TaxRate;
+                    existing.IsActive = item.IsActive;
+                    existing.UpdatedAt = DateTime.UtcNow;
+                    existing.LastSyncedAt = DateTime.UtcNow;
+                    await _productRepository.UpdateAsync(existing);
+                    updated++;
+                }
+            }
+
+            var message = $"Đồng bộ catalog: tạo {created}, cập nhật {updated} sản phẩm";
+            _logger.LogInformation("SyncCatalog hoàn tất: {Message}", message);
 
             await _syncLogRepository.AddAsync(new InventorySyncLog
             {
                 Id = Guid.NewGuid(),
                 SyncType = "CATALOG",
                 Status = SyncStatus.Success,
-                Message = $"Đồng bộ catalog: {items.Count} sản phẩm",
+                Message = message,
                 SyncedAt = DateTime.UtcNow
             });
 
             return new SyncResultDto
             {
                 Status = "SUCCESS",
-                Message = $"Đồng bộ catalog thành công: {items.Count} sản phẩm",
-                AffectedRows = items.Count
+                Message = message,
+                AffectedRows = created + updated
             };
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "SyncCatalog failed");
+            _logger.LogError(ex, "SyncCatalog thất bại");
 
             await _syncLogRepository.AddAsync(new InventorySyncLog
             {
@@ -82,6 +127,8 @@ public class InventorySyncService : IInventorySyncService
             };
         }
     }
+
+    // ── TASK-1106: SyncStockAsync ─────────────────────────────────────────────
 
     public async Task<SyncResultDto> SyncStockAsync()
     {
@@ -93,27 +140,52 @@ public class InventorySyncService : IInventorySyncService
             var items = await response.Content
                 .ReadFromJsonAsync<List<InventoryStockItemDto>>() ?? new();
 
-            _logger.LogInformation("SyncStock: {Count} items", items.Count);
+            _logger.LogInformation("SyncStock: nhận {Count} mặt hàng từ Inventory API", items.Count);
+
+            int matched = 0, skipped = 0;
+
+            foreach (var item in items)
+            {
+                var externalId = item.InventoryProductId.ToString();
+                var product = await _productRepository.GetByExternalIdAsync(externalId);
+
+                if (product is null)
+                {
+                    // Chưa sync catalog — bỏ qua, ghi warning
+                    _logger.LogWarning("SyncStock: không tìm thấy sản phẩm POS cho ExternalId {Id} — hãy chạy Sync Catalog trước", externalId);
+                    skipped++;
+                    continue;
+                }
+
+                product.LocalStockQuantity = item.Quantity;
+                product.LastSyncedAt = DateTime.UtcNow;
+                product.UpdatedAt = DateTime.UtcNow;
+                await _productRepository.UpdateAsync(product);
+                matched++;
+            }
+
+            var message = $"Đồng bộ tồn kho: cập nhật {matched} sản phẩm, bỏ qua {skipped} (chưa sync catalog)";
+            _logger.LogInformation("SyncStock hoàn tất: {Message}", message);
 
             await _syncLogRepository.AddAsync(new InventorySyncLog
             {
                 Id = Guid.NewGuid(),
                 SyncType = "STOCK",
                 Status = SyncStatus.Success,
-                Message = $"Đồng bộ tồn kho: {items.Count} mặt hàng",
+                Message = message,
                 SyncedAt = DateTime.UtcNow
             });
 
             return new SyncResultDto
             {
                 Status = "SUCCESS",
-                Message = $"Đồng bộ tồn kho thành công: {items.Count} mặt hàng",
-                AffectedRows = items.Count
+                Message = message,
+                AffectedRows = matched
             };
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "SyncStock failed");
+            _logger.LogError(ex, "SyncStock thất bại");
 
             await _syncLogRepository.AddAsync(new InventorySyncLog
             {
@@ -123,6 +195,7 @@ public class InventorySyncService : IInventorySyncService
                 Message = ex.Message,
                 SyncedAt = DateTime.UtcNow
             });
+
             return new SyncResultDto
             {
                 Status = "FAILED",
@@ -131,6 +204,8 @@ public class InventorySyncService : IInventorySyncService
             };
         }
     }
+
+    // ── SendStockDeductionAsync / RestockAsync (không đổi) ────────────────────
 
     public async Task SendStockDeductionAsync(IEnumerable<OrderItemDto> items, Guid orderId)
     {
@@ -141,11 +216,11 @@ public class InventorySyncService : IInventorySyncService
                 var dto = new StockDeductionEventDto(orderId, item.ProductId, item.Quantity);
                 var response = await _httpClient.PostAsJsonAsync("/api/stock/deduct", dto);
                 response.EnsureSuccessStatusCode();
-                _logger.LogInformation("Deducted stock for product {ProductId}", item.ProductId);
+                _logger.LogInformation("Đã trừ kho sản phẩm {ProductId}", item.ProductId);
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Failed to deduct stock for product {ProductId}", item.ProductId);
+                _logger.LogError(ex, "Trừ kho thất bại cho sản phẩm {ProductId}", item.ProductId);
             }
         }
     }
@@ -156,12 +231,11 @@ public class InventorySyncService : IInventorySyncService
         {
             var response = await _httpClient.PostAsJsonAsync("/api/stock/restock", dto);
             response.EnsureSuccessStatusCode();
-            _logger.LogInformation("Restocked product {ProductId}", dto.ProductId);
+            _logger.LogInformation("Đã nhập lại hàng sản phẩm {ProductId}", dto.ProductId);
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Failed to restock product {ProductId}", dto.ProductId);
+            _logger.LogError(ex, "Nhập lại hàng thất bại cho sản phẩm {ProductId}", dto.ProductId);
         }
     }
 }
-
