@@ -26,7 +26,13 @@ public partial class ShiftViewModel : ObservableObject
     [ObservableProperty] private decimal _closingCash;
     [ObservableProperty] private bool _hasOpenShift;
     [ObservableProperty] private string _statusMessage = string.Empty;
-    [ObservableProperty] private ShiftDto? _currentShift;
+    [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(ShiftOpenedAtDisplay))]
+    private ShiftDto? _currentShift;
+
+    public string ShiftOpenedAtDisplay =>
+        CurrentShift is null ? string.Empty
+        : CurrentShift.OpenedAt.ToLocalTime().ToString("HH:mm dd/MM/yyyy");
     [ObservableProperty] private ShiftSummaryDto? _lastSummary;
     [ObservableProperty] private string _staffName = string.Empty;
     [ObservableProperty] private string _staffRole = string.Empty;
@@ -47,7 +53,7 @@ public partial class ShiftViewModel : ObservableObject
         _staffRole = session.CurrentUser?.Role?.ToUpperInvariant() ?? string.Empty;
         UpdateDateTime();
 
-        var timer = new DispatcherTimer { Interval = TimeSpan.FromSeconds(30) };
+        var timer = new DispatcherTimer { Interval = TimeSpan.FromSeconds(1) };
         timer.Tick += (_, _) => UpdateDateTime();
         timer.Start();
     }
