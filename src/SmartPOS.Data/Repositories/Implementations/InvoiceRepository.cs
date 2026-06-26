@@ -1,4 +1,5 @@
-﻿using SmartPOS.Data.Entities;
+using Microsoft.EntityFrameworkCore;
+using SmartPOS.Data.Entities;
 using SmartPOS.Data.Repositories.Interfaces;
 
 namespace SmartPOS.Data.Repositories.Implementations;
@@ -14,17 +15,24 @@ public class InvoiceRepository : IInvoiceRepository
 
     public Task<Invoice?> GetByOrderIdAsync(Guid orderId)
     {
-        throw new NotImplementedException();
+        return _context.Invoices.FirstOrDefaultAsync(invoice => invoice.OrderId == orderId);
+    }
+
+    public Task<Invoice?> GetByIdAsync(Guid invoiceId)
+    {
+        return _context.Invoices.FirstOrDefaultAsync(invoice => invoice.Id == invoiceId);
     }
 
     public Task<int> GetDailySequenceAsync(DateOnly date)
     {
-        throw new NotImplementedException();
+        var start = date.ToDateTime(TimeOnly.MinValue);
+        var end = start.AddDays(1);
+        return _context.Invoices.CountAsync(invoice => invoice.IssuedAt >= start && invoice.IssuedAt < end);
     }
 
     public Task AddAsync(Invoice invoice)
     {
-        throw new NotImplementedException();
+        _context.Invoices.Add(invoice);
+        return _context.SaveChangesAsync();
     }
 }
-

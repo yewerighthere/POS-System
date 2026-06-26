@@ -17,6 +17,9 @@ namespace SmartPOS.Services.Interfaces;
 
 public interface IInvoiceService
 {
-    Task<InvoiceDto> CreateInvoiceAsync(Guid orderId); Task<InvoiceDto?> GetByOrderIdAsync(Guid orderId); Task PrintPreviewAsync(Guid invoiceId);
+    Task<InvoiceDto> CreateInvoiceAsync(Guid orderId);
+    Task<InvoiceDto?> GetByIdAsync(Guid invoiceId);
+    Task<InvoiceDto?> GetByOrderIdAsync(Guid orderId);
+    Task PrintPreviewAsync(Guid invoiceId);
 }
 
