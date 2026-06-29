@@ -1,6 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using SmartPOS.Data.Entities;
 using SmartPOS.Data.Repositories.Interfaces;
+using SmartPOS.Shared.Enums;
 
 namespace SmartPOS.Data.Repositories.Implementations;
 
@@ -26,6 +27,16 @@ public class OrderRepository : IOrderRepository
             .Include(o => o.Items)
             .Include(o => o.Payments)
             .FirstOrDefaultAsync(o => o.Id == id)
+            .ConfigureAwait(false);
+    }
+
+    public async Task<PaymentStatus?> GetPaymentStatusAsync(Guid id)
+    {
+        return await _context.Orders
+            .AsNoTracking()
+            .Where(o => o.Id == id)
+            .Select(o => (PaymentStatus?)o.PaymentStatus)
+            .FirstOrDefaultAsync()
             .ConfigureAwait(false);
     }
 

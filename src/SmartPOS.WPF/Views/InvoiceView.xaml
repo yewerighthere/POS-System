@@ -36,15 +36,20 @@
                     <Grid>
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="*"/>
-                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="Auto"/>
                         </Grid.ColumnDefinitions>
-                        <StackPanel>
+                        <StackPanel Margin="0,0,16,0">
                             <TextBlock Text="Số hóa đơn" Foreground="#64748B" FontSize="12"/>
-                            <TextBlock Text="{Binding Invoice.InvoiceNumber}" Foreground="#0F172A" FontSize="16" FontWeight="SemiBold"/>
+                            <TextBlock Text="{Binding Invoice.InvoiceNumber}"
+                                       Foreground="#0F172A"
+                                       FontSize="15"
+                                       FontWeight="SemiBold"
+                                       TextWrapping="NoWrap"
+                                       TextTrimming="CharacterEllipsis"/>
                         </StackPanel>
-                        <StackPanel Grid.Column="1">
-                            <TextBlock Text="Tổng tiền" Foreground="#64748B" FontSize="12"/>
-                            <TextBlock Foreground="#0F172A" FontSize="16" FontWeight="SemiBold">
+                        <StackPanel Grid.Column="1" HorizontalAlignment="Right">
+                            <TextBlock Text="Tổng tiền" Foreground="#64748B" FontSize="12" HorizontalAlignment="Right"/>
+                            <TextBlock Foreground="#0F172A" FontSize="16" FontWeight="SemiBold" HorizontalAlignment="Right">
                                 <Run Text="{Binding Invoice.TotalAmount, StringFormat={}{0:N0}}"/>
                                 <Run Text=" đ"/>
                             </TextBlock>
@@ -61,7 +66,7 @@
                         </TextBlock>
                         <TextBlock Margin="0,6,0,0" Foreground="#475569">
                             <Run Text="Ngày phát hành: "/>
-                            <Run Text="{Binding Invoice.IssuedAt, StringFormat={}{0:dd/MM/yyyy HH:mm:ss}}"/>
+                            <Run Text="{Binding IssuedAtLocal, StringFormat={}{0:dd/MM/yyyy HH:mm:ss}}"/>
                         </TextBlock>
                     </StackPanel>
                 </Border>
@@ -86,6 +91,60 @@
                             Command="{Binding CloseCommand}"/>
                 </StackPanel>
             </Grid>
+        </Border>
+
+        <Border Background="#80000000" Visibility="{Binding IsPreviewVisible, Converter={StaticResource BoolToVis}}">
+            <Border Width="420"
+                    Background="White"
+                    CornerRadius="14"
+                    Padding="24"
+                    HorizontalAlignment="Center"
+                    VerticalAlignment="Center">
+                <Border.Effect>
+                    <DropShadowEffect BlurRadius="32" ShadowDepth="6" Opacity="0.2" Color="#000000"/>
+                </Border.Effect>
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="*"/>
+                        <RowDefinition Height="Auto"/>
+                    </Grid.RowDefinitions>
+                    <StackPanel>
+                        <TextBlock Text="Xem trước hóa đơn"
+                                   FontSize="20"
+                                   FontWeight="Bold"
+                                   Foreground="#0F172A"/>
+                        <TextBlock Text="In giả lập thành công"
+                                   FontSize="13"
+                                   Foreground="#0F766E"
+                                   Margin="0,4,0,14"/>
+                    </StackPanel>
+                    <Border Grid.Row="1"
+                            Background="#F8FAFC"
+                            BorderBrush="#CBD5E1"
+                            BorderThickness="1"
+                            CornerRadius="10"
+                            Padding="16">
+                        <ScrollViewer MaxHeight="360" VerticalScrollBarVisibility="Auto">
+                            <TextBlock Text="{Binding ReceiptPreview}"
+                                       FontFamily="Consolas"
+                                       FontSize="13"
+                                       Foreground="#0F172A"
+                                       TextWrapping="Wrap"/>
+                        </ScrollViewer>
+                    </Border>
+                    <Button Grid.Row="2"
+                            Content="Đóng xem trước"
+                            Command="{Binding ClosePreviewCommand}"
+                            Height="42"
+                            MinWidth="140"
+                            HorizontalAlignment="Right"
+                            Margin="0,16,0,0"
+                            Background="#0F766E"
+                            Foreground="White"
+                            BorderThickness="0"/>
+                </Grid>
+            </Border>
         </Border>
 
         <Border Background="#80000000" Visibility="{Binding IsLoading, Converter={StaticResource BoolToVis}}" />

@@ -10,6 +10,7 @@ using SmartPOS.Shared.DTOs.Payment;
 using SmartPOS.Shared.Enums;
 using SmartPOS.Shared.Exceptions;
 using System.Globalization;
+using System.Net;
 using System.Security.Cryptography;
 using System.Text;
 using System.Text.Json;
@@ -136,8 +137,10 @@ public class PaymentService : IPaymentService
         order.PaymentStatus = PaymentStatus.Pending;
         order.UpdatedAt = DateTime.UtcNow;
 
-        var pendingPayment = order.Payments.FirstOrDefault(payment => payment.PaymentMethod == PaymentMethod.VNPay && payment.PaymentStatus == PaymentStatus.Pending)
-            ?? new Payment
+        var pendingPayment = order.Payments.FirstOrDefault(payment => payment.PaymentMethod == PaymentMethod.VNPay && payment.PaymentStatus == PaymentStatus.Pending);
+        if (pendingPayment is null)
+        {
+            pendingPayment = new Payment
             {
                 Id = Guid.NewGuid(),
                 OrderId = order.Id,
@@ -146,12 +149,12 @@ public class PaymentService : IPaymentService
                 CreatedAt = DateTime.UtcNow
             };
 
-        if (!order.Payments.Contains(pendingPayment))
-        {
-            order.Payments.Add(pendingPayment);
+            await _orderRepository.AddPaymentAsync(order, pendingPayment).ConfigureAwait(false);
         }
-
-        await _orderRepository.UpdateAsync(order).ConfigureAwait(false);
+        else
+        {
+            await _orderRepository.UpdateAsync(order).ConfigureAwait(false);
+        }
 
         var paymentUrl = BuildVNPayUrl(dto, order.Id);
         return new PaymentResultDto
@@ -218,10 +221,8 @@ public class PaymentService : IPaymentService
 
     public async Task<PaymentStatus> GetOrderPaymentStatusAsync(Guid orderId)
     {
-        var order = await _orderRepository.GetByIdAsync(orderId).ConfigureAwait(false)
+        return await _orderRepository.GetPaymentStatusAsync(orderId).ConfigureAwait(false)
             ?? throw new BusinessException("Không tìm thấy đơn hàng");
-
-        return order.PaymentStatus;
     }
 
     public async Task CancelVNPayAsync(Guid orderId)
@@ -318,9 +319,8 @@ public class PaymentService : IPaymentService
             ["vnp_Version"] = AppConstants.VNPayVersion
         };
 
-        var query = string.Join("&", parameters.Select(parameter => $"{parameter.Key}={Uri.EscapeDataString(parameter.Value)}"));
-        var signData = string.Join("&", parameters.Select(parameter => $"{parameter.Key}={parameter.Value}"));
-        var signature = CreateHmacSha512(hashSecret, signData);
+        var query = string.Join("&", parameters.Select(parameter => $"{parameter.Key}={WebUtility.UrlEncode(parameter.Value)}"));
+        var signature = CreateHmacSha512(hashSecret, query);
 
         return $"{baseUrl}?{query}&vnp_SecureHash={signature}";
     }

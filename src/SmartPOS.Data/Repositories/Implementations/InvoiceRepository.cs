@@ -23,11 +23,9 @@ public class InvoiceRepository : IInvoiceRepository
         return _context.Invoices.FirstOrDefaultAsync(invoice => invoice.Id == invoiceId);
     }
 
-    public Task<int> GetDailySequenceAsync(DateOnly date)
+    public Task<int> GetDailySequenceAsync(DateTime startUtc, DateTime endUtc)
     {
-        var start = date.ToDateTime(TimeOnly.MinValue);
-        var end = start.AddDays(1);
-        return _context.Invoices.CountAsync(invoice => invoice.IssuedAt >= start && invoice.IssuedAt < end);
+        return _context.Invoices.CountAsync(invoice => invoice.IssuedAt >= startUtc && invoice.IssuedAt < endUtc);
     }
 
     public Task AddAsync(Invoice invoice)

@@ -225,7 +225,7 @@
                         <Grid>
                             <TextBox Style="{StaticResource AmountTextBox}"
                                      Text="{Binding AmountReceived, UpdateSourceTrigger=PropertyChanged}"
-                                     IsEnabled="{Binding IsNotLoading}"/>
+                                     IsEnabled="{Binding IsPaymentInputEnabled}"/>
                             <TextBlock Text="đ"
                                        FontSize="16" FontWeight="SemiBold"
                                        Foreground="#64748B"
@@ -239,19 +239,19 @@
                         <UniformGrid Rows="1" Columns="5" Margin="0,16,0,0">
                             <Button Content="50K" Style="{StaticResource QuickCashButton}" Margin="0,0,6,0"
                                     Command="{Binding AddQuickCashCommand}" CommandParameter="50000"
-                                    IsEnabled="{Binding IsNotLoading}"/>
+                                    IsEnabled="{Binding IsPaymentInputEnabled}"/>
                             <Button Content="100K" Style="{StaticResource QuickCashButton}" Margin="0,0,6,0"
                                     Command="{Binding AddQuickCashCommand}" CommandParameter="100000"
-                                    IsEnabled="{Binding IsNotLoading}"/>
+                                    IsEnabled="{Binding IsPaymentInputEnabled}"/>
                             <Button Content="200K" Style="{StaticResource QuickCashButton}" Margin="0,0,6,0"
                                     Command="{Binding AddQuickCashCommand}" CommandParameter="200000"
-                                    IsEnabled="{Binding IsNotLoading}"/>
+                                    IsEnabled="{Binding IsPaymentInputEnabled}"/>
                             <Button Content="500K" Style="{StaticResource QuickCashButton}" Margin="0,0,6,0"
                                     Command="{Binding AddQuickCashCommand}" CommandParameter="500000"
-                                    IsEnabled="{Binding IsNotLoading}"/>
+                                    IsEnabled="{Binding IsPaymentInputEnabled}"/>
                             <Button Content="1M" Style="{StaticResource QuickCashButton}"
                                     Command="{Binding AddQuickCashCommand}" CommandParameter="1000000"
-                                    IsEnabled="{Binding IsNotLoading}"/>
+                                    IsEnabled="{Binding IsPaymentInputEnabled}"/>
                         </UniformGrid>
 
                         <StackPanel Margin="0,16,0,0">
@@ -266,16 +266,23 @@
                                     CornerRadius="10"
                                     Padding="14"
                                     Visibility="{Binding HasPaymentUrl, Converter={StaticResource BoolToVis}}">
-                                <StackPanel>
-                                    <TextBlock Text="VNPay URL"
-                                               FontSize="11"
-                                               FontWeight="SemiBold"
-                                               Foreground="#1D4ED8"/>
-                                    <TextBlock Text="{Binding PaymentUrl}"
+                                <StackPanel HorizontalAlignment="Center">
+                                    <TextBlock Text="Quét mã QR để thanh toán VNPay"
                                                FontSize="12"
-                                               Foreground="#0F172A"
-                                               TextWrapping="Wrap"
-                                               Margin="0,6,0,0"/>
+                                               FontWeight="SemiBold"
+                                               Foreground="#1D4ED8"
+                                               HorizontalAlignment="Center"/>
+                                    <Border Background="White"
+                                            BorderBrush="#DBEAFE"
+                                            BorderThickness="1"
+                                            CornerRadius="8"
+                                            Padding="10"
+                                            Margin="0,10,0,0">
+                                        <Image Source="{Binding PaymentQrImage}"
+                                               Width="220"
+                                               Height="220"
+                                               Stretch="Uniform"/>
+                                    </Border>
                                 </StackPanel>
                             </Border>
                             <Button Content="Tạo thanh toán VNPay"
@@ -287,7 +294,7 @@
                                     FontWeight="SemiBold"
                                     Cursor="Hand"
                                     Command="{Binding CreateVNPayCommand}"
-                                    IsEnabled="{Binding IsNotLoading}"/>
+                                    IsEnabled="{Binding CanCreateVNPay}"/>
                         </StackPanel>
 
                         <!-- Change Due card -->
@@ -327,7 +334,7 @@
                             <Button Content="Xác nhận thanh toán"
                                     Style="{StaticResource ConfirmButton}"
                                     Command="{Binding ConfirmPaymentCommand}"
-                                    IsEnabled="{Binding IsAmountSufficient}"/>
+                                    IsEnabled="{Binding CanConfirmPayment}"/>
                             <Button Content="Hủy giao dịch"
                                     Margin="0,10,0,0"
                                     Background="Transparent"

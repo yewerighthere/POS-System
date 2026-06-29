@@ -29,11 +29,14 @@ public class InvoiceService : IInvoiceService
 
     public async Task<InvoiceDto> CreateInvoiceAsync(Guid orderId)
     {
-        var order = await _orderRepository.GetByIdWithItemsAsync(orderId).ConfigureAwait(false)
+        var paymentStatus = await _orderRepository.GetPaymentStatusAsync(orderId).ConfigureAwait(false)
             ?? throw new BusinessException("Không tìm thấy đơn hàng");
 
-        if (order.PaymentStatus != PaymentStatus.Success)
+        if (paymentStatus != PaymentStatus.Success)
             throw new BusinessException("Chỉ tạo hóa đơn khi thanh toán thành công");
+
+        var order = await _orderRepository.GetByIdWithItemsAsync(orderId).ConfigureAwait(false)
+            ?? throw new BusinessException("Không tìm thấy đơn hàng");
 
         var existing = await _invoiceRepository.GetByOrderIdAsync(orderId).ConfigureAwait(false);
         if (existing is not null)
@@ -48,15 +51,18 @@ public class InvoiceService : IInvoiceService
             };
         }
 
-        var now = DateTime.UtcNow;
-        var sequence = await _invoiceRepository.GetDailySequenceAsync(DateOnly.FromDateTime(now)).ConfigureAwait(false) + 1;
+        var nowUtc = DateTime.UtcNow;
+        var localNow = nowUtc.ToLocalTime();
+        var localDayStart = new DateTime(localNow.Year, localNow.Month, localNow.Day, 0, 0, 0, DateTimeKind.Local);
+        var dayStartUtc = localDayStart.ToUniversalTime();
+        var sequence = await _invoiceRepository.GetDailySequenceAsync(dayStartUtc, dayStartUtc.AddDays(1)).ConfigureAwait(false) + 1;
         var invoice = new Invoice
         {
             Id = Guid.NewGuid(),
             OrderId = orderId,
-            InvoiceNumber = $"INV-{now:yyyyMMdd}-{sequence:D4}",
+            InvoiceNumber = $"INV-{localNow:yyyyMMdd}-{sequence:D4}",
             TotalAmount = order.TotalAmount,
-            IssuedAt = now
+            IssuedAt = nowUtc
         };
 
         await _invoiceRepository.AddAsync(invoice).ConfigureAwait(false);

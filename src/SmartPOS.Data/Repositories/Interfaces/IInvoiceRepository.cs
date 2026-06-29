@@ -6,7 +6,7 @@ public interface IInvoiceRepository
 {
     Task<Invoice?> GetByIdAsync(Guid invoiceId);
     Task<Invoice?> GetByOrderIdAsync(Guid orderId);
-    Task<int> GetDailySequenceAsync(DateOnly date);
+    Task<int> GetDailySequenceAsync(DateTime startUtc, DateTime endUtc);
     Task AddAsync(Invoice invoice);
 }
 

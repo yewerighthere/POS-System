@@ -34,7 +34,7 @@ một người. Các task nền tảng đã xong như Docker port `5433`, POS mi
 | Thành viên 2 | Shift, Cash Payment, Shift Report | F-02, F-05, F-15 | `TASK-0201` đến `TASK-0209`, `TASK-0501` đến `TASK-0510`, `TASK-1204`, `TASK-1206` | Mở ca, chặn bán khi chưa mở ca, thanh toán tiền mặt, đóng ca, xem báo cáo ca cơ bản; có test shift/payment |
 | Thành viên 3 | Product Search, Sales Screen, Cart | F-03 | `TASK-0304`, `TASK-0305`, `TASK-0308`, `TASK-0309`, `TASK-0401` đến `TASK-0409` | Tìm/quét sản phẩm, thêm/sửa/xóa giỏ hàng, tính subtotal/discount/tax/total, kiểm tra tồn kho; có test cart/search |
 | Thành viên 4 | Catalog, Inventory Manager API, Inventory Sync | F-11, F-13 | `TASK-0301` đến `TASK-0303`, `TASK-0306`, `TASK-0307`, `TASK-1101` đến `TASK-1110` | Quản lý danh mục/sản phẩm, seed 10 sản phẩm, Inventory API trả catalog/stock và nhận deduct/restock, POS sync được; có test sync |
-| Thành viên 5 | VNPay, Callback, Invoice, Fake Print | F-06, F-07, F-08, F-14 | `TASK-0601` đến `TASK-0610`, `TASK-0701` đến `TASK-0708` | Tạo URL/QR VNPay, khóa/mở order, callback validate signature/update payment, invoice preview/fake print; có test callback/invoice |
+| Thành viên 5 | VNPay, Callback, Invoice, Fake Print | F-06, F-07, F-08, F-14 | `TASK-0601` đến `TASK-0610`, `TASK-0701` đến `TASK-0708` | MVP demo đã có luồng tạo URL VNPay, khóa/mở order, callback validate signature/update payment, tạo invoice và preview/in giả lập; còn cần kiểm thử WPF end-to-end và polish |
 | Thành viên 6 | Promotion, Customer, Loyalty, Return/Refund, Audit | F-04, F-09, F-10, F-12, F-15 | `TASK-0801` đến `TASK-0807`, `TASK-0901` đến `TASK-0909`, `TASK-1001` đến `TASK-1010`, `TASK-1201` đến `TASK-1203`, `TASK-1205`, `TASK-1207` | Áp dụng mã `GIAM10`, customer/loyalty, tạo/duyệt/từ chối return, restock sau return, audit log thao tác nhạy cảm; có test promotion/return/customer |
 
 Nếu muốn gắn tên thật của từng thành viên, thay `Thành viên 1` đến `Thành viên 6` bằng tên
@@ -45,10 +45,10 @@ trong bảng này mà không đổi module hoặc task.
 1. Thành viên 1 hoàn thành Auth và seed user demo trước để mọi người test role.
 2. Thành viên 3 và Thành viên 4 làm song song Product/Search/Cart và Catalog/Inventory seed.
 3. Thành viên 2 tích hợp Shift và Cash Payment khi cart/order draft sẵn sàng.
-4. Thành viên 5 tích hợp Invoice cơ bản trước, rồi VNPay/callback sau.
+4. Thành viên 5 tích hợp Invoice cơ bản trước, rồi VNPay/callback, fake print và callback validation sau; ưu tiên luồng demo chạy được end-to-end.
 5. Thành viên 6 làm Promotion trước để nối vào cart/payment, rồi Customer/Return/Audit.
 6. Cả nhóm chạy demo flow cuối: login, sync inventory, open shift, cart, promotion, VNPay,
-   invoice, cash payment, report, return/restock.
+   invoice, cash payment, report, return/restock. Phần Member 5 nên test riêng luồng VNPay -> callback -> invoice -> fake print trước khi demo tổng.
 
 Khi bị block, mỗi thành viên chuyển sang test, docs, UI polish hoặc bug trong module của
 mình trước. Người hoàn thành sớm phải hỗ trợ phần test, UI polish hoặc bug trong module
