@@ -1,4 +1,4 @@
-﻿using SmartPOS.Data.Entities;
+using SmartPOS.Data.Entities;
 using SmartPOS.Data.Repositories.Interfaces;
 
 namespace SmartPOS.Data.Repositories.Implementations;
@@ -12,9 +12,9 @@ public class DeviceLogRepository : IDeviceLogRepository
         _context = context;
     }
 
-    public Task AddAsync(DeviceLog log)
+    public async Task AddAsync(DeviceLog log)
     {
-        throw new NotImplementedException();
+        _context.DeviceLogs.Add(log);
+        await _context.SaveChangesAsync().ConfigureAwait(false);
     }
 }
-

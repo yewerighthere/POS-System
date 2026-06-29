@@ -1,4 +1,5 @@
-﻿using SmartPOS.Data.Entities;
+using Microsoft.EntityFrameworkCore;
+using SmartPOS.Data.Entities;
 using SmartPOS.Data.Repositories.Interfaces;
 
 namespace SmartPOS.Data.Repositories.Implementations;
@@ -12,19 +13,24 @@ public class DeviceRepository : IDeviceRepository
         _context = context;
     }
 
-    public Task<IReadOnlyList<Device>> GetActiveSimulatedDevicesAsync()
+    public async Task<IReadOnlyList<Device>> GetActiveSimulatedDevicesAsync()
     {
-        throw new NotImplementedException();
+        return await _context.Devices
+            .Where(device => device.IsActive)
+            .OrderBy(device => device.Name)
+            .ToListAsync()
+            .ConfigureAwait(false);
     }
 
-    public Task AddAsync(Device device)
+    public async Task AddAsync(Device device)
     {
-        throw new NotImplementedException();
+        await _context.Devices.AddAsync(device).ConfigureAwait(false);
+        await _context.SaveChangesAsync().ConfigureAwait(false);
     }
 
-    public Task UpdateAsync(Device device)
+    public async Task UpdateAsync(Device device)
     {
-        throw new NotImplementedException();
+        _context.Devices.Update(device);
+        await _context.SaveChangesAsync().ConfigureAwait(false);
     }
 }
-

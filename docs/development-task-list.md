@@ -110,29 +110,29 @@ Liên quan: F-05.
 
 Liên quan: F-06, F-07.
 
-- [ ] TASK-0601: Chuẩn hóa config VNPay trong `appsettings.json`.
-- [ ] TASK-0602: Implement tạo URL thanh toán VNPay.
-- [ ] TASK-0603: Implement QR hiển thị trong WPF.
-- [ ] TASK-0604: Khóa order khi đang chờ thanh toán VNPay.
-- [ ] TASK-0605: Implement endpoint `POST /api/vnpay/callback`.
-- [ ] TASK-0606: Implement kiểm tra chữ ký VNPay HMAC-SHA512.
-- [ ] TASK-0607: Implement `PaymentService.HandleVNPayCallbackAsync`.
-- [ ] TASK-0608: Implement poll trạng thái thanh toán mỗi 2 giây.
-- [ ] TASK-0609: Mở khóa order khi VNPay thất bại hoặc timeout.
-- [ ] TASK-0610: Viết test callback thành công, callback sai chữ ký, timeout.
+- [x] TASK-0601: Chuẩn hóa config VNPay trong `appsettings.json`.
+- [x] TASK-0602: Implement tạo URL thanh toán VNPay.
+- [x] TASK-0603: Implement QR hiển thị trong WPF.
+- [x] TASK-0604: Khóa order khi đang chờ thanh toán VNPay.
+- [x] TASK-0605: Implement endpoint `POST /api/vnpay/callback`.
+- [x] TASK-0606: Implement kiểm tra chữ ký VNPay HMAC-SHA512.
+- [x] TASK-0607: Implement `PaymentService.HandleVNPayCallbackAsync`.
+- [x] TASK-0608: Implement poll trạng thái thanh toán mỗi 2 giây.
+- [x] TASK-0609: Mở khóa order khi VNPay thất bại hoặc timeout.
+- [x] TASK-0610: Viết test callback thành công, callback sai chữ ký, timeout.
 
 ## Phase 7 - Invoice Và Giả Lập In
 
 Liên quan: F-08.
 
-- [ ] TASK-0701: Implement `IInvoiceRepository`.
-- [ ] TASK-0702: Implement tạo số hóa đơn theo ngày.
-- [ ] TASK-0703: Implement `InvoiceService.CreateInvoiceAsync`.
-- [ ] TASK-0704: Chỉ tạo invoice khi payment thành công.
-- [ ] TASK-0705: Implement màn hình xem trước hóa đơn.
-- [ ] TASK-0706: Implement `DeviceService` cho giả lập in.
-- [ ] TASK-0707: Ghi `DeviceLog` khi in thành công hoặc thất bại.
-- [ ] TASK-0708: Viết test tạo hóa đơn, không tạo hóa đơn khi payment chưa thành công.
+- [x] TASK-0701: Implement `IInvoiceRepository`.
+- [x] TASK-0702: Implement tạo số hóa đơn theo ngày.
+- [x] TASK-0703: Implement `InvoiceService.CreateInvoiceAsync`.
+- [x] TASK-0704: Chỉ tạo invoice khi payment thành công.
+- [x] TASK-0705: Implement màn hình xem trước hóa đơn.
+- [x] TASK-0706: Implement `DeviceService` cho giả lập in.
+- [x] TASK-0707: Ghi `DeviceLog` khi in thành công hoặc thất bại.
+- [x] TASK-0708: Viết test tạo hóa đơn, không tạo hóa đơn khi payment chưa thành công.
 
 ## Phase 8 - Customer Và Điểm Tích Lũy
 

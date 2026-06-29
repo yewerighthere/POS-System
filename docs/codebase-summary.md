@@ -196,8 +196,8 @@ Thư mục: `SmartPOS.WPF/ViewModels`
 - `LoginViewModel`: đăng nhập, lưu `CurrentSessionContext` và điều hướng theo role.
 - `ShiftViewModel`: mở ca, đóng ca, có `InitializeAsync` để tìm ca đang mở của user khi quay lại màn hình ca.
 - `SalesViewModel`: màn hình bán hàng, giả lập máy quét, giỏ hàng.
-- `PaymentViewModel`: tiền mặt và VNPay.
-- `InvoiceViewModel`: hiện còn TODO.
+- `PaymentViewModel`: tiền mặt và VNPay QR/polling.
+- `InvoiceViewModel`: xem hóa đơn và in giả lập.
 - `CustomerViewModel`: hiện còn TODO.
 - `ReturnViewModel`: hiện còn TODO.
 - `CatalogViewModel`: danh mục, sản phẩm, giá.
@@ -214,8 +214,8 @@ Thư mục: `SmartPOS.WPF/Views`
 Mỗi ViewModel nên có View tương ứng.
 
 - `LoginView`: giao diện split-screen theo thiết kế, có password toggle và binding về `LoginViewModel`.
-- `ShiftView`, `SalesView`, `PaymentView`, `CatalogView`: đã có UI mức cơ bản.
-- `InvoiceView`, `CustomerView`, `ReturnView`, `PromotionView`, `ReportView`, `AuditLogView`, `SyncView`, `UserManagementView`: hiện vẫn là placeholder TODO.
+- `ShiftView`, `SalesView`, `PaymentView`, `InvoiceView`, `CatalogView`: đã có UI mức cơ bản.
+- `CustomerView`, `ReturnView`, `PromotionView`, `ReportView`, `AuditLogView`, `SyncView`, `UserManagementView`: hiện vẫn là placeholder TODO.
 
 ### Control Dự Kiến
 
@@ -248,14 +248,14 @@ File chính: `Program.cs`
 Endpoint:
 
 ```text
-POST /api/vnpay/callback
+GET/POST /api/vnpay/callback
 ```
 
 Trạng thái hiện tại:
 
-- Minimal API đã map `POST /api/vnpay/callback`.
-- Endpoint hiện chỉ trả `OK`.
-- Chưa đọc form callback, chưa kiểm tra chữ ký VNPay và chưa gọi `IPaymentService.HandleVNPayCallbackAsync`.
+- Minimal API đã map `GET/POST /api/vnpay/callback`.
+- Endpoint đọc query/form/json callback, kiểm tra chữ ký HMAC-SHA512 và gọi `IPaymentService.HandleVNPayCallbackAsync`.
+- Endpoint trả trang HTML kết quả để điện thoại hiển thị thanh toán thành công/thất bại sau VNPay.
 
 Thông báo nhật ký:
 

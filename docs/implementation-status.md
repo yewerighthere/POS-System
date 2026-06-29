@@ -38,15 +38,15 @@ Vì vậy, trạng thái hiện tại nên hiểu là: **nền project đã có,
 | F-03 | Bán hàng: chọn sản phẩm, tìm kiếm, giỏ hàng, tính tiền | Đang làm | Đã implement ProductRepository/ProductService tìm barcode/search, CartService thêm/sửa/xóa/tính lại và SalesViewModel/SalesView mức cơ bản. Còn cần hoàn thiện kiểm tra inactive/giá thay đổi, thuế, UX và test search/sales. |
 | F-04 | Khuyến mãi và giảm giá | Chưa làm | Entity `Promotion` đã có `Code`; cần implement validation, áp dụng mã và approval |
 | F-05 | Thanh toán tiền mặt | Đã xong | Đã implement OrderRepository, PaymentService.CreateOrderFromCartAsync và RecordCashPaymentAsync, PaymentViewModel với quick-cash buttons, PaymentView.xaml, kiểm tra thiếu tiền/order khóa và tạo payment/order status. Inventory/audit side effect vẫn bọc lỗi vì F-13/F-15 chưa hoàn chỉnh. |
-| F-06 | Thanh toán VNPay | Chưa làm | Cần tạo URL, QR, khóa order và poll trạng thái |
-| F-07 | Callback thanh toán | Chưa làm | Đã có CallbackApi shell; cần callback endpoint, chữ ký và xử lý trạng thái |
-| F-08 | Hóa đơn và giả lập in | Chưa làm | Cần invoice number, preview, fake print và device log |
+| F-06 | Thanh toán VNPay | Đã xong | Đã có tạo URL/QR VNPay, khóa order, poll trạng thái mỗi 2 giây, hủy/timeout mở khóa order và test service liên quan |
+| F-07 | Callback thanh toán | Đã xong | Callback API nhận GET/POST qua ngrok, validate chữ ký HMAC, xử lý success/failure, trả trang HTML kết quả và cập nhật payment/order |
+| F-08 | Hóa đơn và giả lập in | Đã xong | InvoiceService tạo hóa đơn theo ngày, chặn invoice khi payment chưa thành công, InvoiceView xem hóa đơn và modal in giả lập, DeviceService ghi log preview; test invoice/fake print pass |
 | F-09 | Khách hàng và điểm tích lũy | Chưa làm | Cần implement customer lookup, create, cộng/trừ điểm |
 | F-10 | Trả hàng và hoàn tiền | Chưa làm | Bắt buộc cho demo cuối; cần approve/reject và restock |
 | F-11 | Danh mục sản phẩm | Đang làm | Đã implement CategoryRepository/ProductRepository và CatalogService tạo danh mục, tạo sản phẩm, cập nhật giá, lấy danh sách ở mức cơ bản; DataSeeder có 3 danh mục và 10 sản phẩm. Còn thiếu validate SKU/barcode/QR duy nhất đầy đủ, deactivate, audit và UI quản lý hoàn chỉnh. |
 | F-12 | Giá, thuế và khuyến mãi | Chưa làm | Cần implement quản lý giá, thuế, khuyến mãi và audit sửa giá |
 | F-13 | Đồng bộ Inventory Manager | Đang làm | Đã tách `InventoryDbContext`, entity riêng và migration `InitialInventoryCreate`; Inventory API đã có `GET /api/sync/catalog`, `GET /api/sync/stock`, `POST /api/stock/deduct`, `POST /api/stock/restock`. POS `InventorySyncService` đã gọi API và ghi log dự kiến, nhưng `InventorySyncLogRepository` còn stub nên sync sẽ lỗi khi ghi DB log. |
-| F-14 | Thiết bị giả lập và nhật ký thiết bị | Chưa làm | Cần fake scanner/printer, device config và device logs |
+| F-14 | Thiết bị giả lập và nhật ký thiết bị | Đã xong | Đã có DeviceService cho printer giả lập, DeviceLogRepository ghi sự kiện preview/in giả lập và test device log cơ bản |
 | F-15 | Báo cáo, audit log và cấu hình cửa hàng | Chưa làm | Ưu tiên báo cáo ca và audit log trước |
 
 ## Trạng thái project
@@ -54,12 +54,12 @@ Vì vậy, trạng thái hiện tại nên hiểu là: **nền project đã có,
 | Project | Trạng thái | Ghi chú |
 |---|---|---|
 | SmartPOS.Shared | Cần kiểm thử | Đã có enum, DTO, exception, constant; cần rà lại shape DTO khi implement thật |
-| SmartPOS.Data | Đang làm | Đã có entity, DbContext, design-time factory, migrations POS, Auth/Shift/Product/Category/Order repository và DataSeeder sản phẩm mẫu. Repository Invoice, Return, InventorySyncLog, Device, DeviceLog, AuditLog còn stub. |
-| SmartPOS.Services | Đang làm | Auth, Shift, Product, Cart, Catalog, Cash Payment và một phần InventorySync đã có logic. VNPay, Invoice, Promotion, Customer, Return, Report, Audit, Device còn stub hoặc mới mức skeleton. |
-| SmartPOS.WPF | Đang làm | Login, Shift, Sales, Payment có UI/ViewModel mức cơ bản. Invoice, Customer, Return, Promotion, Report, AuditLog, Sync, UserManagement vẫn placeholder/TODO. |
-| SmartPOS.CallbackApi | Đang làm | Đã có Minimal API shell; callback chỉ trả `OK` |
+| SmartPOS.Data | Đang làm | Đã có entity, DbContext, design-time factory, migrations POS, Auth/Shift/Product/Category/Order/Invoice/Device/DeviceLog repository và DataSeeder sản phẩm mẫu. Repository Return, InventorySyncLog, AuditLog còn stub. |
+| SmartPOS.Services | Đang làm | Auth, Shift, Product, Cart, Catalog, Cash Payment, VNPay, Invoice, Device và một phần InventorySync đã có logic. Promotion, Customer, Return, Report, Audit còn stub hoặc mới mức skeleton. |
+| SmartPOS.WPF | Đang làm | Login, Shift, Sales, Payment có UI/ViewModel mức cơ bản; Payment có VNPay QR/polling, Invoice có view/viewmodel và fake print preview. Các màn Customer, Return, Promotion, Report, AuditLog, Sync, UserManagement vẫn placeholder/TODO. |
+| SmartPOS.CallbackApi | Đã xong | Đã có endpoint callback thật cho VNPay, nhận GET/POST, validate signature, gọi PaymentService và trả trang HTML kết quả. |
 | InventoryManager.Api | Đang làm | Đã có `InventoryDbContext`, entity inventory riêng, migration `InitialInventoryCreate`, SyncController và StockController có logic cơ bản. ProductsController vẫn trả `Ok()` rỗng. |
-| SmartPOS.Tests | Đang làm | Test suite hiện pass 20/20; có test cho Auth, Shift, Cart, Payment, Promotion, InventorySync và Return ở mức hiện tại. Cần bổ sung test cho search/catalog/invoice/audit/report và các luồng UI/demo. |
+| SmartPOS.Tests | Đang làm | Test suite hiện pass 37/37; có test cho Auth, Shift, Cart, Payment/VNPay, Invoice, Device, Promotion, InventorySync và Return ở mức hiện tại. Cần bổ sung test cho search/catalog/audit/report và các luồng UI/demo. |
 
 ## Việc nên làm tiếp theo
 
