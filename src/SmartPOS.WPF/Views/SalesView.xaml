@@ -739,7 +739,7 @@
                                          </TextBox.InputBindings>
                                      </TextBox>
                                      <!-- Placeholder -->
-                                     <TextBlock Text="🏷️ Promo code" 
+                                     <TextBlock Text="🏷️ Customer / Promo code" 
                                                 Foreground="#94A3B8" 
                                                 FontSize="13" 
                                                 VerticalAlignment="Center" 
