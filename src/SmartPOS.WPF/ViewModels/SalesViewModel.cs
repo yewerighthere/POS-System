@@ -327,6 +327,12 @@ public partial class SalesViewModel : ObservableObject
         _navigationService.NavigateTo<SyncViewModel>();
     }
 
+    [RelayCommand]
+    private void NavigateToReport()
+    {
+        _navigationService.NavigateTo<ReportViewModel>();
+    }
+
     private void UpdateCart(CartSummaryDto newCart)
     {
         if (newCart != null)

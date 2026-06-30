@@ -47,7 +47,7 @@ Vì vậy, trạng thái hiện tại nên hiểu là: **nền project đã có,
 | F-12 | Giá, thuế và khuyến mãi | Chưa làm | Cần implement quản lý giá, thuế, khuyến mãi và audit sửa giá |
 | F-13 | Đồng bộ Inventory Manager | Đang làm | Đã tách `InventoryDbContext`, entity riêng và migration `InitialInventoryCreate`; Inventory API đã có `GET /api/sync/catalog`, `GET /api/sync/stock`, `POST /api/stock/deduct`, `POST /api/stock/restock`. POS `InventorySyncService` đã gọi API và ghi log dự kiến, nhưng `InventorySyncLogRepository` còn stub nên sync sẽ lỗi khi ghi DB log. |
 | F-14 | Thiết bị giả lập và nhật ký thiết bị | Đã xong | Đã có DeviceService cho printer giả lập, DeviceLogRepository ghi sự kiện preview/in giả lập và test device log cơ bản |
-| F-15 | Báo cáo, audit log và cấu hình cửa hàng | Chưa làm | Ưu tiên báo cáo ca và audit log trước |
+| F-15 | Báo cáo, audit log và cấu hình cửa hàng | Đang làm | TASK-1204/1206 đã xong: GetShiftReportAsync, ReportViewModel, ReportView.xaml với 4 summary card, recent shifts, top products, order log. Còn TASK-1205 GetSalesReportAsync, TASK-1207 AuditLogViewModel và TASK-1208 test. |
 
 ## Trạng thái project
 

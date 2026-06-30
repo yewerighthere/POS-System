@@ -1,6 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using SmartPOS.Data.Entities;
 using SmartPOS.Data.Repositories.Interfaces;
+using SmartPOS.Shared.DTOs.Report;
 using SmartPOS.Shared.Enums;
 
 namespace SmartPOS.Data.Repositories.Implementations;
@@ -58,4 +59,28 @@ public class OrderRepository : IOrderRepository
         await _context.Payments.AddAsync(payment).ConfigureAwait(false);
         await _context.SaveChangesAsync().ConfigureAwait(false);
     }
+
+    public async Task<int> GetOrderCountByShiftAsync(Guid shiftId)
+        => await _context.Orders
+            .CountAsync(o => o.ShiftId == shiftId && o.Status == OrderStatus.Confirmed)
+            .ConfigureAwait(false);
+
+    public async Task<IReadOnlyList<Order>> GetOrdersByShiftAsync(Guid shiftId)
+        => await _context.Orders
+            .Include(o => o.Items)
+            .Include(o => o.User)
+            .Where(o => o.ShiftId == shiftId)
+            .OrderByDescending(o => o.CreatedAt)
+            .ToListAsync()
+            .ConfigureAwait(false);
+
+    public async Task<IReadOnlyList<TopProductDto>> GetTopProductsByShiftAsync(Guid shiftId, int count)
+        => await _context.OrderItems
+            .Where(oi => oi.Order.ShiftId == shiftId && oi.Order.Status == OrderStatus.Confirmed)
+            .GroupBy(oi => oi.ProductName)
+            .Select(g => new TopProductDto { ProductName = g.Key, TotalSold = g.Sum(oi => oi.Quantity) })
+            .OrderByDescending(x => x.TotalSold)
+            .Take(count)
+            .ToListAsync()
+            .ConfigureAwait(false);
 }
