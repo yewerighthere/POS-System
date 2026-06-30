@@ -37,7 +37,7 @@ public class ReportService : IReportService
         var orderLog = orders.Select(o => new OrderLogDto
         {
             Id            = o.Id,
-            CreatedAt     = o.CreatedAt,
+            CreatedAt     = o.CreatedAt.ToLocalTime(),
             StaffName     = o.User?.FullName ?? "—",
             ItemsSummary  = string.Join(", ", o.Items.Select(i => $"{i.Quantity}x {i.ProductName}")),
             PaymentMethod = o.PaymentMethod?.ToString() ?? "—",
@@ -50,8 +50,8 @@ public class ReportService : IReportService
         return new ShiftReportDto
         {
             ShiftId        = shift.Id,
-            OpenedAt       = shift.OpenedAt,
-            ClosedAt       = shift.ClosedAt,
+            OpenedAt       = shift.OpenedAt.ToLocalTime(),
+            ClosedAt       = shift.ClosedAt?.ToLocalTime(),
             Status         = shift.Status.ToString(),
             OpeningCash    = shift.OpeningCash,
             ClosingCash    = shift.ClosingCash,
@@ -77,8 +77,8 @@ public class ReportService : IReportService
             summaries.Add(new RecentShiftDto
             {
                 Id           = s.Id,
-                OpenedAt     = s.OpenedAt,
-                ClosedAt     = s.ClosedAt,
+                OpenedAt     = s.OpenedAt.ToLocalTime(),
+                ClosedAt     = s.ClosedAt?.ToLocalTime(),
                 Status       = s.Status.ToString(),
                 StaffName    = s.User?.FullName ?? "—",
                 TotalOrders  = orders,
