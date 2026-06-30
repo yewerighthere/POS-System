@@ -197,9 +197,9 @@ Liên quan: F-15.
 - [ ] TASK-1201: Implement `IAuditLogRepository`.
 - [ ] TASK-1202: Implement `AuditService.LogAsync`.
 - [ ] TASK-1203: Ghi audit log cho thanh toán, sửa giá, khuyến mãi, trả hàng.
-- [ ] TASK-1204: Implement `IReportService.GetShiftReportAsync`.
+- [x] TASK-1204: Implement `IReportService.GetShiftReportAsync`.
 - [ ] TASK-1205: Implement `IReportService.GetSalesReportAsync`.
-- [ ] TASK-1206: Implement `ReportViewModel`.
+- [x] TASK-1206: Implement `ReportViewModel`.
 - [ ] TASK-1207: Implement `AuditLogViewModel`.
 - [ ] TASK-1208: Viết test report ca, report doanh thu, ghi audit log.
 

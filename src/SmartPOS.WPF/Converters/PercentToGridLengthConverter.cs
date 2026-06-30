@@ -4,14 +4,12 @@ using System.Windows.Data;
 
 namespace SmartPOS.WPF.Converters;
 
-[ValueConversion(typeof(object), typeof(Visibility))]
-public class NullToVisibilityConverter : IValueConverter
+public class PercentToGridLengthConverter : IValueConverter
 {
     public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
     {
-        bool hasValue = value is not null;
-        bool inverse = parameter is string s && s == "inverse";
-        return (hasValue ^ inverse) ? Visibility.Visible : Visibility.Collapsed;
+        double d = value is double dd ? dd : value is decimal m ? (double)m : 0;
+        return new GridLength(Math.Max(d, 1), GridUnitType.Star);
     }
 
     public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)

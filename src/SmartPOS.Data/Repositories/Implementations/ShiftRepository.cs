@@ -48,5 +48,21 @@ public class ShiftRepository : IShiftRepository
             .Where(o => o.ShiftId == shiftId && o.Status == OrderStatus.Confirmed)
             .SumAsync(o => o.TotalAmount)
             .ConfigureAwait(false);
+
+    public async Task<decimal> GetVNPayRevenueAsync(Guid shiftId)
+        => await _context.Orders
+            .Where(o => o.ShiftId == shiftId
+                && o.PaymentMethod == PaymentMethod.VNPay
+                && o.PaymentStatus == PaymentStatus.Success)
+            .SumAsync(o => o.TotalAmount)
+            .ConfigureAwait(false);
+
+    public async Task<IReadOnlyList<Shift>> GetRecentShiftsAsync(int count)
+        => await _context.Shifts
+            .Include(s => s.User)
+            .OrderByDescending(s => s.OpenedAt)
+            .Take(count)
+            .ToListAsync()
+            .ConfigureAwait(false);
 }
 

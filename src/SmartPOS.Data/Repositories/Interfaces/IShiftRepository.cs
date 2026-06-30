@@ -10,5 +10,7 @@ public interface IShiftRepository
     Task UpdateAsync(Shift shift);
     Task<decimal> GetCashRevenueAsync(Guid shiftId);
     Task<decimal> GetTotalSalesAsync(Guid shiftId);
+    Task<decimal> GetVNPayRevenueAsync(Guid shiftId);
+    Task<IReadOnlyList<Shift>> GetRecentShiftsAsync(int count);
 }
 

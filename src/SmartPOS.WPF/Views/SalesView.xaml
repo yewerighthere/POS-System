@@ -396,8 +396,7 @@
                      <Button Style="{StaticResource SidebarInactiveButton}" Tag="👤" Content="Customers"/>
                      <Button Style="{StaticResource SidebarInactiveButton}" Tag="🔄" Content="Returns &amp; Refunds"/>
                      <Button Style="{StaticResource SidebarInactiveButton}" Tag="🗂️" Content="Product Catalog" Command="{Binding NavigateToCatalogCommand}"/>
-                     <!-- Shift Reports link (navigates back to shift screen) -->
-                     <Button Style="{StaticResource SidebarInactiveButton}" Tag="📊" Content="Shift Reports" Command="{Binding NavigateToShiftCommand}"/>
+                     <Button Style="{StaticResource SidebarInactiveButton}" Tag="📊" Content="Shift Reports" Command="{Binding NavigateToReportCommand}"/>
                      <Button Style="{StaticResource SidebarInactiveButton}" Tag="⚙️" Content="Settings"/>
                  </StackPanel>
 
