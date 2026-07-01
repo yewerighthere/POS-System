@@ -35,20 +35,67 @@ public class CatalogService : ICatalogService
         return categories.Select(c => new CategoryDto
         {
             Id = c.Id,
-            Name = c.Name
+            Name = c.Name,
+            Description = c.Description
         }).ToList();
     }
 
-    public async Task<CategoryDto> CreateCategoryAsync(CreateCategoryDto dto)
+    public async Task<CategoryDto> CreateCategoryAsync(CreateCategoryDto dto, Guid userId)
     {
+        if (string.IsNullOrWhiteSpace(dto.Name))
+            throw new BusinessException("Tên danh mục không được để trống.");
+
+        var existing = await _categoryRepository.GetByNameAsync(dto.Name);
+        if (existing != null)
+            throw new BusinessException($"Danh mục '{dto.Name}' đã tồn tại trong hệ thống.");
+
         var category = new Category
         {
             Id = Guid.NewGuid(),
-            Name = dto.Name
+            Name = dto.Name.Trim(),
+            Description = dto.Description,
+            IsActive = true
         };
         await _categoryRepository.AddAsync(category);
         _logger.LogInformation("Đã tạo danh mục {Name}", category.Name);
-        return new CategoryDto { Id = category.Id, Name = category.Name };
+
+        await _auditService.LogAsync(
+            action: "CREATE_CATEGORY",
+            entity: "Category",
+            entityId: category.Id,
+            oldValue: (object?)null,
+            newValue: new { category.Name, category.Description },
+            userId: userId);
+
+        return new CategoryDto { Id = category.Id, Name = category.Name, Description = category.Description };
+    }
+
+    public async Task<CategoryDto> UpdateCategoryAsync(Guid id, string name, Guid userId)
+    {
+        if (string.IsNullOrWhiteSpace(name))
+            throw new BusinessException("Tên danh mục không được để trống.");
+
+        var category = await _categoryRepository.GetByIdAsync(id)
+            ?? throw new BusinessException("Danh mục không tồn tại.");
+
+        var existing = await _categoryRepository.GetByNameAsync(name);
+        if (existing != null && existing.Id != id)
+            throw new BusinessException($"Danh mục '{name}' đã tồn tại trong hệ thống.");
+
+        var oldName = category.Name;
+        category.Name = name.Trim();
+        await _categoryRepository.UpdateAsync(category);
+        _logger.LogInformation("Đã cập nhật danh mục {Id}: {Old} → {New}", id, oldName, name);
+
+        await _auditService.LogAsync(
+            action: "UPDATE_CATEGORY",
+            entity: "Category",
+            entityId: category.Id,
+            oldValue: new { Name = oldName },
+            newValue: new { Name = name },
+            userId: userId);
+
+        return new CategoryDto { Id = category.Id, Name = category.Name, Description = category.Description };
     }
 
     // ── Product ───────────────────────────────────────────────────────────────
@@ -61,8 +108,20 @@ public class CatalogService : ICatalogService
         return products.Select(p => MapToDto(p, catMap)).ToList();
     }
 
-    public async Task<ProductDto> CreateProductAsync(CreateProductDto dto)
+    public async Task<ProductDto> CreateProductAsync(CreateProductDto dto, Guid userId)
     {
+        if (string.IsNullOrWhiteSpace(dto.Name))
+            throw new BusinessException("Tên sản phẩm không được để trống.");
+
+        // Validate CategoryId tồn tại và còn active
+        if (dto.CategoryId.HasValue)
+        {
+            var category = await _categoryRepository.GetByIdAsync(dto.CategoryId.Value)
+                ?? throw new BusinessException("Danh mục không tồn tại.");
+            if (!category.IsActive)
+                throw new BusinessException("Danh mục đã ngừng hoạt động, không thể thêm sản phẩm vào.");
+        }
+
         // Validate SKU duy nhất
         if (!string.IsNullOrWhiteSpace(dto.Sku))
         {
@@ -79,11 +138,19 @@ public class CatalogService : ICatalogService
                 throw new BusinessException($"Barcode '{dto.Barcode}' đã tồn tại trong hệ thống.");
         }
 
+        // Validate QrCode duy nhất
+        if (!string.IsNullOrWhiteSpace(dto.QrCode))
+        {
+            var existingByQr = await _productRepository.GetByQrCodeAsync(dto.QrCode);
+            if (existingByQr != null)
+                throw new BusinessException($"QR Code '{dto.QrCode}' đã tồn tại trong hệ thống.");
+        }
+
         var product = new Product
         {
             Id = Guid.NewGuid(),
             CategoryId = dto.CategoryId,
-            Name = dto.Name,
+            Name = dto.Name.Trim(),
             Sku = dto.Sku,
             Barcode = dto.Barcode,
             QrCode = dto.QrCode,
@@ -96,6 +163,84 @@ public class CatalogService : ICatalogService
 
         await _productRepository.AddAsync(product);
         _logger.LogInformation("Đã tạo sản phẩm {Name} (SKU: {Sku})", product.Name, product.Sku);
+
+        await _auditService.LogAsync(
+            action: "CREATE_PRODUCT",
+            entity: "Product",
+            entityId: product.Id,
+            oldValue: (object?)null,
+            newValue: new { product.CategoryId, product.Name, product.Sku, product.Barcode, product.UnitPrice },
+            userId: userId);
+
+        return MapToDto(product);
+    }
+
+    public async Task<ProductDto> UpdateProductAsync(Guid id, UpdateProductDto dto, Guid userId)
+    {
+        var product = await _productRepository.GetByIdAsync(id)
+            ?? throw new BusinessException("Sản phẩm không tồn tại.");
+
+        if (!product.IsActive)
+            throw new BusinessException("Không thể cập nhật sản phẩm đã ngừng kinh doanh.");
+
+        if (string.IsNullOrWhiteSpace(dto.Name))
+            throw new BusinessException("Tên sản phẩm không được để trống.");
+
+        // Validate CategoryId
+        if (dto.CategoryId.HasValue)
+        {
+            var category = await _categoryRepository.GetByIdAsync(dto.CategoryId.Value)
+                ?? throw new BusinessException("Danh mục không tồn tại.");
+            if (!category.IsActive)
+                throw new BusinessException("Danh mục đã ngừng hoạt động.");
+        }
+
+        // Validate SKU unique (excluding self)
+        if (!string.IsNullOrWhiteSpace(dto.Sku))
+        {
+            var bySku = await _productRepository.GetBySkuAsync(dto.Sku);
+            if (bySku != null && bySku.Id != id)
+                throw new BusinessException($"SKU '{dto.Sku}' đã được sử dụng bởi sản phẩm khác.");
+        }
+
+        // Validate Barcode unique (excluding self)
+        if (!string.IsNullOrWhiteSpace(dto.Barcode))
+        {
+            var byBarcode = await _productRepository.GetByBarcodeAsync(dto.Barcode);
+            if (byBarcode != null && byBarcode.Id != id)
+                throw new BusinessException($"Barcode '{dto.Barcode}' đã được sử dụng bởi sản phẩm khác.");
+        }
+
+        // Validate QrCode unique (excluding self)
+        if (!string.IsNullOrWhiteSpace(dto.QrCode))
+        {
+            var byQr = await _productRepository.GetByQrCodeAsync(dto.QrCode);
+            if (byQr != null && byQr.Id != id)
+                throw new BusinessException($"QR Code '{dto.QrCode}' đã được sử dụng bởi sản phẩm khác.");
+        }
+
+        var oldSnapshot = new { product.CategoryId, product.Name, product.Sku, product.Barcode, product.QrCode, product.UnitPrice, product.TaxRate };
+
+        product.CategoryId = dto.CategoryId;
+        product.Name = dto.Name.Trim();
+        product.Sku = dto.Sku;
+        product.Barcode = dto.Barcode;
+        product.QrCode = dto.QrCode;
+        product.Description = dto.Description;
+        product.UnitPrice = dto.UnitPrice;
+        product.TaxRate = dto.TaxRate;
+        product.UpdatedAt = DateTime.UtcNow;
+
+        await _productRepository.UpdateAsync(product);
+        _logger.LogInformation("Đã cập nhật sản phẩm {ProductId} ({Name})", product.Id, product.Name);
+
+        await _auditService.LogAsync(
+            action: "UPDATE_PRODUCT",
+            entity: "Product",
+            entityId: product.Id,
+            oldValue: oldSnapshot,
+            newValue: new { product.CategoryId, product.Name, product.Sku, product.Barcode, product.QrCode, product.UnitPrice, product.TaxRate },
+            userId: userId);
 
         return MapToDto(product);
     }

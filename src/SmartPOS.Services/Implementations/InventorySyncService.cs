@@ -15,17 +15,20 @@ public class InventorySyncService : IInventorySyncService
     private readonly ILogger<InventorySyncService> _logger;
     private readonly IInventorySyncLogRepository _syncLogRepository;
     private readonly IProductRepository _productRepository;
+    private readonly ICategoryRepository _categoryRepository;
 
     public InventorySyncService(
         ILogger<InventorySyncService> logger,
         HttpClient httpClient,
         IInventorySyncLogRepository syncLogRepository,
-        IProductRepository productRepository)
+        IProductRepository productRepository,
+        ICategoryRepository categoryRepository)
     {
         _httpClient = httpClient;
         _logger = logger;
         _syncLogRepository = syncLogRepository;
         _productRepository = productRepository;
+        _categoryRepository = categoryRepository;
     }
 
     // ── TASK-1105: SyncCatalogAsync ───────────────────────────────────────────
@@ -42,6 +45,12 @@ public class InventorySyncService : IInventorySyncService
 
             _logger.LogInformation("SyncCatalog: nhận {Count} sản phẩm từ Inventory API", items.Count);
 
+            // Nạp trước tất cả categories để map theo tên
+            var allCategories = await _categoryRepository.GetAllAsync();
+            var catByName = allCategories
+                .GroupBy(c => c.Name.ToLower())
+                .ToDictionary(g => g.Key, g => g.First());
+
             int created = 0, updated = 0;
 
             foreach (var item in items)
@@ -52,13 +61,21 @@ public class InventorySyncService : IInventorySyncService
                 if (existing is null)
                 {
                     // Tạo mới sản phẩm trong POS từ dữ liệu Inventory Manager
+                    Guid? categoryId = null;
+                    if (!string.IsNullOrWhiteSpace(item.CategoryName) &&
+                        catByName.TryGetValue(item.CategoryName.ToLower(), out var cat))
+                        categoryId = cat.Id;
+
                     var newProduct = new Product
                     {
                         Id = Guid.NewGuid(),
                         ExternalInventoryId = externalId,
+                        CategoryId = categoryId,
                         Name = item.Name,
                         Sku = item.Sku,
                         Barcode = item.Barcode,
+                        QrCode = item.QrCode,
+                        Description = item.Description,
                         UnitPrice = item.UnitPrice,
                         TaxRate = item.TaxRate,
                         IsActive = item.IsActive,
@@ -73,10 +90,16 @@ public class InventorySyncService : IInventorySyncService
                 }
                 else
                 {
-                    // Cập nhật sản phẩm đã có trong POS
+                    // Cập nhật sản phẩm đã có trong POS (cập nhật cả CategoryId nếu chưa có)
+                    if (!existing.CategoryId.HasValue && !string.IsNullOrWhiteSpace(item.CategoryName) &&
+                        catByName.TryGetValue(item.CategoryName.ToLower(), out var cat))
+                        existing.CategoryId = cat.Id;
+
                     existing.Name = item.Name;
                     existing.Sku = item.Sku;
                     existing.Barcode = item.Barcode;
+                    existing.QrCode = item.QrCode;
+                    existing.Description = item.Description;
                     existing.UnitPrice = item.UnitPrice;
                     existing.TaxRate = item.TaxRate;
                     existing.IsActive = item.IsActive;
@@ -96,6 +119,7 @@ public class InventorySyncService : IInventorySyncService
                 SyncType = "CATALOG",
                 Status = SyncStatus.Success,
                 Message = message,
+                AffectedRows = created + updated,
                 SyncedAt = DateTime.UtcNow
             });
 
@@ -109,7 +133,18 @@ public class InventorySyncService : IInventorySyncService
         catch (Exception ex)
         {
             _logger.LogError(ex, "SyncCatalog thất bại");
-            try { await _syncLogRepository.AddAsync(new InventorySyncLog { Id = Guid.NewGuid(), SyncType = "CATALOG", Status = SyncStatus.Failed, Message = ex.Message, SyncedAt = DateTime.UtcNow }); }
+            try
+            {
+                await _syncLogRepository.AddAsync(new InventorySyncLog
+                {
+                    Id = Guid.NewGuid(),
+                    SyncType = "CATALOG",
+                    Status = SyncStatus.Failed,
+                    Message = ex.Message,
+                    AffectedRows = 0,
+                    SyncedAt = DateTime.UtcNow
+                });
+            }
             catch (Exception logEx) { _logger.LogWarning(logEx, "Không ghi được sync log"); }
 
             return new SyncResultDto
@@ -157,21 +192,26 @@ public class InventorySyncService : IInventorySyncService
                 matched++;
             }
 
+            var isPartial = skipped > 0;
             var message = $"Đồng bộ tồn kho: cập nhật {matched} sản phẩm, bỏ qua {skipped} (chưa sync catalog)";
+            var status = isPartial ? SyncStatus.Partial : SyncStatus.Success;
+            var statusStr = isPartial ? "PARTIAL" : "SUCCESS";
+
             _logger.LogInformation("SyncStock hoàn tất: {Message}", message);
 
             await _syncLogRepository.AddAsync(new InventorySyncLog
             {
                 Id = Guid.NewGuid(),
                 SyncType = "STOCK",
-                Status = SyncStatus.Success,
+                Status = status,
                 Message = message,
+                AffectedRows = matched,
                 SyncedAt = DateTime.UtcNow
             });
 
             return new SyncResultDto
             {
-                Status = "SUCCESS",
+                Status = statusStr,
                 Message = message,
                 AffectedRows = matched
             };
@@ -179,7 +219,18 @@ public class InventorySyncService : IInventorySyncService
         catch (Exception ex)
         {
             _logger.LogError(ex, "SyncStock thất bại");
-            try { await _syncLogRepository.AddAsync(new InventorySyncLog { Id = Guid.NewGuid(), SyncType = "STOCK", Status = SyncStatus.Failed, Message = ex.Message, SyncedAt = DateTime.UtcNow }); }
+            try
+            {
+                await _syncLogRepository.AddAsync(new InventorySyncLog
+                {
+                    Id = Guid.NewGuid(),
+                    SyncType = "STOCK",
+                    Status = SyncStatus.Failed,
+                    Message = ex.Message,
+                    AffectedRows = 0,
+                    SyncedAt = DateTime.UtcNow
+                });
+            }
             catch (Exception logEx) { _logger.LogWarning(logEx, "Không ghi được sync log"); }
 
             return new SyncResultDto
@@ -191,7 +242,8 @@ public class InventorySyncService : IInventorySyncService
         }
     }
 
-    // ── SendStockDeductionAsync / RestockAsync (không đổi) ────────────────────
+    // ── TASK-1103: SendStockDeductionAsync ────────────────────────────────────
+    // Fix: lookup ExternalInventoryId trước, gửi đúng Inventory Product ID
 
     public async Task SendStockDeductionAsync(IEnumerable<OrderItemDto> items, Guid orderId)
     {
@@ -199,10 +251,24 @@ public class InventorySyncService : IInventorySyncService
         {
             try
             {
-                var dto = new StockDeductionEventDto(orderId, item.ProductId, item.Quantity);
+                // Lấy ExternalInventoryId từ POS product
+                var product = await _productRepository.GetByIdAsync(item.ProductId);
+                if (product == null || string.IsNullOrEmpty(product.ExternalInventoryId))
+                {
+                    _logger.LogWarning("SendStockDeduction: sản phẩm {ProductId} không có ExternalInventoryId, bỏ qua trừ kho.", item.ProductId);
+                    continue;
+                }
+
+                if (!Guid.TryParse(product.ExternalInventoryId, out var inventoryProductId))
+                {
+                    _logger.LogWarning("SendStockDeduction: ExternalInventoryId '{Id}' không phải Guid hợp lệ.", product.ExternalInventoryId);
+                    continue;
+                }
+
+                var dto = new StockDeductionEventDto(orderId, inventoryProductId, item.Quantity);
                 var response = await _httpClient.PostAsJsonAsync("/api/stock/deduct", dto);
                 response.EnsureSuccessStatusCode();
-                _logger.LogInformation("Đã trừ kho sản phẩm {ProductId}", item.ProductId);
+                _logger.LogInformation("Đã trừ kho sản phẩm {ProductId} (InventoryId: {InvId})", item.ProductId, inventoryProductId);
             }
             catch (Exception ex)
             {
@@ -210,6 +276,8 @@ public class InventorySyncService : IInventorySyncService
             }
         }
     }
+
+    // ── TASK-1104: RestockAsync ───────────────────────────────────────────────
 
     public async Task RestockAsync(RestockEventDto dto)
     {

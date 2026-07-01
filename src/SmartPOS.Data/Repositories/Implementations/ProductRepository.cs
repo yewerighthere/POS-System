@@ -28,17 +28,31 @@ public class ProductRepository : IProductRepository
         return await _context.Products.FirstOrDefaultAsync(p => p.Sku == sku);
     }
 
+    public async Task<Product?> GetByQrCodeAsync(string qrCode)
+    {
+        return await _context.Products.FirstOrDefaultAsync(p => p.QrCode == qrCode);
+    }
+
     public async Task<Product?> GetByExternalIdAsync(string externalId)
     {
         return await _context.Products.FirstOrDefaultAsync(p => p.ExternalInventoryId == externalId);
     }
 
-    public async Task<IReadOnlyList<Product>> SearchAsync(string keyword)
+    public async Task<IReadOnlyList<Product>> SearchAsync(string keyword, bool includeInactive = false)
     {
-        return await _context.Products
-            .Where(p => p.Name.Contains(keyword)
-                     || p.Sku.Contains(keyword)
-                     || (p.Barcode != null && p.Barcode.Contains(keyword))).ToListAsync();
+        var query = _context.Products.AsQueryable();
+
+        if (!includeInactive)
+            query = query.Where(p => p.IsActive);
+
+        if (!string.IsNullOrWhiteSpace(keyword))
+            query = query.Where(p =>
+                p.Name.Contains(keyword) ||
+                p.Sku.Contains(keyword) ||
+                (p.Barcode != null && p.Barcode.Contains(keyword)) ||
+                (p.QrCode != null && p.QrCode.Contains(keyword)));
+
+        return await query.ToListAsync();
     }
 
     public async Task AddAsync(Product product)
@@ -52,6 +66,7 @@ public class ProductRepository : IProductRepository
         _context.Products.Update(product);
         await _context.SaveChangesAsync();
     }
+
     public async Task<IReadOnlyList<Product>> GetAllAsync()
     {
         return await _context.Products
@@ -59,4 +74,3 @@ public class ProductRepository : IProductRepository
             .ToListAsync();
     }
 }
-
