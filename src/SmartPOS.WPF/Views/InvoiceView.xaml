@@ -4,6 +4,7 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:viewmodels="clr-namespace:SmartPOS.WPF.ViewModels"
+             xmlns:converters="clr-namespace:SmartPOS.WPF.Converters"
              mc:Ignorable="d"
              d:DataContext="{d:DesignInstance Type=viewmodels:InvoiceViewModel}"
              Background="#F8FAFC"
@@ -11,6 +12,7 @@
 
     <UserControl.Resources>
         <BooleanToVisibilityConverter x:Key="BoolToVis"/>
+        <converters:NullOrEmptyToVisibilityConverter x:Key="NullToVis"/>
     </UserControl.Resources>
 
     <Grid Margin="24">
@@ -66,7 +68,20 @@
                         </TextBlock>
                         <TextBlock Margin="0,6,0,0" Foreground="#475569">
                             <Run Text="Ngày phát hành: "/>
-                            <Run Text="{Binding IssuedAtLocal, StringFormat={}{0:dd/MM/yyyy HH:mm:ss}}"/>
+                            <Run Text="{Binding IssuedAtLocal, Mode=OneWay, StringFormat={}{0:dd/MM/yyyy HH:mm:ss}}"/>
+                        </TextBlock>
+                        <TextBlock Margin="0,6,0,0" Foreground="#475569" Visibility="{Binding Invoice.CustomerName, Converter={StaticResource NullToVis}, FallbackValue=Collapsed}">
+                            <Run Text="Khách hàng: "/>
+                            <Run Text="{Binding Invoice.CustomerName}"/>
+                        </TextBlock>
+                        <TextBlock Margin="0,6,0,0" Foreground="#16A34A" Visibility="{Binding Invoice.CustomerName, Converter={StaticResource NullToVis}, FallbackValue=Collapsed}">
+                            <Run Text="Sử dụng: -"/>
+                            <Run Text="{Binding Invoice.PointsUsed, StringFormat={}{0:N0}}"/>
+                            <Run Text=" điểm | Tích lũy: +"/>
+                            <Run Text="{Binding Invoice.PointsEarned, StringFormat={}{0:N0}}"/>
+                            <Run Text=" điểm | Số dư: "/>
+                            <Run Text="{Binding Invoice.CurrentPointsBalance, StringFormat={}{0:N0}}"/>
+                            <Run Text=" điểm"/>
                         </TextBlock>
                     </StackPanel>
                 </Border>
