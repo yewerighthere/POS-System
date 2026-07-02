@@ -22,5 +22,7 @@ public interface ICustomerService
     Task AddLoyaltyPointsAsync(Guid customerId, int points); 
     Task DeductLoyaltyPointsAsync(Guid customerId, int points);
     int CalculatePoints(decimal subtotal);
+    Task<IEnumerable<CustomerListDto>> GetCustomerListAsync(string? searchTerm, string? statusFilter, string? orderFilter, string? sortOption);
+    Task ToggleCustomerStatusAsync(Guid customerId);
 }
 

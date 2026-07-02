@@ -87,4 +87,45 @@ public class CustomerService : ICustomerService
         if (subtotal <= 0) return 0;
         return (int)Math.Floor(subtotal / 10000m);
     }
+
+    public async Task<IEnumerable<CustomerListDto>> GetCustomerListAsync(string? searchTerm, string? statusFilter, string? orderFilter, string? sortOption)
+    {
+        bool? isActive = statusFilter switch
+        {
+            "Active" => true,
+            "Banned" => false,
+            _ => null
+        };
+
+        bool? hasOrders = orderFilter switch
+        {
+            "Has Orders" => true,
+            "No Orders" => false,
+            _ => null
+        };
+
+        var customers = await _customerRepository.GetCustomersQueryAsync(searchTerm, isActive, hasOrders, sortOption).ConfigureAwait(false);
+
+        return customers.Select(c => new CustomerListDto
+        {
+            Id = c.Id,
+            FullName = c.FullName,
+            Phone = c.Phone,
+            Email = c.Email,
+            OrderCount = c.Orders?.Count ?? 0,
+            LoyaltyPoints = c.LoyaltyPoints,
+            IsActive = c.IsActive,
+            CreatedAt = c.CreatedAt
+        });
+    }
+
+    public async Task ToggleCustomerStatusAsync(Guid customerId)
+    {
+        var customer = await _customerRepository.GetByIdAsync(customerId).ConfigureAwait(false);
+        if (customer != null)
+        {
+            customer.IsActive = !customer.IsActive;
+            await _customerRepository.UpdateAsync(customer).ConfigureAwait(false);
+        }
+    }
 }
