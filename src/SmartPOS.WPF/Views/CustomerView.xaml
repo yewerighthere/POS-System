@@ -157,9 +157,9 @@
 
                 <!-- Navigation Links -->
                 <StackPanel Grid.Row="1">
-                    <Button Style="{StaticResource SidebarInactiveButton}" Tag="🖥️" Content="Point of Sale"/>
+                    <Button Style="{StaticResource SidebarInactiveButton}" Tag="🖥️" Content="Point of Sale" Command="{Binding NavigateToSalesCommand}"/>
                     <Button Style="{StaticResource SidebarInactiveButton}" Tag="🧾" Content="Transactions"/>
-                    <Button Style="{StaticResource SidebarInactiveButton}" Tag="📦" Content="Inventory"/>
+                    <Button Style="{StaticResource SidebarInactiveButton}" Tag="📦" Content="Inventory" Command="{Binding NavigateToSyncCommand}"/>
                     
                     <!-- Customers (Active button) -->
                     <Border Background="#00288E" CornerRadius="8" Margin="8,2" Padding="16,10">
@@ -170,8 +170,8 @@
                     </Border>
                     
                     <Button Style="{StaticResource SidebarInactiveButton}" Tag="🔄" Content="Returns &amp; Refunds"/>
-                    <Button Style="{StaticResource SidebarInactiveButton}" Tag="🗂️" Content="Product Catalog"/>
-                    <Button Style="{StaticResource SidebarInactiveButton}" Tag="📊" Content="Shift Reports"/>
+                    <Button Style="{StaticResource SidebarInactiveButton}" Tag="🗂️" Content="Product Catalog" Command="{Binding NavigateToCatalogCommand}"/>
+                    <Button Style="{StaticResource SidebarInactiveButton}" Tag="📊" Content="Shift Reports" Command="{Binding NavigateToReportCommand}"/>
                     <Button Style="{StaticResource SidebarInactiveButton}" Tag="⚙️" Content="Settings"/>
                 </StackPanel>
             </Grid>

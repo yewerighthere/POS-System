@@ -3,6 +3,7 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using SmartPOS.Services.Interfaces;
 using SmartPOS.Shared.DTOs.Customer;
+using SmartPOS.WPF.Navigation;
 using System.Windows;
 
 namespace SmartPOS.WPF.ViewModels;
@@ -43,9 +44,12 @@ public partial class CustomerViewModel : ObservableObject
 
     public ObservableCollection<CustomerListDto> Customers { get; } = new();
 
-    public CustomerViewModel(ICustomerService customerService)
+    private readonly NavigationService _navigationService;
+
+    public CustomerViewModel(ICustomerService customerService, NavigationService navigationService)
     {
         _customerService = customerService;
+        _navigationService = navigationService;
         LoadDataCommand.Execute(null);
     }
 
@@ -99,6 +103,30 @@ public partial class CustomerViewModel : ObservableObject
     private void ViewDetail(Guid customerId)
     {
         MessageBox.Show($"Viewing details for Customer {customerId} will be implemented soon.", "Info", MessageBoxButton.OK, MessageBoxImage.Information);
+    }
+
+    [RelayCommand]
+    private void NavigateToSales()
+    {
+        _navigationService.NavigateTo<SalesViewModel>();
+    }
+
+    [RelayCommand]
+    private void NavigateToCatalog()
+    {
+        _navigationService.NavigateTo<CatalogViewModel>();
+    }
+
+    [RelayCommand]
+    private void NavigateToSync()
+    {
+        _navigationService.NavigateTo<SyncViewModel>();
+    }
+
+    [RelayCommand]
+    private void NavigateToReport()
+    {
+        _navigationService.NavigateTo<ReportViewModel>();
     }
 }
 
