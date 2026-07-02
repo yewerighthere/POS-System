@@ -50,7 +50,13 @@ public class CartService : ICartService
             });
         }
 
-        return Recalculate(new CartSummaryDto { Items = items, DiscountAmount = cart.DiscountAmount });
+        return Recalculate(new CartSummaryDto { 
+            Items = items, 
+            DiscountAmount = cart.DiscountAmount,
+            Customer = cart.Customer,
+            PointsUsed = cart.PointsUsed,
+            PointsDiscountAmount = cart.PointsDiscountAmount
+        });
     }
 
     public CartSummaryDto UpdateItem(Guid productId, int quantity, CartSummaryDto cart)
@@ -67,26 +73,44 @@ public class CartService : ICartService
             item.Subtotal = item.UnitPrice * quantity;
         }
 
-        return Recalculate(new CartSummaryDto { Items = items, DiscountAmount = cart.DiscountAmount });
+        return Recalculate(new CartSummaryDto { 
+            Items = items, 
+            DiscountAmount = cart.DiscountAmount,
+            Customer = cart.Customer,
+            PointsUsed = cart.PointsUsed,
+            PointsDiscountAmount = cart.PointsDiscountAmount
+        });
     }
 
     public CartSummaryDto RemoveItem(Guid productId, CartSummaryDto cart)
     {
         var items = CloneItems(cart).Where(i => i.ProductId != productId).ToList();
-        return Recalculate(new CartSummaryDto { Items = items, DiscountAmount = cart.DiscountAmount });
+        return Recalculate(new CartSummaryDto { 
+            Items = items, 
+            DiscountAmount = cart.DiscountAmount,
+            Customer = cart.Customer,
+            PointsUsed = cart.PointsUsed,
+            PointsDiscountAmount = cart.PointsDiscountAmount
+        });
     }
 
     public CartSummaryDto Recalculate(CartSummaryDto cart)
     {
         var subtotal = cart.Items.Sum(i => i.Subtotal);
         var discount = Math.Min(cart.DiscountAmount, subtotal);
+        var pointsDiscount = Math.Min(cart.PointsDiscountAmount, subtotal - discount);
+        var pointsEarned = (int)Math.Floor(subtotal / 10000m);
         return new CartSummaryDto
         {
             Items = cart.Items,
+            Customer = cart.Customer,
             Subtotal = subtotal,
             DiscountAmount = discount,
+            PointsDiscountAmount = pointsDiscount,
+            PointsUsed = cart.PointsUsed,
+            PointsEarned = pointsEarned,
             TaxAmount = 0,
-            TotalAmount = Math.Max(0, subtotal - discount)
+            TotalAmount = Math.Max(0, subtotal - discount - pointsDiscount)
         };
     }
 

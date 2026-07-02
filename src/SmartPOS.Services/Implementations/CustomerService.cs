@@ -59,9 +59,32 @@ public class CustomerService : ICustomerService
         };
     }
 
-    public Task AddLoyaltyPointsAsync(Guid customerId, int points)
-        => throw new NotImplementedException();
+    public async Task AddLoyaltyPointsAsync(Guid customerId, int points)
+    {
+        if (points <= 0) return;
+        var customer = await _customerRepository.GetByIdAsync(customerId).ConfigureAwait(false);
+        if (customer != null)
+        {
+            customer.LoyaltyPoints += points;
+            await _customerRepository.UpdateAsync(customer).ConfigureAwait(false);
+        }
+    }
+
+    public async Task DeductLoyaltyPointsAsync(Guid customerId, int points)
+    {
+        if (points <= 0) return;
+        var customer = await _customerRepository.GetByIdAsync(customerId).ConfigureAwait(false);
+        if (customer != null)
+        {
+            customer.LoyaltyPoints -= points;
+            if (customer.LoyaltyPoints < 0) customer.LoyaltyPoints = 0;
+            await _customerRepository.UpdateAsync(customer).ConfigureAwait(false);
+        }
+    }
 
     public int CalculatePoints(decimal subtotal)
-        => throw new NotImplementedException();
+    {
+        if (subtotal <= 0) return 0;
+        return (int)Math.Floor(subtotal / 10000m);
+    }
 }

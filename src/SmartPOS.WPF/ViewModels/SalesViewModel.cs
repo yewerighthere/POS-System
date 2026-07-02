@@ -129,6 +129,8 @@ public partial class SalesViewModel : ObservableObject
                     if (customer != null)
                     {
                         CustomerInfo = $"{customer.FullName} ({customer.Phone})";
+                        Cart.Customer = customer;
+                        RecalculateCart();
                         BarcodeQuery = string.Empty;
                         return;
                     }
@@ -395,6 +397,8 @@ public partial class SalesViewModel : ObservableObject
             var dto = new SmartPOS.Shared.DTOs.Customer.CreateCustomerDto(NewCustomerName, NewCustomerPhone, string.IsNullOrWhiteSpace(NewCustomerEmail) ? null : NewCustomerEmail);
             var customer = await _customerService.CreateAsync(dto).ConfigureAwait(true);
             CustomerInfo = $"{customer.FullName} ({customer.Phone})";
+            Cart.Customer = customer;
+            RecalculateCart();
             CloseCustomerPopups();
         }
         catch (BusinessException ex)
@@ -409,6 +413,36 @@ public partial class SalesViewModel : ObservableObject
         {
             IsLoading = false;
         }
+    }
+
+    [RelayCommand]
+    private void ToggleUsePoints()
+    {
+        if (Cart.Customer == null || Cart.Customer.LoyaltyPoints <= 0) return;
+        
+        if (Cart.PointsUsed > 0)
+        {
+            Cart.PointsUsed = 0;
+            Cart.PointsDiscountAmount = 0;
+        }
+        else
+        {
+            var maxPoints = Cart.Customer.LoyaltyPoints;
+            var currentSubtotalAfterPromo = Cart.Subtotal - Cart.DiscountAmount;
+            
+            if (maxPoints > currentSubtotalAfterPromo)
+            {
+                Cart.PointsUsed = (int)Math.Floor(currentSubtotalAfterPromo);
+                Cart.PointsDiscountAmount = currentSubtotalAfterPromo;
+            }
+            else
+            {
+                Cart.PointsUsed = maxPoints;
+                Cart.PointsDiscountAmount = maxPoints;
+            }
+        }
+        
+        RecalculateCart();
     }
 }
 

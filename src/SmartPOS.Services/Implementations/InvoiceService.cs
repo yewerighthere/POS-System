@@ -41,13 +41,18 @@ public class InvoiceService : IInvoiceService
         var existing = await _invoiceRepository.GetByOrderIdAsync(orderId).ConfigureAwait(false);
         if (existing is not null)
         {
+            var existingOrder = await _orderRepository.GetByIdWithItemsAsync(orderId).ConfigureAwait(false);
             return new InvoiceDto
             {
                 Id = existing.Id,
                 OrderId = existing.OrderId,
                 InvoiceNumber = existing.InvoiceNumber,
                 TotalAmount = existing.TotalAmount,
-                IssuedAt = existing.IssuedAt
+                IssuedAt = existing.IssuedAt,
+                CustomerName = existingOrder?.Customer?.FullName,
+                PointsEarned = existingOrder?.PointsEarned ?? 0,
+                PointsUsed = existingOrder?.PointsUsed ?? 0,
+                CurrentPointsBalance = existingOrder?.Customer?.LoyaltyPoints ?? 0
             };
         }
 
@@ -73,38 +78,50 @@ public class InvoiceService : IInvoiceService
             OrderId = invoice.OrderId,
             InvoiceNumber = invoice.InvoiceNumber,
             TotalAmount = invoice.TotalAmount,
-            IssuedAt = invoice.IssuedAt
+            IssuedAt = invoice.IssuedAt,
+            CustomerName = order.Customer?.FullName,
+            PointsEarned = order.PointsEarned,
+            PointsUsed = order.PointsUsed,
+            CurrentPointsBalance = order.Customer?.LoyaltyPoints ?? 0
         };
     }
 
     public async Task<InvoiceDto?> GetByOrderIdAsync(Guid orderId)
     {
         var invoice = await _invoiceRepository.GetByOrderIdAsync(orderId).ConfigureAwait(false);
-        return invoice is null
-            ? null
-            : new InvoiceDto
-            {
-                Id = invoice.Id,
-                OrderId = invoice.OrderId,
-                InvoiceNumber = invoice.InvoiceNumber,
-                TotalAmount = invoice.TotalAmount,
-                IssuedAt = invoice.IssuedAt
-            };
+        if (invoice is null) return null;
+        var order = await _orderRepository.GetByIdWithItemsAsync(orderId).ConfigureAwait(false);
+        return new InvoiceDto
+        {
+            Id = invoice.Id,
+            OrderId = invoice.OrderId,
+            InvoiceNumber = invoice.InvoiceNumber,
+            TotalAmount = invoice.TotalAmount,
+            IssuedAt = invoice.IssuedAt,
+            CustomerName = order?.Customer?.FullName,
+            PointsEarned = order?.PointsEarned ?? 0,
+            PointsUsed = order?.PointsUsed ?? 0,
+            CurrentPointsBalance = order?.Customer?.LoyaltyPoints ?? 0
+        };
     }
 
     public async Task<InvoiceDto?> GetByIdAsync(Guid invoiceId)
     {
         var invoice = await _invoiceRepository.GetByIdAsync(invoiceId).ConfigureAwait(false);
-        return invoice is null
-            ? null
-            : new InvoiceDto
-            {
-                Id = invoice.Id,
-                OrderId = invoice.OrderId,
-                InvoiceNumber = invoice.InvoiceNumber,
-                TotalAmount = invoice.TotalAmount,
-                IssuedAt = invoice.IssuedAt
-            };
+        if (invoice is null) return null;
+        var order = await _orderRepository.GetByIdWithItemsAsync(invoice.OrderId).ConfigureAwait(false);
+        return new InvoiceDto
+        {
+            Id = invoice.Id,
+            OrderId = invoice.OrderId,
+            InvoiceNumber = invoice.InvoiceNumber,
+            TotalAmount = invoice.TotalAmount,
+            IssuedAt = invoice.IssuedAt,
+            CustomerName = order?.Customer?.FullName,
+            PointsEarned = order?.PointsEarned ?? 0,
+            PointsUsed = order?.PointsUsed ?? 0,
+            CurrentPointsBalance = order?.Customer?.LoyaltyPoints ?? 0
+        };
     }
 
     public async Task PrintPreviewAsync(Guid invoiceId)

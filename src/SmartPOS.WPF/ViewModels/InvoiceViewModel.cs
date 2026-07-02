@@ -103,6 +103,18 @@ public partial class InvoiceViewModel : ObservableObject
         builder.AppendLine($"Hóa đơn: {invoice.InvoiceNumber}");
         builder.AppendLine($"Mã đơn: {invoice.OrderId}");
         builder.AppendLine($"Ngày: {invoice.IssuedAt.ToLocalTime():dd/MM/yyyy HH:mm:ss}");
+        
+        if (!string.IsNullOrEmpty(invoice.CustomerName))
+        {
+            builder.AppendLine("--------------------------------");
+            builder.AppendLine($"Khách hàng: {invoice.CustomerName}");
+            if (invoice.PointsUsed > 0)
+                builder.AppendLine($"Sử dụng điểm: -{invoice.PointsUsed}");
+            if (invoice.PointsEarned > 0)
+                builder.AppendLine($"Điểm được tích: +{invoice.PointsEarned}");
+            builder.AppendLine($"Số dư điểm: {invoice.CurrentPointsBalance}");
+        }
+
         builder.AppendLine("--------------------------------");
         builder.AppendLine($"Tổng tiền: {invoice.TotalAmount.ToString("N0", culture)} đ");
         builder.AppendLine("--------------------------------");
