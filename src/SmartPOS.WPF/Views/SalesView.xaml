@@ -827,6 +827,63 @@
                      </Grid>
                  </Border>
              </Grid>
+     </Grid>
+         
+         <!-- Popup: Customer Not Found -->
+         <Grid Background="#66000000" Panel.ZIndex="100" Grid.ColumnSpan="2" Visibility="{Binding IsCustomerNotFoundPopupOpen, Converter={StaticResource BooleanToVisibilityConverter}}">
+             <Border Background="White" CornerRadius="12" Width="400" HorizontalAlignment="Center" VerticalAlignment="Center" Padding="24">
+                 <StackPanel>
+                     <TextBlock Text="Khách hàng chưa tồn tại" FontSize="18" FontWeight="Bold" Foreground="#0F172A" Margin="0,0,0,16"/>
+                     <TextBlock Text="Không tìm thấy thông tin khách hàng với số điện thoại này. Quý khách có muốn tạo mới tài khoản không?" FontSize="14" Foreground="#64748B" TextWrapping="Wrap" Margin="0,0,0,24"/>
+                     <Grid>
+                         <Grid.ColumnDefinitions>
+                             <ColumnDefinition Width="*"/>
+                             <ColumnDefinition Width="*"/>
+                         </Grid.ColumnDefinitions>
+                         <Button Grid.Column="0" Content="Bỏ qua" Command="{Binding CloseCustomerPopupsCommand}" Background="Transparent" Foreground="#64748B" BorderThickness="0" FontWeight="SemiBold" Margin="0,0,8,0" Height="40" Cursor="Hand"/>
+                         <Button Grid.Column="1" Content="Tạo mới" Command="{Binding ShowCreateCustomerFormCommand}" Style="{StaticResource CheckoutButton}" Height="40"/>
+                     </Grid>
+                 </StackPanel>
+             </Border>
          </Grid>
+
+         <!-- Popup: Create Customer Form -->
+         <Grid Background="#66000000" Panel.ZIndex="100" Grid.ColumnSpan="2" Visibility="{Binding IsCreateCustomerPopupOpen, Converter={StaticResource BooleanToVisibilityConverter}}">
+             <Border Background="White" CornerRadius="12" Width="400" HorizontalAlignment="Center" VerticalAlignment="Center" Padding="24">
+                 <StackPanel>
+                     <TextBlock Text="Tạo tài khoản thành viên" FontSize="18" FontWeight="Bold" Foreground="#0F172A" Margin="0,0,0,16"/>
+                     
+                     <TextBlock Text="Số điện thoại" FontSize="12" FontWeight="SemiBold" Foreground="#64748B" Margin="0,0,0,4"/>
+                     <TextBox Text="{Binding NewCustomerPhone}" IsReadOnly="True" Style="{StaticResource PromoTextBox}" Background="#F1F5F9" Foreground="#64748B" Margin="0,0,0,16"/>
+                     
+                     <TextBlock Text="Tên khách hàng (*)" FontSize="12" FontWeight="SemiBold" Foreground="#64748B" Margin="0,0,0,4"/>
+                     <TextBox Text="{Binding NewCustomerName, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource PromoTextBox}" Margin="0,0,0,16"/>
+                     
+                     <TextBlock Text="Email (Không bắt buộc)" FontSize="12" FontWeight="SemiBold" Foreground="#64748B" Margin="0,0,0,4"/>
+                     <TextBox Text="{Binding NewCustomerEmail, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource PromoTextBox}" Margin="0,0,0,24"/>
+                     
+                     <Grid>
+                         <Grid.ColumnDefinitions>
+                             <ColumnDefinition Width="*"/>
+                             <ColumnDefinition Width="*"/>
+                         </Grid.ColumnDefinitions>
+                         <Button Grid.Column="0" Content="Hủy" Command="{Binding CloseCustomerPopupsCommand}" Background="Transparent" Foreground="#64748B" BorderThickness="0" FontWeight="SemiBold" Margin="0,0,8,0" Height="40" Cursor="Hand"/>
+                         <Button Grid.Column="1" Content="Lưu khách hàng" Command="{Binding ConfirmCreateCustomerCommand}" Height="40">
+                             <Button.Style>
+                                 <Style TargetType="Button" BasedOn="{StaticResource CheckoutButton}">
+                                     <Setter Property="IsEnabled" Value="True"/>
+                                     <Style.Triggers>
+                                         <DataTrigger Binding="{Binding IsLoading}" Value="True">
+                                             <Setter Property="IsEnabled" Value="False"/>
+                                         </DataTrigger>
+                                     </Style.Triggers>
+                                 </Style>
+                             </Button.Style>
+                         </Button>
+                     </Grid>
+                 </StackPanel>
+             </Border>
+         </Grid>
+         
      </Grid>
 </UserControl>

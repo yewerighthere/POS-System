@@ -16,11 +16,48 @@ public class CustomerService : ICustomerService
         _logger = logger;
     }
 
-    public Task<CustomerDto?> FindByPhoneAsync(string phone)
-        => throw new NotImplementedException();
+    public async Task<CustomerDto?> FindByPhoneAsync(string phone)
+    {
+        var entity = await _customerRepository.GetByPhoneAsync(phone).ConfigureAwait(false);
+        if (entity == null) return null;
+        
+        return new CustomerDto
+        {
+            Id = entity.Id,
+            FullName = entity.FullName,
+            Phone = entity.Phone,
+            MemberCode = entity.MemberCode,
+            LoyaltyPoints = entity.LoyaltyPoints
+        };
+    }
 
-    public Task<CustomerDto> CreateAsync(CreateCustomerDto dto)
-        => throw new NotImplementedException();
+    public async Task<CustomerDto> CreateAsync(CreateCustomerDto dto)
+    {
+        var existing = await _customerRepository.GetByPhoneAsync(dto.Phone).ConfigureAwait(false);
+        if (existing != null) 
+            throw new SmartPOS.Shared.Exceptions.BusinessException("Số điện thoại đã tồn tại");
+        
+        var newCustomer = new SmartPOS.Data.Entities.Customer
+        {
+            Id = Guid.NewGuid(),
+            FullName = dto.FullName,
+            Phone = dto.Phone,
+            Email = dto.Email,
+            LoyaltyPoints = 0,
+            CreatedAt = DateTime.UtcNow
+        };
+        
+        await _customerRepository.AddAsync(newCustomer).ConfigureAwait(false);
+        
+        return new CustomerDto
+        {
+            Id = newCustomer.Id,
+            FullName = newCustomer.FullName,
+            Phone = newCustomer.Phone,
+            MemberCode = newCustomer.MemberCode,
+            LoyaltyPoints = newCustomer.LoyaltyPoints
+        };
+    }
 
     public Task AddLoyaltyPointsAsync(Guid customerId, int points)
         => throw new NotImplementedException();
