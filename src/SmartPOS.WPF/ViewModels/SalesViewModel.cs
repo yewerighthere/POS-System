@@ -215,13 +215,21 @@ public partial class SalesViewModel : ObservableObject
     }
 
     [RelayCommand]
-    private void IncreaseQuantity(CartItemDto item)
+    private async Task IncreaseQuantityAsync(CartItemDto item)
     {
         if (item == null) return;
         ErrorMessage = string.Empty;
+        IsLoading = true;
         try
         {
-            UpdateCart(_cartService.UpdateItem(item.ProductId, item.Quantity + 1, Cart));
+            var product = await _productService.FindByIdAsync(item.ProductId).ConfigureAwait(true);
+            if (product == null)
+            {
+                ErrorMessage = "Sản phẩm không tồn tại.";
+                return;
+            }
+
+            UpdateCart(_cartService.UpdateItem(product, item.Quantity + 1, Cart));
         }
         catch (StockInsufficientException ex)
         {
@@ -235,16 +243,28 @@ public partial class SalesViewModel : ObservableObject
         {
             ErrorMessage = $"Lỗi: {ex.Message}";
         }
+        finally
+        {
+            IsLoading = false;
+        }
     }
 
     [RelayCommand]
-    private void DecreaseQuantity(CartItemDto item)
+    private async Task DecreaseQuantityAsync(CartItemDto item)
     {
         if (item == null) return;
         ErrorMessage = string.Empty;
+        IsLoading = true;
         try
         {
-            UpdateCart(_cartService.UpdateItem(item.ProductId, item.Quantity - 1, Cart));
+            var product = await _productService.FindByIdAsync(item.ProductId).ConfigureAwait(true);
+            if (product == null)
+            {
+                ErrorMessage = "Sản phẩm không tồn tại.";
+                return;
+            }
+
+            UpdateCart(_cartService.UpdateItem(product, item.Quantity - 1, Cart));
         }
         catch (BusinessException ex)
         {
@@ -253,6 +273,10 @@ public partial class SalesViewModel : ObservableObject
         catch (Exception ex)
         {
             ErrorMessage = $"Lỗi: {ex.Message}";
+        }
+        finally
+        {
+            IsLoading = false;
         }
     }
 
