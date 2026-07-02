@@ -1,5 +1,6 @@
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using Microsoft.Win32;
 using SmartPOS.Services.Interfaces;
 using SmartPOS.Shared.DTOs.Catalog;
 using SmartPOS.Shared.DTOs.Product;
@@ -34,6 +35,9 @@ public partial class CatalogViewModel : ObservableObject
     [ObservableProperty] private string _newProductSku = string.Empty;
     [ObservableProperty] private string _newProductBarcode = string.Empty;
     [ObservableProperty] private decimal _newProductPrice;
+    [ObservableProperty] private int _newProductStock;
+    [ObservableProperty] private string? _newProductImagePath;
+
     [ObservableProperty] private decimal _updatedPrice;
 
     [ObservableProperty] private bool _isAddProductVisible;
@@ -66,6 +70,22 @@ public partial class CatalogViewModel : ObservableObject
 
     [RelayCommand]
     private void ToggleAddProduct() => IsAddProductVisible = !IsAddProductVisible;
+
+    [RelayCommand]
+    private void BrowseImage()
+    {
+        var dialog = new OpenFileDialog
+        {
+            Title = "Chọn ảnh sản phẩm",
+            Filter = "Image files|*.jpg;*.jpeg;*.png;*.bmp;*.gif;*.webp|All files|*.*",
+            Multiselect = false
+        };
+        if (dialog.ShowDialog() == true)
+            NewProductImagePath = dialog.FileName;
+    }
+
+    [RelayCommand]
+    private void ClearImage() => NewProductImagePath = null;
 
     /// <summary>
     /// Fix TASK-0307: chạy Sync Catalog rồi Sync Stock tuần tự
@@ -200,7 +220,9 @@ public partial class CatalogViewModel : ObservableObject
                 Name: NewProductName,
                 Sku: NewProductSku,
                 UnitPrice: NewProductPrice,
-                Barcode: string.IsNullOrWhiteSpace(NewProductBarcode) ? null : NewProductBarcode
+                Barcode: string.IsNullOrWhiteSpace(NewProductBarcode) ? null : NewProductBarcode,
+                InitialStock: NewProductStock,
+                ImagePath: NewProductImagePath
             );
 
             var userId = _session.RequireUserId();
@@ -213,6 +235,8 @@ public partial class CatalogViewModel : ObservableObject
             NewProductSku = string.Empty;
             NewProductBarcode = string.Empty;
             NewProductPrice = 0;
+            NewProductStock = 0;
+            NewProductImagePath = null;
             IsAddProductVisible = false;
             SuccessMessage = $"Đã thêm sản phẩm '{created.Name}' thành công!";
         }
@@ -280,6 +304,67 @@ public partial class CatalogViewModel : ObservableObject
         catch (BusinessException ex)
         {
             ErrorMessage = ex.Message;
+        }
+    }
+
+    [RelayCommand]
+    private async Task ReactivateProduct(ProductDto? product = null)
+    {
+        var target = product ?? SelectedProduct;
+        if (target == null) return;
+
+        ErrorMessage = string.Empty;
+        SuccessMessage = string.Empty;
+        try
+        {
+            var userId = _session.RequireUserId();
+            await _catalogService.ReactivateProductAsync(target.Id, userId);
+            var idx = _allProducts.FindIndex(p => p.Id == target.Id);
+            if (idx >= 0) _allProducts[idx].IsActive = true;
+            ApplyFilter();
+            if (SelectedProduct?.Id == target.Id) SelectedProduct = null;
+            SuccessMessage = $"Đã kinh doanh lại sản phẩm '{target.Name}'.";
+        }
+        catch (BusinessException ex)
+        {
+            ErrorMessage = ex.Message;
+        }
+    }
+
+    [RelayCommand]
+    private async Task UpdateImage()
+    {
+        if (SelectedProduct == null) return;
+
+        var dialog = new OpenFileDialog
+        {
+            Title = "Chọn ảnh sản phẩm mới",
+            Filter = "Image files|*.jpg;*.jpeg;*.png;*.bmp;*.gif;*.webp|All files|*.*",
+            Multiselect = false
+        };
+        if (dialog.ShowDialog() == true)
+        {
+            ErrorMessage = string.Empty;
+            SuccessMessage = string.Empty;
+            try
+            {
+                var userId = _session.RequireUserId();
+                var updated = await _catalogService.UpdateProductImageAsync(SelectedProduct.Id, dialog.FileName, userId);
+                
+                var index = _allProducts.FindIndex(p => p.Id == updated.Id);
+                if (index >= 0)
+                {
+                    updated.CategoryName = _allProducts[index].CategoryName;
+                    _allProducts[index] = updated;
+                }
+                ApplyFilter();
+                SuccessMessage = $"Đã cập nhật ảnh cho sản phẩm '{SelectedProduct.Name}'!";
+                SelectedProduct = null;
+            }
+            catch (BusinessException ex)
+            {
+                ErrorMessage = ex.Message;
+            }
         }
     }
 }

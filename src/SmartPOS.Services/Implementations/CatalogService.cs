@@ -3,6 +3,7 @@ using SmartPOS.Data.Entities;
 using SmartPOS.Data.Repositories.Interfaces;
 using SmartPOS.Services.Interfaces;
 using SmartPOS.Shared.DTOs.Catalog;
+using SmartPOS.Shared.DTOs.Inventory;
 using SmartPOS.Shared.DTOs.Product;
 using SmartPOS.Shared.Exceptions;
 
@@ -14,17 +15,20 @@ public class CatalogService : ICatalogService
     private readonly ICategoryRepository _categoryRepository;
     private readonly IProductRepository _productRepository;
     private readonly IAuditService _auditService;
+    private readonly IInventorySyncService _inventorySyncService;
 
     public CatalogService(
         ILogger<CatalogService> logger,
         ICategoryRepository categoryRepository,
         IProductRepository productRepository,
-        IAuditService auditService)
+        IAuditService auditService,
+        IInventorySyncService inventorySyncService)
     {
         _logger = logger;
         _categoryRepository = categoryRepository;
         _productRepository = productRepository;
         _auditService = auditService;
+        _inventorySyncService = inventorySyncService;
     }
 
     // ── Category ─────────────────────────────────────────────────────────────
@@ -146,34 +150,75 @@ public class CatalogService : ICatalogService
                 throw new BusinessException($"QR Code '{dto.QrCode}' đã tồn tại trong hệ thống.");
         }
 
+        // ── Đăng ký sản phẩm lên Inventory API để lấy ExternalInventoryId ────
+        string? externalInventoryId = null;
+        try
+        {
+            var invDto = new RegisterInventoryProductDto
+            {
+                Name = dto.Name.Trim(),
+                Sku = dto.Sku ?? string.Empty,
+                Barcode = dto.Barcode,
+                QrCode = dto.QrCode,
+                UnitPrice = dto.UnitPrice,
+                InitialStock = dto.InitialStock
+                // CategoryId của Inventory khác CategoryId của POS → không map trực tiếp
+            };
+
+            var invResult = await _inventorySyncService.RegisterProductToInventoryAsync(invDto);
+            if (invResult != null)
+            {
+                externalInventoryId = invResult.Id.ToString();
+                _logger.LogInformation(
+                    "Đã đăng ký sản phẩm '{Name}' lên Inventory API, ExternalInventoryId = {Id}",
+                    dto.Name, externalInventoryId);
+            }
+            else
+            {
+                _logger.LogWarning(
+                    "Không thể đăng ký sản phẩm '{Name}' lên Inventory API. " +
+                    "Sản phẩm vẫn được tạo trong POS nhưng chưa có ExternalInventoryId. " +
+                    "Hãy chạy Sync Catalog sau khi Inventory API hoạt động trở lại.",
+                    dto.Name);
+            }
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Lỗi khi đăng ký sản phẩm '{Name}' lên Inventory API", dto.Name);
+        }
+
         var product = new Product
         {
             Id = Guid.NewGuid(),
             CategoryId = dto.CategoryId,
             Name = dto.Name.Trim(),
-            Sku = dto.Sku,
+            Sku = dto.Sku ?? string.Empty,
             Barcode = dto.Barcode,
             QrCode = dto.QrCode,
             UnitPrice = dto.UnitPrice,
             IsActive = true,
-            LocalStockQuantity = 0,
+            ExternalInventoryId = externalInventoryId,
+            LocalStockQuantity = dto.InitialStock,
+            ImagePath = dto.ImagePath,
             CreatedAt = DateTime.UtcNow,
             UpdatedAt = DateTime.UtcNow
         };
 
         await _productRepository.AddAsync(product);
-        _logger.LogInformation("Đã tạo sản phẩm {Name} (SKU: {Sku})", product.Name, product.Sku);
+        _logger.LogInformation("Đã tạo sản phẩm {Name} (SKU: {Sku}, ExternalId: {ExternalId})",
+            product.Name, product.Sku, product.ExternalInventoryId ?? "null");
 
         await _auditService.LogAsync(
             action: "CREATE_PRODUCT",
             entity: "Product",
             entityId: product.Id,
             oldValue: (object?)null,
-            newValue: new { product.CategoryId, product.Name, product.Sku, product.Barcode, product.UnitPrice },
+            newValue: new { product.CategoryId, product.Name, product.Sku, product.Barcode, product.UnitPrice, product.ExternalInventoryId },
             userId: userId);
 
         return MapToDto(product);
     }
+
 
     public async Task<ProductDto> UpdateProductAsync(Guid id, UpdateProductDto dto, Guid userId)
     {
@@ -299,6 +344,54 @@ public class CatalogService : ICatalogService
         return MapToDto(product);
     }
 
+    public async Task<ProductDto> ReactivateProductAsync(Guid productId, Guid userId)
+    {
+        var product = await _productRepository.GetByIdAsync(productId)
+            ?? throw new BusinessException("Sản phẩm không tồn tại.");
+
+        if (product.IsActive)
+            throw new BusinessException("Sản phẩm đang được kinh doanh.");
+
+        product.IsActive = true;
+        product.UpdatedAt = DateTime.UtcNow;
+
+        await _productRepository.UpdateAsync(product);
+        _logger.LogInformation("Đã kinh doanh lại sản phẩm {ProductId} ({Name})", product.Id, product.Name);
+
+        await _auditService.LogAsync(
+            action: "REACTIVATE_PRODUCT",
+            entity: "Product",
+            entityId: product.Id,
+            oldValue: new { IsActive = false },
+            newValue: new { IsActive = true },
+            userId: userId);
+
+        return MapToDto(product);
+    }
+
+    public async Task<ProductDto> UpdateProductImageAsync(Guid productId, string? imagePath, Guid userId)
+    {
+        var product = await _productRepository.GetByIdAsync(productId)
+            ?? throw new BusinessException("Sản phẩm không tồn tại.");
+
+        var oldImagePath = product.ImagePath;
+        product.ImagePath = imagePath;
+        product.UpdatedAt = DateTime.UtcNow;
+
+        await _productRepository.UpdateAsync(product);
+        _logger.LogInformation("Đã cập nhật hình ảnh sản phẩm {ProductId} ({Name})", product.Id, product.Name);
+
+        await _auditService.LogAsync(
+            action: "UPDATE_PRODUCT_IMAGE",
+            entity: "Product",
+            entityId: product.Id,
+            oldValue: new { ImagePath = oldImagePath },
+            newValue: new { ImagePath = imagePath },
+            userId: userId);
+
+        return MapToDto(product);
+    }
+
     // ── Helpers ───────────────────────────────────────────────────────────────
 
     private static ProductDto MapToDto(Product p, Dictionary<Guid, string>? catMap = null) => new()
@@ -310,6 +403,7 @@ public class CatalogService : ICatalogService
         UnitPrice = p.UnitPrice,
         LocalStockQuantity = p.LocalStockQuantity,
         IsActive = p.IsActive,
+        ImagePath = p.ImagePath,
         CategoryName = catMap != null && p.CategoryId.HasValue && catMap.TryGetValue(p.CategoryId.Value, out var name) ? name : string.Empty
     };
 }

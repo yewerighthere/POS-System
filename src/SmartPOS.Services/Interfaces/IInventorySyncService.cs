@@ -1,4 +1,4 @@
-﻿using SmartPOS.Shared.DTOs.Auth;
+using SmartPOS.Shared.DTOs.Auth;
 using SmartPOS.Shared.DTOs.Shift;
 using SmartPOS.Shared.DTOs.Product;
 using SmartPOS.Shared.DTOs.Cart;
@@ -17,6 +17,18 @@ namespace SmartPOS.Services.Interfaces;
 
 public interface IInventorySyncService
 {
-    Task<SyncResultDto> SyncCatalogAsync(); Task<SyncResultDto> SyncStockAsync(); Task SendStockDeductionAsync(IEnumerable<OrderItemDto> items, Guid orderId); Task RestockAsync(RestockEventDto dto);
+    Task<SyncResultDto> SyncCatalogAsync();
+    Task<SyncResultDto> SyncStockAsync();
+    Task SendStockDeductionAsync(IEnumerable<OrderItemDto> items, Guid orderId);
+    Task RestockAsync(RestockEventDto dto);
+
+    /// <summary>
+    /// Đăng ký sản phẩm mới lên Inventory API khi POS tạo sản phẩm.
+    /// Trả về RegisterInventoryProductResultDto chứa InventoryProduct.Id
+    /// để lưu vào Product.ExternalInventoryId.
+    /// Trả về null nếu Inventory API không khả dụng (offline/lỗi).
+    /// </summary>
+    Task<RegisterInventoryProductResultDto?> RegisterProductToInventoryAsync(RegisterInventoryProductDto dto);
 }
+
 

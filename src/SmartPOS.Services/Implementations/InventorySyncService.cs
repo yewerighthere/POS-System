@@ -251,29 +251,106 @@ public class InventorySyncService : IInventorySyncService
         {
             try
             {
-                // Lấy ExternalInventoryId từ POS product
+                // Lấy sản phẩm từ POS DB
                 var product = await _productRepository.GetByIdAsync(item.ProductId);
-                if (product == null || string.IsNullOrEmpty(product.ExternalInventoryId))
+                if (product == null)
                 {
-                    _logger.LogWarning("SendStockDeduction: sản phẩm {ProductId} không có ExternalInventoryId, bỏ qua trừ kho.", item.ProductId);
+                    _logger.LogWarning("SendStockDeduction: không tìm thấy sản phẩm {ProductId} trong POS DB.", item.ProductId);
                     continue;
                 }
 
-                if (!Guid.TryParse(product.ExternalInventoryId, out var inventoryProductId))
+                bool sentToInventory = false;
+
+                if (!string.IsNullOrEmpty(product.ExternalInventoryId) &&
+                    Guid.TryParse(product.ExternalInventoryId, out var inventoryProductId))
                 {
-                    _logger.LogWarning("SendStockDeduction: ExternalInventoryId '{Id}' không phải Guid hợp lệ.", product.ExternalInventoryId);
-                    continue;
+                    // Sản phẩm liên kết Inventory API → gửi trừ kho về Inventory
+                    try
+                    {
+                        var dto = new StockDeductionEventDto(orderId, inventoryProductId, item.Quantity);
+                        var response = await _httpClient.PostAsJsonAsync("/api/stock/deduct", dto);
+                        response.EnsureSuccessStatusCode();
+                        sentToInventory = true;
+                        _logger.LogInformation("Đã trừ kho Inventory API sản phẩm {ProductId} (InventoryId: {InvId})", item.ProductId, inventoryProductId);
+                    }
+                    catch (Exception ex)
+                    {
+                        _logger.LogError(ex, "Trừ kho Inventory API thất bại cho sản phẩm {ProductId}", item.ProductId);
+                    }
+                }
+                else
+                {
+                    _logger.LogWarning("SendStockDeduction: sản phẩm {ProductId} không có ExternalInventoryId, chỉ trừ LocalStock.", item.ProductId);
                 }
 
-                var dto = new StockDeductionEventDto(orderId, inventoryProductId, item.Quantity);
-                var response = await _httpClient.PostAsJsonAsync("/api/stock/deduct", dto);
-                response.EnsureSuccessStatusCode();
-                _logger.LogInformation("Đã trừ kho sản phẩm {ProductId} (InventoryId: {InvId})", item.ProductId, inventoryProductId);
+                // Luôn trừ LocalStockQuantity trong POS DB sau khi bán
+                // (dù có hay không liên kết Inventory API)
+                var deduct = item.Quantity;
+                if (product.LocalStockQuantity >= deduct)
+                    product.LocalStockQuantity -= deduct;
+                else
+                    product.LocalStockQuantity = 0; // tránh âm kho
+
+                product.UpdatedAt = DateTime.UtcNow;
+                await _productRepository.UpdateAsync(product);
+                _logger.LogInformation("Đã cập nhật LocalStockQuantity sản phẩm {ProductId}: -{Qty} (sentToInventory={Sent})",
+                    item.ProductId, deduct, sentToInventory);
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Trừ kho thất bại cho sản phẩm {ProductId}", item.ProductId);
             }
+        }
+    }
+
+    // ── RegisterProductToInventoryAsync ──────────────────────────────────────
+    // Khi POS tạo sản phẩm mới, gọi method này để đồng ký lên Inventory API
+    // và lấy về ExternalInventoryId để lưu vào Product.ExternalInventoryId.
+
+    public async Task<RegisterInventoryProductResultDto?> RegisterProductToInventoryAsync(RegisterInventoryProductDto dto)
+    {
+        try
+        {
+            // Gọi POST /api/products trên Inventory API
+            var response = await _httpClient.PostAsJsonAsync("/api/products", new
+            {
+                dto.Name,
+                dto.Sku,
+                dto.Barcode,
+                dto.QrCode,
+                dto.Description,
+                dto.UnitPrice,
+                dto.TaxRate,
+                dto.CategoryId,
+                dto.InitialStock
+            });
+
+            if (!response.IsSuccessStatusCode)
+            {
+                var body = await response.Content.ReadAsStringAsync();
+                _logger.LogWarning(
+                    "RegisterProductToInventory: Inventory API trả về {Status} cho SKU '{Sku}'. Body: {Body}",
+                    (int)response.StatusCode, dto.Sku, body);
+                return null;
+            }
+
+            var result = await response.Content
+                .ReadFromJsonAsync<RegisterInventoryProductResultDto>();
+
+            if (result != null)
+                _logger.LogInformation(
+                    "RegisterProductToInventory: đã đăng ký sản phẩm '{Name}' lên Inventory, ExternalId = {Id}",
+                    result.Name, result.Id);
+
+            return result;
+        }
+        catch (Exception ex)
+        {
+            // Inventory API offline hoặc lỗi mạng → vẫn cho tạo trong POS,
+            // nhưng ExternalInventoryId sẽ null (cần sync lại sau)
+            _logger.LogError(ex,
+                "RegisterProductToInventory: không thể kết nối Inventory API cho SKU '{Sku}'", dto.Sku);
+            return null;
         }
     }
 

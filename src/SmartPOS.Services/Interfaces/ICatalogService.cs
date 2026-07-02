@@ -14,4 +14,6 @@ public interface ICatalogService
     Task<ProductDto> UpdateProductAsync(Guid id, UpdateProductDto dto, Guid userId);
     Task<ProductDto> UpdatePriceAsync(UpdatePriceDto dto, Guid userId);
     Task<ProductDto> DeactivateProductAsync(Guid productId, Guid userId);
+    Task<ProductDto> ReactivateProductAsync(Guid productId, Guid userId);
+    Task<ProductDto> UpdateProductImageAsync(Guid productId, string? imagePath, Guid userId);
 }

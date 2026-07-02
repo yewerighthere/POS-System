@@ -1,4 +1,4 @@
-﻿using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Logging;
 using SmartPOS.Data.Repositories.Interfaces;
 using SmartPOS.Services.Interfaces;
 using SmartPOS.Shared.DTOs.Auth;
@@ -41,10 +41,12 @@ public class CartService : ICartService
             items.Add(new CartItemDto
             {
                 ProductId = product.Id,
+                ProductSku = product.Sku,
                 ProductName = product.Name,
                 UnitPrice = product.UnitPrice,
                 Quantity = quantity,
-                Subtotal = product.UnitPrice * quantity
+                Subtotal = product.UnitPrice * quantity,
+                ProductImagePath = product.ImagePath
             });
         }
 
@@ -92,10 +94,12 @@ public class CartService : ICartService
         cart.Items.Select(i => new CartItemDto
         {
             ProductId = i.ProductId,
+            ProductSku = i.ProductSku,
             ProductName = i.ProductName,
             UnitPrice = i.UnitPrice,
             Quantity = i.Quantity,
-            Subtotal = i.Subtotal
+            Subtotal = i.Subtotal,
+            ProductImagePath = i.ProductImagePath
         }).ToList();
 }
 
