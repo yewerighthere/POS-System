@@ -23,13 +23,19 @@ public class CartService : ICartService
 {
     public CartSummaryDto AddItem(ProductDto product, int quantity, CartSummaryDto cart)
     {
+        if (!product.IsActive)
+            throw new BusinessException("Sản phẩm đã ngừng kinh doanh");
+
+        if (product.LocalStockQuantity <= 0)
+            throw new StockInsufficientException("Sản phẩm đã hết hàng");
+
         var items = CloneItems(cart);
         var existing = items.FirstOrDefault(i => i.ProductId == product.Id);
         var currentQty = existing?.Quantity ?? 0;
         var newQty = currentQty + quantity;
 
-        if (product.LocalStockQuantity > 0 && newQty > product.LocalStockQuantity)
-            throw new StockInsufficientException($"Sản phẩm \"{product.Name}\" không đủ hàng. Tồn kho: {product.LocalStockQuantity}");
+        if (newQty > product.LocalStockQuantity)
+            throw new StockInsufficientException("Số lượng vượt quá tồn kho hiện có");
 
         if (existing != null)
         {
@@ -53,10 +59,22 @@ public class CartService : ICartService
         return Recalculate(new CartSummaryDto { Items = items, DiscountAmount = cart.DiscountAmount });
     }
 
-    public CartSummaryDto UpdateItem(Guid productId, int quantity, CartSummaryDto cart)
+    public CartSummaryDto UpdateItem(ProductDto product, int quantity, CartSummaryDto cart)
     {
+        if (!product.IsActive)
+            throw new BusinessException("Sản phẩm đã ngừng kinh doanh");
+
+        if (quantity > 0)
+        {
+            if (product.LocalStockQuantity <= 0)
+                throw new StockInsufficientException("Sản phẩm đã hết hàng");
+
+            if (quantity > product.LocalStockQuantity)
+                throw new StockInsufficientException("Số lượng vượt quá tồn kho hiện có");
+        }
+
         var items = CloneItems(cart);
-        var item = items.FirstOrDefault(i => i.ProductId == productId);
+        var item = items.FirstOrDefault(i => i.ProductId == product.Id);
         if (item == null) return cart;
 
         if (quantity <= 0)
@@ -80,13 +98,18 @@ public class CartService : ICartService
     {
         var subtotal = cart.Items.Sum(i => i.Subtotal);
         var discount = Math.Min(cart.DiscountAmount, subtotal);
+        var taxableAmount = Math.Max(0, subtotal - discount);
+        
+        var taxAmount = Math.Round(taxableAmount * 0.10m, 2, MidpointRounding.AwayFromZero);
+        var totalAmount = taxableAmount + taxAmount;
+
         return new CartSummaryDto
         {
             Items = cart.Items,
             Subtotal = subtotal,
             DiscountAmount = discount,
-            TaxAmount = 0,
-            TotalAmount = Math.Max(0, subtotal - discount)
+            TaxAmount = taxAmount,
+            TotalAmount = totalAmount
         };
     }
 
