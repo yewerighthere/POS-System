@@ -256,23 +256,24 @@
                                   ItemsSource="{Binding StatusFilters}" 
                                   SelectedItem="{Binding SelectedStatusFilter}"
                                   Style="{StaticResource ComboBoxStyle}"
-                                  Width="120" Margin="0,0,16,0"/>
+                                  Width="90" Margin="0,0,16,0"/>
 
                         <ComboBox Grid.Column="2" 
                                   ItemsSource="{Binding OrderFilters}" 
                                   SelectedItem="{Binding SelectedOrderFilter}"
                                   Style="{StaticResource ComboBoxStyle}"
-                                  Width="130" Margin="0,0,16,0"/>
+                                  Width="100" Margin="0,0,16,0"/>
 
                         <ComboBox Grid.Column="3" 
                                   ItemsSource="{Binding SortOptions}" 
                                   SelectedItem="{Binding SelectedSortOption}"
                                   Style="{StaticResource ComboBoxStyle}"
-                                  Width="140" Margin="0,0,16,0"/>
+                                  Width="110" Margin="0,0,16,0"/>
                                   
                         <Button Grid.Column="4" 
                                 Content="Search" 
                                 Command="{Binding ExecuteSearchCommand}" 
+                                Width="120"
                                 Style="{StaticResource PrimaryButtonStyle}"/>
                     </Grid>
                 </Border>
@@ -293,7 +294,8 @@
                                 <DataGridTextColumn Header="ID" Binding="{Binding Id}" Width="250"/>
                                 <DataGridTextColumn Header="Tên (Name)" Binding="{Binding FullName}" Width="*"/>
                                 <DataGridTextColumn Header="SĐT (Phone)" Binding="{Binding Phone}" Width="150"/>
-                                <DataGridTextColumn Header="Tổng Đơn" Binding="{Binding OrderCount}" Width="100"/>
+                                <DataGridTextColumn Header="Tổng Đơn" Binding="{Binding OrderCount}" Width="90"/>
+                                <DataGridTextColumn Header="Điểm (Points)" Binding="{Binding LoyaltyPoints}" Width="100"/>
                                 
                                 <DataGridTemplateColumn Header="Trạng thái" Width="100">
                                     <DataGridTemplateColumn.CellTemplate>
