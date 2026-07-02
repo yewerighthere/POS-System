@@ -61,6 +61,7 @@ public class ProductService : IProductService
         UnitPrice = p.UnitPrice,
         LocalStockQuantity = p.LocalStockQuantity,
         IsActive = p.IsActive,
+        TaxRate = p.TaxRate,
         ImagePath = p.ImagePath
     };
 }

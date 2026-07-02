@@ -89,7 +89,7 @@ Liên quan: F-03.
 - [~] TASK-0406: Kiểm tra tồn kho trước khi thêm sản phẩm vào giỏ. Đã chặn vượt tồn khi `LocalStockQuantity > 0`; cần làm rõ rule sản phẩm tồn 0 và inactive.
 - [~] TASK-0407: Implement UI bán hàng cơ bản trong `SalesView`.
 - [~] TASK-0408: Hiển thị subtotal, discount, tax, total. Đã có tổng mức cơ bản; thuế hiện chưa tính.
-- [x] TASK-0409: Viết test thêm sản phẩm, sửa số lượng, xóa sản phẩm, hết hàng.
+- [ ] TASK-0409: Viết test thêm sản phẩm, sửa số lượng, xóa sản phẩm, hết hàng. (CartServiceTests hiện chỉ có placeholder `Assert.True(true)`, chưa có test thật.)
 
 ## Phase 5 - Order Và Thanh Toán Tiền Mặt
 
@@ -183,20 +183,20 @@ Liên quan: F-13.
 - [x] TASK-1102: Hoàn thiện endpoint `GET /api/sync/stock` ở mức cơ bản.
 - [x] TASK-1103: Hoàn thiện endpoint `POST /api/stock/deduct` ở mức cơ bản.
 - [x] TASK-1104: Hoàn thiện endpoint `POST /api/stock/restock` ở mức cơ bản.
-- [~] TASK-1105: Implement `InventorySyncService.SyncCatalogAsync`. Đã gọi API và tạo kết quả; còn chưa upsert sản phẩm POS theo `external_inventory_id`.
-- [~] TASK-1106: Implement `InventorySyncService.SyncStockAsync`. Đã gọi API và tạo kết quả; còn chưa cập nhật `LocalStockQuantity`.
-- [ ] TASK-1107: Implement ghi `InventorySyncLog`. Repository hiện còn `NotImplementedException`.
-- [~] TASK-1108: Xử lý lỗi khi Inventory Manager API không chạy. Service có catch/log và trả `FAILED`, nhưng ghi sync log lỗi vẫn phụ thuộc repository chưa implement.
-- [ ] TASK-1109: Implement `SyncViewModel`.
-- [ ] TASK-1110: Viết test sync thành công, sync thất bại, partial sync.
+- [x] TASK-1105: Implement `InventorySyncService.SyncCatalogAsync`. Đã upsert sản phẩm POS theo `external_inventory_id`, tạo mới và cập nhật đầy đủ.
+- [x] TASK-1106: Implement `InventorySyncService.SyncStockAsync`. Đã cập nhật `LocalStockQuantity`, trả PARTIAL nếu skip sản phẩm không tìm thấy.
+- [x] TASK-1107: Implement ghi `InventorySyncLog`. `InventorySyncLogRepository` đã có `AddAsync` và `GetLatestAsync`.
+- [x] TASK-1108: Xử lý lỗi khi Inventory Manager API không chạy. Service catch/log, trả `FAILED` và ghi `InventorySyncLog` với `SyncStatus.Failed`.
+- [x] TASK-1109: Implement `SyncViewModel`. Đã có SyncCatalog, SyncStock, SyncAll commands với loading state và status tracking.
+- [x] TASK-1110: Viết test sync thành công, sync thất bại, partial sync. `InventorySyncServiceTests` có 6 test: catalog upsert, stock update, catalog/stock API down → FAILED, partial sync.
 
 ## Phase 12 - Report Và Audit Log
 
 Liên quan: F-15.
 
-- [ ] TASK-1201: Implement `IAuditLogRepository`.
-- [ ] TASK-1202: Implement `AuditService.LogAsync`.
-- [ ] TASK-1203: Ghi audit log cho thanh toán, sửa giá, khuyến mãi, trả hàng.
+- [x] TASK-1201: Implement `IAuditLogRepository`. Đã có `AddAsync`, `GetByEntityAsync`, `GetRecentAsync`.
+- [x] TASK-1202: Implement `AuditService.LogAsync`. Đã tạo `AuditLog` entity, JSON serialize old/new values, gracefully swallow errors.
+- [~] TASK-1203: Ghi audit log cho thanh toán, sửa giá, khuyến mãi, trả hàng. Đã ghi cho: thanh toán tiền mặt (PaymentService), sửa giá/tạo/sửa category/tạo/deactivate/reactivate/image product (CatalogService). Chưa ghi cho: khuyến mãi, trả hàng.
 - [x] TASK-1204: Implement `IReportService.GetShiftReportAsync`.
 - [ ] TASK-1205: Implement `IReportService.GetSalesReportAsync`.
 - [x] TASK-1206: Implement `ReportViewModel`.

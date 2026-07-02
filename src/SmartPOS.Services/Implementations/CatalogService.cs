@@ -403,6 +403,7 @@ public class CatalogService : ICatalogService
         UnitPrice = p.UnitPrice,
         LocalStockQuantity = p.LocalStockQuantity,
         IsActive = p.IsActive,
+        TaxRate = p.TaxRate,
         ImagePath = p.ImagePath,
         CategoryName = catMap != null && p.CategoryId.HasValue && catMap.TryGetValue(p.CategoryId.Value, out var name) ? name : string.Empty
     };

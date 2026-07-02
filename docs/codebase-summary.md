@@ -202,9 +202,9 @@ Thư mục: `SmartPOS.WPF/ViewModels`
 - `ReturnViewModel`: hiện còn TODO.
 - `CatalogViewModel`: danh mục, sản phẩm, giá.
 - `PromotionViewModel`: hiện còn TODO.
-- `ReportViewModel`: hiện còn TODO.
+- `ReportViewModel`: báo cáo ca với shift report, recent shifts, top products, order log.
 - `AuditLogViewModel`: hiện còn TODO.
-- `SyncViewModel`: hiện còn TODO.
+- `SyncViewModel`: đồng bộ catalog và tồn kho với Inventory Manager (SyncCatalog, SyncStock, SyncAll commands).
 - `UserManagementViewModel`: hiện còn TODO.
 
 ### View
@@ -215,7 +215,8 @@ Mỗi ViewModel nên có View tương ứng.
 
 - `LoginView`: giao diện split-screen theo thiết kế, có password toggle và binding về `LoginViewModel`.
 - `ShiftView`, `SalesView`, `PaymentView`, `InvoiceView`, `CatalogView`: đã có UI mức cơ bản.
-- `CustomerView`, `ReturnView`, `PromotionView`, `ReportView`, `AuditLogView`, `SyncView`, `UserManagementView`: hiện vẫn là placeholder TODO.
+- `ReportView`, `SyncView`: đã có UI hoàn chỉnh.
+- `CustomerView`, `ReturnView`, `PromotionView`, `AuditLogView`, `UserManagementView`: hiện vẫn là placeholder TODO.
 
 ### Control Dự Kiến
 
@@ -240,6 +241,10 @@ Thư mục: `SmartPOS.WPF/Converters`
 - `NullOrEmptyToVisibilityConverter`
 - `DecimalToVisibilityConverter`
 - `InverseBoolToVisibilityConverter`
+- `InverseBoolConverter`
+- `LocalImagePathConverter`
+- `PercentToGridLengthConverter`
+- `ProductImageConverter`
 
 ## SmartPOS.CallbackApi
 
@@ -284,7 +289,7 @@ Entities:
 
 Controller hiện tại:
 
-- `ProductsController`: hiện trả `Ok()` rỗng.
+- `ProductsController`: GET tất cả sản phẩm kèm tồn kho và category, POST tạo sản phẩm mới (validate SKU/barcode trùng, kiểm tra category, tạo kèm StockItem), GET /categories trả danh sách danh mục active.
 - `SyncController`: trả danh mục và tồn kho cho POS đồng bộ.
 - `StockController`: xử lý trừ kho và nhập lại hàng ở mức cơ bản, đồng thời ghi `StockTransaction`.
 
@@ -295,6 +300,9 @@ GET  /api/sync/catalog
 GET  /api/sync/stock
 POST /api/stock/deduct
 POST /api/stock/restock
+GET  /api/products
+POST /api/products
+GET  /api/products/categories
 ```
 
 ## SmartPOS.Tests
@@ -303,17 +311,19 @@ Thư mục: `tests/SmartPOS.Tests`
 
 Tập trung kiểm thử Service:
 
-- `AuthServiceTests`
-- `ShiftServiceTests`
-- `CartServiceTests`
-- `PaymentServiceTests`
-- `PromotionServiceTests`
-- `InventorySyncServiceTests`
-- `ReturnServiceTests`
+- `AuthServiceTests` — 7 test login/logout/JWT
+- `ShiftServiceTests` — 5 test mở/đóng ca
+- `CartServiceTests` — placeholder, chưa có test thật
+- `PaymentServiceTests` — 11 test cash/VNPay/callback/cancel
+- `InvoiceServiceTests` — 4 test tạo/xem hóa đơn
+- `DeviceServiceTests` — 3 test log/print giả lập
+- `PromotionServiceTests` — placeholder, chưa có test thật
+- `InventorySyncServiceTests` — 6 test sync catalog/stock/partial
+- `ReturnServiceTests` — placeholder, chưa có test thật
 
-Dùng xUnit, Moq và FluentAssertions nếu đã được thêm vào project test.
+Dùng xUnit, Moq và FluentAssertions.
 
-Hiện test suite pass 20/20 khi chạy
+Hiện test suite có 36 test thật + 3 placeholder (Cart, Promotion, Return chỉ `Assert.True(true)`). Chạy:
 `dotnet test tests/SmartPOS.Tests/SmartPOS.Tests.csproj --no-build`.
 
 ## Cấu hình chính
