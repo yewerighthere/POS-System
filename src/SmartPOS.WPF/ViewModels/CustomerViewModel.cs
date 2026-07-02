@@ -42,6 +42,27 @@ public partial class CustomerViewModel : ObservableObject
     [ObservableProperty]
     private string _selectedSortOption = "DateDesc";
 
+    [ObservableProperty]
+    private bool _isCustomerDetailPopupOpen;
+
+    [ObservableProperty]
+    private bool _isOrderDetailPopupOpen;
+
+    [ObservableProperty]
+    private CustomerDetailDto? _selectedCustomerDetail;
+
+    [ObservableProperty]
+    private CustomerOrderDetailDto? _selectedOrderDetail;
+
+    [ObservableProperty]
+    private string _editingCustomerName = string.Empty;
+
+    [ObservableProperty]
+    private string _editingCustomerPhone = string.Empty;
+
+    [ObservableProperty]
+    private string _editingCustomerEmail = string.Empty;
+
     public ObservableCollection<CustomerListDto> Customers { get; } = new();
 
     private readonly NavigationService _navigationService;
@@ -100,9 +121,139 @@ public partial class CustomerViewModel : ObservableObject
     }
 
     [RelayCommand]
-    private void ViewDetail(Guid customerId)
+    private async Task ViewDetailAsync(Guid customerId)
     {
-        MessageBox.Show($"Viewing details for Customer {customerId} will be implemented soon.", "Info", MessageBoxButton.OK, MessageBoxImage.Information);
+        try
+        {
+            IsLoading = true;
+            ErrorMessage = string.Empty;
+            
+            var detail = await _customerService.GetCustomerDetailAsync(customerId);
+            if (detail != null)
+            {
+                SelectedCustomerDetail = detail;
+                EditingCustomerName = detail.FullName;
+                EditingCustomerPhone = detail.Phone;
+                EditingCustomerEmail = detail.Email ?? string.Empty;
+                IsCustomerDetailPopupOpen = true;
+            }
+        }
+        catch (Exception ex)
+        {
+            MessageBox.Show($"Lỗi tải thông tin khách hàng: {ex.Message}", "Lỗi", MessageBoxButton.OK, MessageBoxImage.Error);
+        }
+        finally
+        {
+            IsLoading = false;
+        }
+    }
+
+    [RelayCommand]
+    private void CloseCustomerDetailPopup()
+    {
+        IsCustomerDetailPopupOpen = false;
+        SelectedCustomerDetail = null;
+    }
+
+    [RelayCommand]
+    private async Task UpdateCustomerAsync()
+    {
+        if (SelectedCustomerDetail == null) return;
+
+        try
+        {
+            IsLoading = true;
+            ErrorMessage = string.Empty;
+
+            var dto = new UpdateCustomerDto
+            {
+                Id = SelectedCustomerDetail.Id,
+                FullName = EditingCustomerName,
+                Phone = EditingCustomerPhone,
+                Email = string.IsNullOrWhiteSpace(EditingCustomerEmail) ? null : EditingCustomerEmail,
+                IsActive = SelectedCustomerDetail.IsActive
+            };
+
+            var updatedCustomer = await _customerService.UpdateCustomerAsync(dto);
+            SelectedCustomerDetail = updatedCustomer;
+            await ExecuteSearchAsync(); // Refresh list
+            MessageBox.Show("Cập nhật thông tin thành công!", "Thành công", MessageBoxButton.OK, MessageBoxImage.Information);
+        }
+        catch (Exception ex)
+        {
+            MessageBox.Show($"Lỗi cập nhật: {ex.Message}", "Lỗi", MessageBoxButton.OK, MessageBoxImage.Error);
+        }
+        finally
+        {
+            IsLoading = false;
+        }
+    }
+
+    [RelayCommand]
+    private async Task ToggleCustomerStatusFromPopupAsync()
+    {
+        if (SelectedCustomerDetail == null) return;
+        
+        try
+        {
+            IsLoading = true;
+            await _customerService.ToggleCustomerStatusAsync(SelectedCustomerDetail.Id);
+            
+            // Refresh customer detail to reflect new status
+            var updatedCustomer = await _customerService.GetCustomerDetailAsync(SelectedCustomerDetail.Id);
+            if (updatedCustomer != null)
+            {
+                SelectedCustomerDetail = updatedCustomer;
+            }
+            await ExecuteSearchAsync(); // Refresh list
+        }
+        catch (Exception ex)
+        {
+            MessageBox.Show($"Lỗi: {ex.Message}", "Lỗi", MessageBoxButton.OK, MessageBoxImage.Error);
+        }
+        finally
+        {
+            IsLoading = false;
+        }
+    }
+
+    [RelayCommand]
+    private async Task ViewOrderDetailAsync(Guid orderId)
+    {
+        try
+        {
+            IsLoading = true;
+            var orderDetail = await _customerService.GetCustomerOrderDetailAsync(orderId);
+            if (orderDetail != null)
+            {
+                SelectedOrderDetail = orderDetail;
+                IsOrderDetailPopupOpen = true;
+            }
+        }
+        catch (Exception ex)
+        {
+            MessageBox.Show($"Lỗi tải thông tin đơn hàng: {ex.Message}", "Lỗi", MessageBoxButton.OK, MessageBoxImage.Error);
+        }
+        finally
+        {
+            IsLoading = false;
+        }
+    }
+
+    [RelayCommand]
+    private void CloseOrderDetailPopup()
+    {
+        IsOrderDetailPopupOpen = false;
+        SelectedOrderDetail = null;
+    }
+
+    [RelayCommand]
+    private void CloseBothPopups()
+    {
+        IsOrderDetailPopupOpen = false;
+        IsCustomerDetailPopupOpen = false;
+        SelectedOrderDetail = null;
+        SelectedCustomerDetail = null;
     }
 
     [RelayCommand]

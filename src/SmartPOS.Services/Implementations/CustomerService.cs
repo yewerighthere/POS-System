@@ -2,17 +2,20 @@ using Microsoft.Extensions.Logging;
 using SmartPOS.Data.Repositories.Interfaces;
 using SmartPOS.Services.Interfaces;
 using SmartPOS.Shared.DTOs.Customer;
+using SmartPOS.Shared.Exceptions;
 
 namespace SmartPOS.Services.Implementations;
 
 public class CustomerService : ICustomerService
 {
     private readonly ICustomerRepository _customerRepository;
+    private readonly IOrderRepository _orderRepository;
     private readonly ILogger<CustomerService> _logger;
 
-    public CustomerService(ICustomerRepository customerRepository, ILogger<CustomerService> logger)
+    public CustomerService(ICustomerRepository customerRepository, IOrderRepository orderRepository, ILogger<CustomerService> logger)
     {
         _customerRepository = customerRepository;
+        _orderRepository = orderRepository;
         _logger = logger;
     }
 
@@ -127,5 +130,86 @@ public class CustomerService : ICustomerService
             customer.IsActive = !customer.IsActive;
             await _customerRepository.UpdateAsync(customer).ConfigureAwait(false);
         }
+    }
+
+    public async Task<CustomerDetailDto?> GetCustomerDetailAsync(Guid customerId)
+    {
+        var customers = await _customerRepository.GetCustomersQueryAsync(null, null, null, null).ConfigureAwait(false);
+        var customer = customers.FirstOrDefault(c => c.Id == customerId);
+        
+        if (customer == null) return null;
+
+        return new CustomerDetailDto
+        {
+            Id = customer.Id,
+            FullName = customer.FullName ?? string.Empty,
+            Phone = customer.Phone ?? string.Empty,
+            Email = customer.Email,
+            LoyaltyPoints = customer.LoyaltyPoints,
+            IsActive = customer.IsActive,
+            CreatedAt = customer.CreatedAt,
+            Orders = customer.Orders.OrderByDescending(o => o.CreatedAt).Select(o => new CustomerOrderDto
+            {
+                Id = o.Id,
+                CreatedAt = o.CreatedAt,
+                TotalAmount = o.TotalAmount
+            }).ToList()
+        };
+    }
+
+    public async Task<CustomerDetailDto> UpdateCustomerAsync(UpdateCustomerDto dto)
+    {
+        if (string.IsNullOrWhiteSpace(dto.FullName))
+            throw new BusinessException("Tên khách hàng không được để trống");
+        if (string.IsNullOrWhiteSpace(dto.Phone))
+            throw new BusinessException("Số điện thoại không được để trống");
+
+        var customer = await _customerRepository.GetByIdAsync(dto.Id).ConfigureAwait(false);
+        if (customer == null)
+            throw new BusinessException("Khách hàng không tồn tại");
+
+        customer.FullName = dto.FullName;
+        customer.Phone = dto.Phone;
+        customer.Email = dto.Email;
+        customer.IsActive = dto.IsActive;
+
+        await _customerRepository.UpdateAsync(customer).ConfigureAwait(false);
+        
+        return await GetCustomerDetailAsync(customer.Id) ?? throw new BusinessException("Lỗi sau khi cập nhật");
+    }
+
+    public async Task<CustomerOrderDetailDto?> GetCustomerOrderDetailAsync(Guid orderId)
+    {
+        var order = await _orderRepository.GetByIdWithItemsAsync(orderId).ConfigureAwait(false);
+        if (order == null) return null;
+
+        var lastPayment = order.Payments.OrderByDescending(p => p.CreatedAt).FirstOrDefault();
+
+        return new CustomerOrderDetailDto
+        {
+            Id = order.Id,
+            CreatedAt = order.CreatedAt,
+            Subtotal = order.Subtotal,
+            DiscountAmount = order.DiscountAmount,
+            TaxAmount = order.TaxAmount,
+            TotalAmount = order.TotalAmount,
+            PointsEarned = order.PointsEarned,
+            PointsUsed = order.PointsUsed,
+            PointsDiscountAmount = order.PointsDiscountAmount,
+            PaymentMethod = lastPayment?.PaymentMethod.ToString() ?? order.PaymentMethod?.ToString(),
+            PaymentStatus = order.PaymentStatus.ToString(),
+            AmountReceived = lastPayment?.AmountReceived ?? 0,
+            ChangeAmount = lastPayment?.ChangeAmount ?? 0,
+            Items = order.Items.Select(i => new CustomerOrderItemDto
+            {
+                Id = i.Id,
+                ProductName = i.ProductName,
+                Sku = i.Sku,
+                UnitPrice = i.UnitPrice,
+                Quantity = i.Quantity,
+                DiscountAmount = i.DiscountAmount,
+                Subtotal = i.Subtotal
+            }).ToList()
+        };
     }
 }

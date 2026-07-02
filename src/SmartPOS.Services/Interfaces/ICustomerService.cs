@@ -24,5 +24,8 @@ public interface ICustomerService
     int CalculatePoints(decimal subtotal);
     Task<IEnumerable<CustomerListDto>> GetCustomerListAsync(string? searchTerm, string? statusFilter, string? orderFilter, string? sortOption);
     Task ToggleCustomerStatusAsync(Guid customerId);
+    Task<CustomerDetailDto?> GetCustomerDetailAsync(Guid customerId);
+    Task<CustomerDetailDto> UpdateCustomerAsync(UpdateCustomerDto dto);
+    Task<CustomerOrderDetailDto?> GetCustomerOrderDetailAsync(Guid orderId);
 }
 
