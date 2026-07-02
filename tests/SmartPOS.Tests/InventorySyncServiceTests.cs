@@ -35,15 +35,18 @@ public class InventorySyncServiceTests
     private static InventorySyncService CreateService(
         HttpClient httpClient,
         IInventorySyncLogRepository? syncLogRepo = null,
-        IProductRepository? productRepo = null)
+        IProductRepository? productRepo = null,
+        ICategoryRepository? categoryRepo = null)
     {
         var logRepo = syncLogRepo ?? Mock.Of<IInventorySyncLogRepository>();
         var prodRepo = productRepo ?? Mock.Of<IProductRepository>();
+        var catRepo = categoryRepo ?? Mock.Of<ICategoryRepository>();
         return new InventorySyncService(
             NullLogger<InventorySyncService>.Instance,
             httpClient,
             logRepo,
-            prodRepo);
+            prodRepo,
+            catRepo);
     }
 
     private static HttpClient BuildHttpClient<T>(T payload, HttpStatusCode status = HttpStatusCode.OK)
@@ -96,8 +99,14 @@ public class InventorySyncServiceTests
         var syncLogMock = new Mock<IInventorySyncLogRepository>();
         syncLogMock.Setup(r => r.AddAsync(It.IsAny<InventorySyncLog>())).Returns(Task.CompletedTask);
 
+        // Setup category repo mock trả list rỗng (không cần map category trong test này)
+        var categoryRepoMock = new Mock<ICategoryRepository>();
+        categoryRepoMock
+            .Setup(r => r.GetAllAsync())
+            .ReturnsAsync(new List<SmartPOS.Data.Entities.Category>());
+
         var httpClient = BuildHttpClient(catalogItems);
-        var service    = CreateService(httpClient, syncLogMock.Object, productRepoMock.Object);
+        var service    = CreateService(httpClient, syncLogMock.Object, productRepoMock.Object, categoryRepoMock.Object);
 
         // Act
         var result = await service.SyncCatalogAsync();
@@ -241,17 +250,17 @@ public class InventorySyncServiceTests
         var result = await service.SyncStockAsync();
 
         // Assert
-        result.Status.Should().Be("SUCCESS");
+        result.Status.Should().Be("PARTIAL"); // bỏ qua 1 → trả PARTIAL theo fix TASK-1106
         result.AffectedRows.Should().Be(1); // chỉ 1 cái được update
         knownProduct.LocalStockQuantity.Should().Be(10);
 
         // unknownId không được gọi UpdateAsync
         productRepoMock.Verify(r => r.UpdateAsync(It.IsAny<Product>()), Times.Once);
 
-        // Log vẫn ghi SUCCESS (partial vẫn là SUCCESS, chỉ có skipped > 0)
+        // Log ghi PARTIAL (theo fix TASK-1106: skipped > 0 → Partial)
         syncLogMock.Verify(
             r => r.AddAsync(It.Is<InventorySyncLog>(
-                l => l.Status == SyncStatus.Success
+                l => l.Status == SyncStatus.Partial
                   && l.SyncType == "STOCK"
                   && l.Message!.Contains("bỏ qua 1"))),
             Times.Once);

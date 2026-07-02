@@ -1,4 +1,4 @@
-﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
 using SmartPOS.Data.Entities;
 using SmartPOS.Data.Repositories.Interfaces;
 
@@ -24,6 +24,12 @@ public class CategoryRepository : ICategoryRepository
             .FirstOrDefaultAsync(c => c.Id == id);
     }
 
+    public async Task<Category?> GetByNameAsync(string name)
+    {
+        return await _context.Categorys
+            .FirstOrDefaultAsync(c => c.Name.ToLower() == name.ToLower());
+    }
+
     public async Task AddAsync(Category category)
     {
         await _context.Categorys.AddAsync(category);
@@ -36,4 +42,3 @@ public class CategoryRepository : ICategoryRepository
         await _context.SaveChangesAsync();
     }
 }
-

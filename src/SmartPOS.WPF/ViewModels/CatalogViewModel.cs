@@ -1,5 +1,6 @@
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using Microsoft.Win32;
 using SmartPOS.Services.Interfaces;
 using SmartPOS.Shared.DTOs.Catalog;
 using SmartPOS.Shared.DTOs.Product;
@@ -23,6 +24,7 @@ public partial class CatalogViewModel : ObservableObject
 
     [ObservableProperty] private bool _isLoading;
     [ObservableProperty] private string _errorMessage = string.Empty;
+    [ObservableProperty] private string _successMessage = string.Empty;
     [ObservableProperty] private ObservableCollection<CategoryDto> _categories = new();
     [ObservableProperty] private ObservableCollection<ProductDto> _filteredProducts = new();
     [ObservableProperty] private CategoryDto? _selectedCategory;
@@ -33,6 +35,9 @@ public partial class CatalogViewModel : ObservableObject
     [ObservableProperty] private string _newProductSku = string.Empty;
     [ObservableProperty] private string _newProductBarcode = string.Empty;
     [ObservableProperty] private decimal _newProductPrice;
+    [ObservableProperty] private int _newProductStock;
+    [ObservableProperty] private string? _newProductImagePath;
+
     [ObservableProperty] private decimal _updatedPrice;
 
     [ObservableProperty] private bool _isAddProductVisible;
@@ -67,23 +72,53 @@ public partial class CatalogViewModel : ObservableObject
     private void ToggleAddProduct() => IsAddProductVisible = !IsAddProductVisible;
 
     [RelayCommand]
+    private void BrowseImage()
+    {
+        var dialog = new OpenFileDialog
+        {
+            Title = "Chọn ảnh sản phẩm",
+            Filter = "Image files|*.jpg;*.jpeg;*.png;*.bmp;*.gif;*.webp|All files|*.*",
+            Multiselect = false
+        };
+        if (dialog.ShowDialog() == true)
+            NewProductImagePath = dialog.FileName;
+    }
+
+    [RelayCommand]
+    private void ClearImage() => NewProductImagePath = null;
+
+    /// <summary>
+    /// Fix TASK-0307: chạy Sync Catalog rồi Sync Stock tuần tự
+    /// </summary>
+    [RelayCommand]
     private async Task SyncFromInventory()
     {
         IsSyncing = true;
         SyncStatus = string.Empty;
         ErrorMessage = string.Empty;
+        SuccessMessage = string.Empty;
         try
         {
-            var result = await _inventorySyncService.SyncCatalogAsync();
-            if (result.Status == "SUCCESS")
+            // Bước 1: Sync catalog
+            var catalogResult = await _inventorySyncService.SyncCatalogAsync();
+            if (catalogResult.Status == "FAILED")
             {
-                SyncStatus = result.Message ?? string.Empty;
-                await LoadAsync();
+                ErrorMessage = "Sync Catalog thất bại: " + (catalogResult.Message ?? string.Empty);
+                return;
             }
-            else
-            {
-                ErrorMessage = result.Message ?? "Sync thất bại";
-            }
+
+            // Bước 2: Sync stock
+            var stockResult = await _inventorySyncService.SyncStockAsync();
+
+            // Reload dữ liệu
+            await LoadAsync();
+
+            var stockMsg = stockResult.Status == "FAILED"
+                ? $" | Sync tồn kho thất bại: {stockResult.Message}"
+                : $" | {stockResult.Message}";
+
+            SyncStatus = (catalogResult.Message ?? string.Empty) + stockMsg;
+            SuccessMessage = "Đồng bộ hoàn tất!";
         }
         catch (Exception ex)
         {
@@ -156,11 +191,14 @@ public partial class CatalogViewModel : ObservableObject
         if (string.IsNullOrWhiteSpace(NewCategoryName)) return;
 
         ErrorMessage = string.Empty;
+        SuccessMessage = string.Empty;
         try
         {
-            await _catalogService.CreateCategoryAsync(new CreateCategoryDto(NewCategoryName, null));
+            var userId = _session.RequireUserId();
+            await _catalogService.CreateCategoryAsync(new CreateCategoryDto(NewCategoryName, null), userId);
             NewCategoryName = string.Empty;
             await LoadAsync();
+            SuccessMessage = "Đã thêm danh mục thành công!";
         }
         catch (BusinessException ex)
         {
@@ -174,6 +212,7 @@ public partial class CatalogViewModel : ObservableObject
         if (string.IsNullOrWhiteSpace(NewProductName) || SelectedCategory == null) return;
 
         ErrorMessage = string.Empty;
+        SuccessMessage = string.Empty;
         try
         {
             var dto = new CreateProductDto(
@@ -181,10 +220,13 @@ public partial class CatalogViewModel : ObservableObject
                 Name: NewProductName,
                 Sku: NewProductSku,
                 UnitPrice: NewProductPrice,
-                Barcode: string.IsNullOrWhiteSpace(NewProductBarcode) ? null : NewProductBarcode
+                Barcode: string.IsNullOrWhiteSpace(NewProductBarcode) ? null : NewProductBarcode,
+                InitialStock: NewProductStock,
+                ImagePath: NewProductImagePath
             );
 
-            var created = await _catalogService.CreateProductAsync(dto);
+            var userId = _session.RequireUserId();
+            var created = await _catalogService.CreateProductAsync(dto, userId);
             created.CategoryName = SelectedCategory.Name;
             _allProducts.Add(created);
             ApplyFilter();
@@ -193,7 +235,10 @@ public partial class CatalogViewModel : ObservableObject
             NewProductSku = string.Empty;
             NewProductBarcode = string.Empty;
             NewProductPrice = 0;
+            NewProductStock = 0;
+            NewProductImagePath = null;
             IsAddProductVisible = false;
+            SuccessMessage = $"Đã thêm sản phẩm '{created.Name}' thành công!";
         }
         catch (BusinessException ex)
         {
@@ -214,6 +259,7 @@ public partial class CatalogViewModel : ObservableObject
         if (SelectedProduct == null) return;
 
         ErrorMessage = string.Empty;
+        SuccessMessage = string.Empty;
         try
         {
             var userId = _session.RequireUserId();
@@ -228,6 +274,7 @@ public partial class CatalogViewModel : ObservableObject
                 _allProducts[index] = updated;
             }
             ApplyFilter();
+            SuccessMessage = $"Đã cập nhật giá thành {UpdatedPrice:N0} VND!";
             SelectedProduct = null;
         }
         catch (BusinessException ex)
@@ -243,6 +290,7 @@ public partial class CatalogViewModel : ObservableObject
         if (target == null) return;
 
         ErrorMessage = string.Empty;
+        SuccessMessage = string.Empty;
         try
         {
             var userId = _session.RequireUserId();
@@ -251,10 +299,72 @@ public partial class CatalogViewModel : ObservableObject
             if (idx >= 0) _allProducts[idx].IsActive = false;
             ApplyFilter();
             if (SelectedProduct?.Id == target.Id) SelectedProduct = null;
+            SuccessMessage = $"Đã ngừng kinh doanh sản phẩm '{target.Name}'.";
         }
         catch (BusinessException ex)
         {
             ErrorMessage = ex.Message;
+        }
+    }
+
+    [RelayCommand]
+    private async Task ReactivateProduct(ProductDto? product = null)
+    {
+        var target = product ?? SelectedProduct;
+        if (target == null) return;
+
+        ErrorMessage = string.Empty;
+        SuccessMessage = string.Empty;
+        try
+        {
+            var userId = _session.RequireUserId();
+            await _catalogService.ReactivateProductAsync(target.Id, userId);
+            var idx = _allProducts.FindIndex(p => p.Id == target.Id);
+            if (idx >= 0) _allProducts[idx].IsActive = true;
+            ApplyFilter();
+            if (SelectedProduct?.Id == target.Id) SelectedProduct = null;
+            SuccessMessage = $"Đã kinh doanh lại sản phẩm '{target.Name}'.";
+        }
+        catch (BusinessException ex)
+        {
+            ErrorMessage = ex.Message;
+        }
+    }
+
+    [RelayCommand]
+    private async Task UpdateImage()
+    {
+        if (SelectedProduct == null) return;
+
+        var dialog = new OpenFileDialog
+        {
+            Title = "Chọn ảnh sản phẩm mới",
+            Filter = "Image files|*.jpg;*.jpeg;*.png;*.bmp;*.gif;*.webp|All files|*.*",
+            Multiselect = false
+        };
+        if (dialog.ShowDialog() == true)
+        {
+            ErrorMessage = string.Empty;
+            SuccessMessage = string.Empty;
+            try
+            {
+                var userId = _session.RequireUserId();
+                var updated = await _catalogService.UpdateProductImageAsync(SelectedProduct.Id, dialog.FileName, userId);
+                
+                var index = _allProducts.FindIndex(p => p.Id == updated.Id);
+                if (index >= 0)
+                {
+                    updated.CategoryName = _allProducts[index].CategoryName;
+                    _allProducts[index] = updated;
+                }
+                ApplyFilter();
+                SuccessMessage = $"Đã cập nhật ảnh cho sản phẩm '{SelectedProduct.Name}'!";
+                SelectedProduct = null;
+            }
+            catch (BusinessException ex)
+            {
+                ErrorMessage = ex.Message;
+            }
         }
     }
 }

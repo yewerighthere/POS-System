@@ -1,5 +1,6 @@
-﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
 using InventoryManager.Api.Data;
+using InventoryManager.Api;
 
 var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddControllers();
@@ -12,6 +13,7 @@ using (var scope = app.Services.CreateScope())
 {
     var db = scope.ServiceProvider.GetRequiredService<InventoryDbContext>();
     await db.Database.MigrateAsync();
+    await InventoryDataSeeder.SeedAsync(db);
 }
 
 app.UseSwagger();

@@ -1,4 +1,4 @@
-﻿using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Logging;
 using SmartPOS.Data.Repositories.Interfaces;
 using SmartPOS.Services.Interfaces;
 using SmartPOS.Shared.DTOs.Auth;
@@ -59,7 +59,9 @@ public class ProductService : IProductService
         Sku = p.Sku,
         Barcode = p.Barcode,
         UnitPrice = p.UnitPrice,
-        LocalStockQuantity = p.LocalStockQuantity
+        LocalStockQuantity = p.LocalStockQuantity,
+        IsActive = p.IsActive,
+        ImagePath = p.ImagePath
     };
 }
 

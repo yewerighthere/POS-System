@@ -46,9 +46,28 @@ public class AppDbContext : DbContext
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         base.OnModelCreating(modelBuilder);
+
+        // Unique indexes cho Product
+        modelBuilder.Entity<Product>(entity =>
+        {
+            entity.HasIndex(p => p.Sku)
+                  .IsUnique()
+                  .HasFilter("\"Sku\" IS NOT NULL AND \"Sku\" != ''");
+            entity.HasIndex(p => p.Barcode)
+                  .IsUnique()
+                  .HasFilter("\"Barcode\" IS NOT NULL");
+            entity.HasIndex(p => p.QrCode)
+                  .IsUnique()
+                  .HasFilter("\"QrCode\" IS NOT NULL");
+            entity.HasIndex(p => p.ExternalInventoryId)
+                  .IsUnique()
+                  .HasFilter("\"ExternalInventoryId\" IS NOT NULL");
+        });
+
         foreach (var property in modelBuilder.Model.GetEntityTypes().SelectMany(entity => entity.GetProperties()).Where(property => property.ClrType == typeof(decimal) || property.ClrType == typeof(decimal?)))
         {
             property.SetColumnType("numeric(18,2)");
         }
     }
 }
+
