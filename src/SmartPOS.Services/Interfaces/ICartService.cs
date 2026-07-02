@@ -1,4 +1,4 @@
-﻿using SmartPOS.Shared.DTOs.Auth;
+using SmartPOS.Shared.DTOs.Auth;
 using SmartPOS.Shared.DTOs.Shift;
 using SmartPOS.Shared.DTOs.Product;
 using SmartPOS.Shared.DTOs.Cart;
@@ -17,6 +17,6 @@ namespace SmartPOS.Services.Interfaces;
 
 public interface ICartService
 {
-    CartSummaryDto AddItem(ProductDto product, int quantity, CartSummaryDto cart); CartSummaryDto UpdateItem(Guid productId, int quantity, CartSummaryDto cart); CartSummaryDto RemoveItem(Guid productId, CartSummaryDto cart); CartSummaryDto Recalculate(CartSummaryDto cart);
+    CartSummaryDto AddItem(ProductDto product, int quantity, CartSummaryDto cart); CartSummaryDto UpdateItem(ProductDto product, int quantity, CartSummaryDto cart); CartSummaryDto RemoveItem(Guid productId, CartSummaryDto cart); CartSummaryDto Recalculate(CartSummaryDto cart);
 }
 

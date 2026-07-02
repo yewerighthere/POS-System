@@ -9,6 +9,7 @@ public class ProductDto
     public decimal UnitPrice { get; set; }
     public int LocalStockQuantity { get; set; }
     public bool IsActive { get; set; } = true;
+    public decimal TaxRate { get; set; }
     public string CategoryName { get; set; } = string.Empty;
     public string? ImagePath { get; set; }
 }
