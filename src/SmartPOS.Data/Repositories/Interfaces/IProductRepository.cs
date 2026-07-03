@@ -12,5 +12,6 @@ public interface IProductRepository
     Task<IReadOnlyList<Product>> SearchAsync(string keyword, bool includeInactive = false);
     Task AddAsync(Product product);
     Task UpdateAsync(Product product);
+    Task DeleteAsync(Product product);
     Task<IReadOnlyList<Product>> GetAllAsync();
 }
