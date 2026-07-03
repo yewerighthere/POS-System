@@ -232,7 +232,7 @@ Chạy riêng project test:
 dotnet test tests/SmartPOS.Tests/SmartPOS.Tests.csproj
 ```
 
-Hiện tại test suite pass 20/20 ở trạng thái source hiện tại. Khi implement thêm service logic, bổ sung test tương ứng vào `tests/SmartPOS.Tests`.
+Hiện tại test suite có 44 test thật + 2 placeholder (PromotionServiceTests và ReturnServiceTests chỉ có `Assert.True(true)`). Các test đã implement: AuthServiceTests (7), ShiftServiceTests (5), CartServiceTests (8), PaymentServiceTests (11), InvoiceServiceTests (4), DeviceServiceTests (3), InventorySyncServiceTests (6). Khi implement thêm service logic, bổ sung test tương ứng vào `tests/SmartPOS.Tests`.
 
 ## Lệnh Hay Dùng
 

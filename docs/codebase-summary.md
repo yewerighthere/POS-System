@@ -79,12 +79,12 @@ Thư mục: `SmartPOS.Shared/DTOs`
 - Order: `CreateOrderDto`, `OrderDto`, `OrderItemDto`, `OrderItemInputDto`.
 - Payment: `CashPaymentDto`, `VNPayRequestDto`, `VNPayCallbackDto`, `PaymentResultDto`.
 - Invoice: `InvoiceDto`.
-- Customer: `CustomerDto`, `CreateCustomerDto`.
+- Customer: `CustomerDto`, `CreateCustomerDto`, `CustomerListDto`, `CustomerDetailDto`, `CustomerOrderDto`, `CustomerOrderItemDto`, `CustomerOrderDetailDto`, `UpdateCustomerDto`.
 - Return: `ReturnRequestDto`, `ReturnItemInputDto`, `ReturnDto`.
 - Catalog: `CategoryDto`, `CreateCategoryDto`, `CreateProductDto`, `UpdatePriceDto`.
 - Promotion: `PromotionDto`, `PromotionValidationResultDto`.
 - Inventory: `StockDeductionEventDto`, `RestockEventDto`, `SyncResultDto`.
-- Report: `ShiftReportDto`, `SalesReportDto`.
+- Report: `ShiftReportDto`, `SalesReportDto`, `OrderLogDto`, `TopProductDto`, `RecentShiftDto`.
 
 ## SmartPOS.Data
 
@@ -195,12 +195,12 @@ Thư mục: `SmartPOS.WPF/ViewModels`
 
 - `LoginViewModel`: đăng nhập, lưu `CurrentSessionContext` và điều hướng theo role.
 - `ShiftViewModel`: mở ca, đóng ca, có `InitializeAsync` để tìm ca đang mở của user khi quay lại màn hình ca.
-- `SalesViewModel`: màn hình bán hàng, giả lập máy quét, giỏ hàng.
+- `SalesViewModel`: màn hình bán hàng, giả lập máy quét, giỏ hàng (tích hợp customer lookup/creation popup, promotion code input, loyalty points toggle, checkout navigation).
 - `PaymentViewModel`: tiền mặt và VNPay QR/polling.
 - `InvoiceViewModel`: xem hóa đơn và in giả lập.
-- `CustomerViewModel`: hiện còn TODO.
+- `CustomerViewModel`: quản lý khách hàng (search/filter/sort/detail/edit/toggle status/view orders).
 - `ReturnViewModel`: hiện còn TODO.
-- `CatalogViewModel`: danh mục, sản phẩm, giá.
+- `CatalogViewModel`: quản lý danh mục, sản phẩm, giá (CRUD + filter/search + deactivate/reactivate + image + inline sync).
 - `PromotionViewModel`: hiện còn TODO.
 - `ReportViewModel`: báo cáo ca với shift report, recent shifts, top products, order log.
 - `AuditLogViewModel`: hiện còn TODO.
@@ -214,7 +214,9 @@ Thư mục: `SmartPOS.WPF/Views`
 Mỗi ViewModel nên có View tương ứng.
 
 - `LoginView`: giao diện split-screen theo thiết kế, có password toggle và binding về `LoginViewModel`.
-- `ShiftView`, `SalesView`, `PaymentView`, `InvoiceView`, `CatalogView`: đã có UI mức cơ bản.
+- `ShiftView`, `PaymentView`, `InvoiceView`: đã có UI mức cơ bản.
+- `SalesView`: đã có UI hoàn chỉnh (tích hợp customer lookup/creation popup, promotion code, loyalty points, checkout).
+- `CatalogView`: đã có UI hoàn chỉnh (CRUD + filter/search + deactivate/reactivate + image + inline sync).
 - `ReportView`, `SyncView`: đã có UI hoàn chỉnh.
 - `CustomerView`, `ReturnView`, `PromotionView`, `AuditLogView`, `UserManagementView`: hiện vẫn là placeholder TODO.
 

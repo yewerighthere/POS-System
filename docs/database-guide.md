@@ -211,9 +211,17 @@ Migration bổ sung hiện có:
 
 ```text
 src/SmartPOS.Data/Migrations/20260618183830_AddUserContactFields.cs
+src/SmartPOS.Data/Migrations/20260701143000_AddAffectedRowsToSyncLog.cs
+src/SmartPOS.Data/Migrations/20260702035035_AddProductImagePath.cs
+src/SmartPOS.Data/Migrations/20260702160036_AddLoyaltyPointsToOrder.cs
+src/SmartPOS.Data/Migrations/20260702164411_UpdateCustomerStatusAndOrders.cs
 ```
 
 Migration `AddUserContactFields` thêm `Email` và `PhoneNumber` cho bảng `Users`.
+Migration `AddAffectedRowsToSyncLog` thêm `AffectedRows` cho bảng `InventorySyncLogs`.
+Migration `AddProductImagePath` thêm `ImagePath` cho bảng `Products`.
+Migration `AddLoyaltyPointsToOrder` thêm `PointsEarned`, `PointsUsed`, `PointsDiscountAmount` cho bảng `Orders`.
+Migration `UpdateCustomerStatusAndOrders` thêm `IsActive`, `CreatedAt` cho bảng `Customers` và thiết lập quan hệ với `Orders`.
 
 Lệnh đã dùng:
 

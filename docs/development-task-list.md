@@ -1,4 +1,4 @@
-# Development Task List
+﻿# Development Task List
 
 File này là checklist triển khai dự án SmartPOS từ trạng thái hiện tại đến demo cuối. Khi làm xong task nào, cập nhật checkbox và đồng bộ trạng thái feature trong `docs/implementation-status.md`.
 
@@ -138,12 +138,12 @@ Liên quan: F-08.
 
 Liên quan: F-09.
 
-- [ ] TASK-0801: Implement `ICustomerRepository`.
-- [ ] TASK-0802: Implement tìm khách theo số điện thoại.
-- [ ] TASK-0803: Implement tạo khách hàng mới.
-- [ ] TASK-0804: Implement cộng điểm sau thanh toán thành công.
-- [ ] TASK-0805: Implement trừ điểm khi return được duyệt.
-- [ ] TASK-0806: Implement `CustomerViewModel`.
+- [x] TASK-0801: Implement `ICustomerRepository`. ✅ (GetByPhoneAsync, GetByIdAsync, AddAsync, UpdateAsync, GetCustomersQueryAsync)
+- [x] TASK-0802: Implement tìm khách theo số điện thoại. ✅ (FindByPhoneAsync)
+- [x] TASK-0803: Implement tạo khách hàng mới. ✅ (CreateAsync + SalesView popup)
+- [x] TASK-0804: Implement cộng điểm sau thanh toán thành công. ✅ (AddLoyaltyPointsAsync)
+- [x] TASK-0805: Implement trừ điểm khi return được duyệt. ✅ (DeductLoyaltyPointsAsync)
+- [x] TASK-0806: Implement `CustomerViewModel`. ✅ (search/filter/sort/detail/edit/toggle/view orders)
 - [ ] TASK-0807: Viết test tạo khách, tìm khách, cộng/trừ điểm.
 
 ## Phase 9 - Promotion
