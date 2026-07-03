@@ -89,7 +89,7 @@ Liên quan: F-03.
 - [~] TASK-0406: Kiểm tra tồn kho trước khi thêm sản phẩm vào giỏ. Đã chặn vượt tồn khi `LocalStockQuantity > 0`; cần làm rõ rule sản phẩm tồn 0 và inactive.
 - [~] TASK-0407: Implement UI bán hàng cơ bản trong `SalesView`.
 - [~] TASK-0408: Hiển thị subtotal, discount, tax, total. Đã có tổng mức cơ bản; thuế hiện chưa tính.
-- [ ] TASK-0409: Viết test thêm sản phẩm, sửa số lượng, xóa sản phẩm, hết hàng. (CartServiceTests hiện chỉ có placeholder `Assert.True(true)`, chưa có test thật.)
+- [x] TASK-0409: Viết test thêm sản phẩm, sửa số lượng, xóa sản phẩm, hết hàng. (CartServiceTests có 8 test thật: AddItem success/inactive/zero stock/overstock, UpdateItem success/overstock/remove, Recalculate với discount + tax.)
 
 ## Phase 5 - Order Và Thanh Toán Tiền Mặt
 

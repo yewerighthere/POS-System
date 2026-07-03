@@ -313,7 +313,7 @@ Tập trung kiểm thử Service:
 
 - `AuthServiceTests` — 7 test login/logout/JWT
 - `ShiftServiceTests` — 5 test mở/đóng ca
-- `CartServiceTests` — placeholder, chưa có test thật
+- `CartServiceTests` — 8 test thật (add/inactive/stock/update/remove/tax/recalculate)
 - `PaymentServiceTests` — 11 test cash/VNPay/callback/cancel
 - `InvoiceServiceTests` — 4 test tạo/xem hóa đơn
 - `DeviceServiceTests` — 3 test log/print giả lập
@@ -323,7 +323,7 @@ Tập trung kiểm thử Service:
 
 Dùng xUnit, Moq và FluentAssertions.
 
-Hiện test suite có 36 test thật + 3 placeholder (Cart, Promotion, Return chỉ `Assert.True(true)`). Chạy:
+Hiện test suite có 44 test thật + 2 placeholder (Promotion, Return chỉ `Assert.True(true)`). Chạy:
 `dotnet test tests/SmartPOS.Tests/SmartPOS.Tests.csproj --no-build`.
 
 ## Cấu hình chính

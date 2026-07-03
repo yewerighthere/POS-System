@@ -35,7 +35,7 @@ Vì vậy, trạng thái hiện tại nên hiểu là: **nền project đã vữ
 |---|---|---|---|
 | F-01 | Đăng nhập, đăng xuất, tạo tài khoản | Đã xong | Đã implement repository, AuthService với BCrypt/JWT, seed 3 user demo, LoginViewModel, LoginView theo thiết kế, điều hướng theo role và kiểm thử thủ công 3 tài khoản demo |
 | F-02 | Mở ca, đóng ca | Đã xong | Đã implement IShiftRepository (GetOpenShiftAsync, GetByIdAsync, AddAsync, UpdateAsync, GetCashRevenueAsync, GetTotalSalesAsync), ShiftService (OpenShiftAsync, CloseShiftAsync, GetOpenShiftAsync, GetShiftSummaryAsync), ShiftViewModel với CommunityToolkit.Mvvm, ShiftView.xaml UI mở/đóng ca, lưu ca vào CurrentSessionContext; 5 unit test pass. ShiftView.xaml.cs gọi InitializeAsync khi Loaded để tự nạp ca đang mở sau khi app khởi động lại; sau khi mở ca thành công tự điều hướng sang SalesView. |
-| F-03 | Bán hàng: chọn sản phẩm, tìm kiếm, giỏ hàng, tính tiền | Đang làm | Đã implement ProductRepository/ProductService tìm barcode/search, CartService thêm/sửa/xóa/tính lại và SalesViewModel/SalesView mức cơ bản. Còn cần hoàn thiện kiểm tra inactive/giá thay đổi, thuế, UX và test search/sales. |
+| F-03 | Bán hàng: chọn sản phẩm, tìm kiếm, giỏ hàng, tính tiền | Đang làm | Đã implement ProductRepository/ProductService tìm barcode/search, CartService thêm/sửa/xóa/tính lại (có tax 10%), kiểm tra sản phẩm ngừng kinh doanh và hết hàng, SalesViewModel/SalesView mức cơ bản và 8 test CartService. Còn cần thêm: real customer integration, wire promotion code vào SalesViewModel. |
 | F-04 | Khuyến mãi và giảm giá | Đang làm | PromotionRepository đã có 18 method (CRUD, search, filter). PromotionService đã có CreatePromotionAsync, GetByCodeAsync, GetAllPromotionsAsync, nhiều Update* method, DeleteAsync. Còn 3 method core chưa implement: ValidateCodeAsync, ApplyPromotionAsync, RequestApprovalAsync (đều throw NotImplementedException). PromotionViewModel vẫn là skeleton. |
 | F-05 | Thanh toán tiền mặt | Đã xong | Đã implement OrderRepository, PaymentService.CreateOrderFromCartAsync và RecordCashPaymentAsync, PaymentViewModel với quick-cash buttons, PaymentView.xaml, kiểm tra thiếu tiền/order khóa và tạo payment/order status. Inventory/audit side effect vẫn bọc lỗi vì F-13/F-15 chưa hoàn chỉnh. |
 | F-06 | Thanh toán VNPay | Đã xong | Đã có tạo URL/QR VNPay, khóa order, poll trạng thái mỗi 2 giây, hủy/timeout mở khóa order và test service liên quan |
@@ -55,11 +55,11 @@ Vì vậy, trạng thái hiện tại nên hiểu là: **nền project đã vữ
 |---|---|---|
 | SmartPOS.Shared | Cần kiểm thử | Đã có enum, DTO, exception, constant; cần rà lại shape DTO khi implement thật |
 | SmartPOS.Data | Đang làm | Đã có entity, DbContext, design-time factory, 4 migrations POS, DataSeeder sản phẩm mẫu. Các repository đã implement: Auth, Shift, Product, Category, Order, Invoice, Device, DeviceLog, InventorySyncLog, AuditLog, Promotion, Customer. Repository Return còn stub (NotImplementedException). |
-| SmartPOS.Services | Đang làm | Đã có logic: Auth, Shift, Product, Cart, Catalog (CRUD + deactivate/reactivate/image), Cash Payment, VNPay (tạo URL/QR/poll/cancel/callback), Invoice (tạo hóa đơn theo ngày + preview), Device (fake print + log), InventorySync (sync catalog/stock + deduct/restock + register + sync log), Report (shift report + recent shifts), Audit (log async). Còn stub: CustomerService (NotImplementedException), ReturnService (NotImplementedException), PromotionService.ValidateCodeAsync/ApplyPromotionAsync/RequestApprovalAsync, ReportService.GetSalesReportAsync. |
+| SmartPOS.Services | Đang làm | Đã có logic: Auth, Shift, Product, Cart (tax 10%, inactive/stock validation), Catalog (CRUD + deactivate/reactivate/image), Cash Payment, VNPay (tạo URL/QR/poll/cancel/callback), Invoice (tạo hóa đơn theo ngày + preview), Device (fake print + log), InventorySync (sync catalog/stock + deduct/restock + register + sync log), Report (shift report + recent shifts), Audit (log async). Còn stub: CustomerService (2/4 method đã implement trong feature branch), ReturnService (NotImplementedException), PromotionService.ValidateCodeAsync/ApplyPromotionAsync/RequestApprovalAsync, ReportService.GetSalesReportAsync. |
 | SmartPOS.WPF | Đang làm | Đã có UI/ViewModel hoàn chỉnh: Login, Shift, Sales (search/barcode/cart), Payment (cash + VNPay QR/polling), Invoice (preview + fake print), Catalog (CRUD + filter/search/deactivate/reactivate/image), Sync (sync catalog/stock/all), Report (shift report + recent shifts + top products + order log). Các màn vẫn placeholder/TODO: Customer, Return, Promotion, AuditLog, UserManagement. |
 | SmartPOS.CallbackApi | Đã xong | Đã có endpoint callback thật cho VNPay, nhận GET/POST, validate signature, gọi PaymentService và trả trang HTML kết quả. |
 | InventoryManager.Api | Đã xong | Đã có `InventoryDbContext`, entity inventory riêng, migration `InitialInventoryCreate`, InventoryDataSeeder (3 categories + 10 products + 10 stock items với fixed GUID). SyncController (GET catalog/stock), StockController (POST deduct/restock với validation + StockTransaction), ProductsController (GET all products, POST create product với SKU/barcode validation, GET categories). Swagger enabled. |
-| SmartPOS.Tests | Đang làm | Test suite hiện có 36 test thật + 3 placeholder (CartServiceTests, PromotionServiceTests, ReturnServiceTests chỉ có `Assert.True(true)`). Các test đã implement: AuthServiceTests (7 tests), ShiftServiceTests (5 tests), PaymentServiceTests (11 tests bao gồm VNPay), InvoiceServiceTests (4 tests), DeviceServiceTests (3 tests), InventorySyncServiceTests (6 tests). Cần bổ sung: test thật cho Cart, Promotion, Return, và test cho search/catalog/audit/report. |
+| SmartPOS.Tests | Đang làm | Test suite hiện có 44 test thật + 2 placeholder (PromotionServiceTests, ReturnServiceTests chỉ có `Assert.True(true)`). Các test đã implement: AuthServiceTests (7), ShiftServiceTests (5), CartServiceTests (8 test thật - add/update/remove/recalculate/tax/stock/inactive), PaymentServiceTests (11 bao gồm VNPay), InvoiceServiceTests (4), DeviceServiceTests (3), InventorySyncServiceTests (6). Cần bổ sung: test thật cho Promotion, Return, và test cho search/catalog/audit/report. |
 
 ## Việc nên làm tiếp theo
 
@@ -67,14 +67,13 @@ Chi tiết task nằm trong `docs/development-task-list.md`. Thứ tự ưu tiê
 
 1. **Khuyến mãi** (F-04): Implement `PromotionService.ValidateCodeAsync`, `ApplyPromotionAsync`, `RequestApprovalAsync` và `PromotionViewModel` — bắt buộc cho luồng demo.
 2. **Trả hàng** (F-10): Implement `ReturnRepository`, `ReturnService` (CreateReturnAsync, ApproveAsync, RejectAsync), `ReturnViewModel` — bắt buộc cho demo cuối.
-3. **Khách hàng** (F-09): Implement `CustomerService` (FindByPhoneAsync, CreateAsync, AddLoyaltyPointsAsync, CalculatePoints) và `CustomerViewModel`.
+3. **Khách hàng** (F-09): Merge feature branch `feature/task-0802-add-point-into-customer` (đã có FindByPhoneAsync + CreateAsync trong CustomerService và UI popup trong SalesView). Còn AddLoyaltyPoints + CalculatePoints vẫn cần implement.
 4. **Seed data**: Thêm mã khuyến mãi `GIAM10` vào `DataSeeder` hoặc `InventoryDataSeeder`.
-5. **Thuế**: Implement tính thuế trong `CartService.Recalculate` (hiện hardcode `TaxAmount = 0`).
-6. **Test thật**: Thay 3 placeholder test (Cart, Promotion, Return) bằng test thật; bổ sung test cho Catalog/Audit/Report.
-7. **Báo cáo doanh thu** (F-15): Implement `ReportService.GetSalesReportAsync`.
-8. **Audit log viewer** (F-15): Implement `AuditLogViewModel` để hiển thị audit logs.
-9. **Quản lý user**: Implement `UserManagementViewModel` (tạo tài khoản mới khi giảng viên yêu cầu).
-10. **UI polish**: Hoàn thiện navigation, loading state, thông báo lỗi tiếng Việt.
+5. **Test thật**: Thay 2 placeholder test (Promotion, Return) bằng test thật; bổ sung test cho Catalog/Audit/Report.
+6. **Báo cáo doanh thu** (F-15): Implement `ReportService.GetSalesReportAsync`.
+7. **Audit log viewer** (F-15): Implement `AuditLogViewModel` để hiển thị audit logs.
+8. **Quản lý user**: Implement `UserManagementViewModel` (tạo tài khoản mới khi giảng viên yêu cầu).
+9. **UI polish**: Hoàn thiện navigation, loading state, thông báo lỗi tiếng Việt.
 
 ## Dữ liệu demo cần có
 
