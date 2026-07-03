@@ -102,7 +102,14 @@ public class InventorySyncService : IInventorySyncService
                     existing.Description = item.Description;
                     existing.UnitPrice = item.UnitPrice;
                     existing.TaxRate = item.TaxRate;
-                    existing.IsActive = item.IsActive;
+                    
+                    // Nếu trên Inventory Manager bị ngừng kinh doanh, thì ép POS ngừng.
+                    // Ngược lại, tôn trọng trạng thái ngừng kinh doanh cục bộ của POS.
+                    if (!item.IsActive) 
+                    {
+                        existing.IsActive = false;
+                    }
+                    
                     existing.UpdatedAt = DateTime.UtcNow;
                     existing.LastSyncedAt = DateTime.UtcNow;
                     await _productRepository.UpdateAsync(existing);
@@ -367,6 +374,60 @@ public class InventorySyncService : IInventorySyncService
         catch (Exception ex)
         {
             _logger.LogError(ex, "Nhập lại hàng thất bại cho sản phẩm {ProductId}", dto.ProductId);
+        }
+    }
+
+    public async Task AdjustStockAsync(Guid inventoryProductId, int difference, string reason)
+    {
+        if (difference == 0) return;
+
+        try
+        {
+            if (difference > 0)
+            {
+                var dto = new RestockEventDto(inventoryProductId, difference, reason);
+                var response = await _httpClient.PostAsJsonAsync("/api/stock/restock", dto);
+                response.EnsureSuccessStatusCode();
+            }
+            else
+            {
+                var dto = new StockDeductionEventDto(Guid.Empty, inventoryProductId, Math.Abs(difference));
+                var response = await _httpClient.PostAsJsonAsync("/api/stock/deduct", dto);
+                response.EnsureSuccessStatusCode();
+            }
+            _logger.LogInformation("Đã điều chỉnh kho (+{Diff}) cho InventoryId {InvId}", difference, inventoryProductId);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Điều chỉnh kho thất bại cho InventoryId {InvId}", inventoryProductId);
+        }
+    }
+
+    public async Task DeleteProductFromInventoryAsync(Guid inventoryProductId)
+    {
+        try
+        {
+            var response = await _httpClient.DeleteAsync($"/api/products/{inventoryProductId}");
+            response.EnsureSuccessStatusCode();
+            _logger.LogInformation("Đã xóa sản phẩm {InvId} khỏi Inventory Manager API", inventoryProductId);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Xóa sản phẩm {InvId} khỏi Inventory Manager API thất bại", inventoryProductId);
+        }
+    }
+
+    public async Task UpdateProductInInventoryAsync(Guid inventoryProductId, UpdateInventoryProductDto dto)
+    {
+        try
+        {
+            var response = await _httpClient.PutAsJsonAsync($"/api/products/{inventoryProductId}", dto);
+            response.EnsureSuccessStatusCode();
+            _logger.LogInformation("Đã cập nhật sản phẩm {InvId} trên Inventory Manager API", inventoryProductId);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Cập nhật sản phẩm {InvId} trên Inventory Manager API thất bại", inventoryProductId);
         }
     }
 }

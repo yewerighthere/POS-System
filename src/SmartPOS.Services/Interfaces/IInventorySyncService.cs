@@ -21,6 +21,9 @@ public interface IInventorySyncService
     Task<SyncResultDto> SyncStockAsync();
     Task SendStockDeductionAsync(IEnumerable<OrderItemDto> items, Guid orderId);
     Task RestockAsync(RestockEventDto dto);
+    Task AdjustStockAsync(Guid inventoryProductId, int difference, string reason);
+    Task DeleteProductFromInventoryAsync(Guid inventoryProductId);
+    Task UpdateProductInInventoryAsync(Guid inventoryProductId, UpdateInventoryProductDto dto);
 
     /// <summary>
     /// Đăng ký sản phẩm mới lên Inventory API khi POS tạo sản phẩm.
@@ -30,5 +33,3 @@ public interface IInventorySyncService
     /// </summary>
     Task<RegisterInventoryProductResultDto?> RegisterProductToInventoryAsync(RegisterInventoryProductDto dto);
 }
-
-

@@ -203,6 +203,7 @@
                 </Grid.ColumnDefinitions>
                 <StackPanel Grid.Column="0">
                     <TextBlock Text="Product Catalog" FontSize="22" FontWeight="Bold" Foreground="#0F172A"/>
+                    <TextBlock Text="{Binding LastSyncedText}" Foreground="#64748B" FontSize="12" Margin="0,4,0,0"/>
                     <TextBlock Text="Quản lý sản phẩm &amp; danh mục trong hệ thống"
                                Foreground="#64748B" FontSize="12" Margin="0,4,0,0"/>
                 </StackPanel>
@@ -413,13 +414,17 @@
                         <StackPanel Grid.Column="1" Orientation="Horizontal" Margin="12,0" VerticalAlignment="Center">
                             <TextBlock Text="Giá mới:" VerticalAlignment="Center" Margin="0,0,8,0" Foreground="#0F172A" FontSize="13"/>
                             <TextBox Text="{Binding UpdatedPrice, UpdateSourceTrigger=PropertyChanged}"
-                                     Width="120" Padding="10,8" BorderBrush="#E2E8F0" BorderThickness="1" FontSize="13"/>
+                                     Width="100" Padding="10,8" BorderBrush="#E2E8F0" BorderThickness="1" FontSize="13"/>
+                                     
+                            <TextBlock Text="Tồn kho:" VerticalAlignment="Center" Margin="12,0,8,0" Foreground="#0F172A" FontSize="13"/>
+                            <TextBox Text="{Binding UpdatedStock, UpdateSourceTrigger=PropertyChanged}"
+                                     Width="70" Padding="10,8" BorderBrush="#E2E8F0" BorderThickness="1" FontSize="13"/>
                         </StackPanel>
                         
                         <Button Grid.Column="2" Content="📷 Đổi ảnh" Command="{Binding UpdateImageCommand}"
                                 Style="{StaticResource OutlineBtn}" Margin="0,0,8,0"/>
                                 
-                        <Button Grid.Column="3" Content="✏ Cập nhật giá" Command="{Binding UpdatePriceCommand}"
+                        <Button Grid.Column="3" Content="✏ Cập nhật" Command="{Binding UpdateProductInfoCommand}"
                                 Style="{StaticResource PrimaryBtn}" Background="#2563EB" Margin="0,0,8,0"/>
                                 
                         <Grid Grid.Column="4">
@@ -677,6 +682,11 @@
                                                             Margin="4,0,0,0" Foreground="#64748B"
                                                             Style="{StaticResource RowIconBtn}"
                                                             Command="{Binding DataContext.DeactivateProductCommand, RelativeSource={RelativeSource AncestorType=ItemsControl}}"
+                                                            CommandParameter="{Binding}"/>
+                                                    <Button ToolTip="Xóa" Content="🗑️" FontSize="13"
+                                                            Margin="4,0,0,0" Foreground="#EF4444"
+                                                            Style="{StaticResource RowIconBtn}"
+                                                            Command="{Binding DataContext.DeleteProductCommand, RelativeSource={RelativeSource AncestorType=ItemsControl}}"
                                                             CommandParameter="{Binding}"/>
                                                 </StackPanel>
                                             </Grid>

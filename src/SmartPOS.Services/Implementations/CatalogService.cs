@@ -308,6 +308,21 @@ public class CatalogService : ICatalogService
         await _productRepository.UpdateAsync(product);
         _logger.LogInformation("Đã cập nhật giá sản phẩm {ProductId}: {OldPrice} → {NewPrice}", dto.ProductId, oldPrice, dto.UnitPrice);
 
+        if (!string.IsNullOrEmpty(product.ExternalInventoryId) && Guid.TryParse(product.ExternalInventoryId, out var invId))
+        {
+            var updateDto = new SmartPOS.Shared.DTOs.Inventory.UpdateInventoryProductDto(
+                product.Name,
+                product.Sku,
+                product.Barcode,
+                product.QrCode,
+                product.Description,
+                product.UnitPrice,
+                product.TaxRate,
+                product.CategoryId
+            );
+            await _inventorySyncService.UpdateProductInInventoryAsync(invId, updateDto);
+        }
+
         await _auditService.LogAsync(
             action: "UPDATE_PRICE",
             entity: "Product",
@@ -315,6 +330,42 @@ public class CatalogService : ICatalogService
             oldValue: new { UnitPrice = oldPrice },
             newValue: new { UnitPrice = dto.UnitPrice },
             userId: userId);
+
+        return MapToDto(product);
+    }
+
+    public async Task<ProductDto> UpdateStockAsync(Guid productId, int newStock, Guid userId)
+    {
+        var product = await _productRepository.GetByIdAsync(productId)
+            ?? throw new BusinessException("Sản phẩm không tồn tại.");
+
+        if (newStock < 0)
+            throw new BusinessException("Số lượng tồn kho không được âm.");
+
+        var oldStock = product.LocalStockQuantity;
+        var diff = newStock - oldStock;
+
+        if (diff != 0)
+        {
+            product.LocalStockQuantity = newStock;
+            product.UpdatedAt = DateTime.UtcNow;
+
+            await _productRepository.UpdateAsync(product);
+            _logger.LogInformation("Đã cập nhật tồn kho sản phẩm {ProductId}: {OldStock} → {NewStock}", productId, oldStock, newStock);
+
+            if (!string.IsNullOrEmpty(product.ExternalInventoryId) && Guid.TryParse(product.ExternalInventoryId, out var invId))
+            {
+                await _inventorySyncService.AdjustStockAsync(invId, diff, "Cập nhật thủ công từ POS");
+            }
+
+            await _auditService.LogAsync(
+                action: "UPDATE_STOCK",
+                entity: "Product",
+                entityId: product.Id,
+                oldValue: new { LocalStockQuantity = oldStock },
+                newValue: new { LocalStockQuantity = newStock },
+                userId: userId);
+        }
 
         return MapToDto(product);
     }
@@ -367,6 +418,29 @@ public class CatalogService : ICatalogService
             userId: userId);
 
         return MapToDto(product);
+    }
+
+    public async Task DeleteProductAsync(Guid productId, Guid userId)
+    {
+        var product = await _productRepository.GetByIdAsync(productId)
+            ?? throw new BusinessException("Sản phẩm không tồn tại.");
+
+        var productName = product.Name;
+        await _productRepository.DeleteAsync(product);
+        _logger.LogInformation("Đã xóa sản phẩm {ProductId} ({Name})", productId, productName);
+
+        if (!string.IsNullOrEmpty(product.ExternalInventoryId) && Guid.TryParse(product.ExternalInventoryId, out var invId))
+        {
+            await _inventorySyncService.DeleteProductFromInventoryAsync(invId);
+        }
+
+        await _auditService.LogAsync(
+            action: "DELETE_PRODUCT",
+            entity: "Product",
+            entityId: productId,
+            oldValue: new { Name = productName },
+            newValue: (object?)null,
+            userId: userId);
     }
 
     public async Task<ProductDto> UpdateProductImageAsync(Guid productId, string? imagePath, Guid userId)
