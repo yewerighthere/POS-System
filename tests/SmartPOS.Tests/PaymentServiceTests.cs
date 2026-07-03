@@ -20,11 +20,13 @@ public class PaymentServiceTests
         IInventorySyncService? inventorySync = null,
         IAuditService? auditService = null,
         IInvoiceService? invoiceService = null,
-        IConfiguration? configuration = null)
+        IConfiguration? configuration = null,
+        ICustomerService? customerService = null)
     {
         var syncMock = inventorySync ?? Mock.Of<IInventorySyncService>();
         var auditMock = auditService ?? Mock.Of<IAuditService>();
-        return new PaymentService(orderRepo, syncMock, auditMock, NullLogger<PaymentService>.Instance, invoiceService, configuration);
+        var customerMock = customerService ?? Mock.Of<ICustomerService>();
+        return new PaymentService(orderRepo, syncMock, auditMock, customerMock, NullLogger<PaymentService>.Instance, invoiceService, configuration);
     }
 
     private static IConfiguration BuildVNPayConfiguration() => new ConfigurationBuilder()

@@ -22,6 +22,7 @@ public class PaymentService : IPaymentService
     private readonly IOrderRepository _orderRepository;
     private readonly IInventorySyncService _inventorySyncService;
     private readonly IAuditService _auditService;
+    private readonly ICustomerService _customerService;
     private readonly IInvoiceService? _invoiceService;
     private readonly IConfiguration _configuration;
     private readonly ILogger<PaymentService> _logger;
@@ -30,6 +31,7 @@ public class PaymentService : IPaymentService
         IOrderRepository orderRepository,
         IInventorySyncService inventorySyncService,
         IAuditService auditService,
+        ICustomerService customerService,
         ILogger<PaymentService> logger,
         IInvoiceService? invoiceService = null,
         IConfiguration? configuration = null)
@@ -37,6 +39,7 @@ public class PaymentService : IPaymentService
         _orderRepository = orderRepository;
         _inventorySyncService = inventorySyncService;
         _auditService = auditService;
+        _customerService = customerService;
         _invoiceService = invoiceService;
         _configuration = configuration ?? new ConfigurationBuilder().AddInMemoryCollection().Build();
         _logger = logger;
@@ -52,6 +55,10 @@ public class PaymentService : IPaymentService
             Status = OrderStatus.Draft,
             PaymentStatus = PaymentStatus.Pending,
             IsLocked = false,
+            CustomerId = cart.Customer?.Id,
+            PointsEarned = cart.PointsEarned,
+            PointsUsed = cart.PointsUsed,
+            PointsDiscountAmount = cart.PointsDiscountAmount,
             Subtotal = cart.Subtotal,
             DiscountAmount = cart.DiscountAmount,
             TaxAmount = cart.TaxAmount,
@@ -109,6 +116,13 @@ public class PaymentService : IPaymentService
         };
 
         await _orderRepository.AddPaymentAsync(order, payment).ConfigureAwait(false);
+        
+        if (order.CustomerId.HasValue)
+        {
+            await _customerService.DeductLoyaltyPointsAsync(order.CustomerId.Value, order.PointsUsed).ConfigureAwait(false);
+            await _customerService.AddLoyaltyPointsAsync(order.CustomerId.Value, order.PointsEarned).ConfigureAwait(false);
+        }
+        
         await CreateInvoiceIfNeededAsync(orderId).ConfigureAwait(false);
 
         await NotifySideEffectsAsync(order, userId).ConfigureAwait(false);
@@ -200,6 +214,11 @@ public class PaymentService : IPaymentService
         if (isSuccess)
         {
             order.Status = OrderStatus.Confirmed;
+            if (order.CustomerId.HasValue)
+            {
+                await _customerService.DeductLoyaltyPointsAsync(order.CustomerId.Value, order.PointsUsed).ConfigureAwait(false);
+                await _customerService.AddLoyaltyPointsAsync(order.CustomerId.Value, order.PointsEarned).ConfigureAwait(false);
+            }
             await CreateInvoiceIfNeededAsync(order.Id).ConfigureAwait(false);
             await NotifySideEffectsAsync(order, order.UserId).ConfigureAwait(false);
             await _auditService.LogAsync("VNPAY_PAYMENT_SUCCESS", "Order", order.Id, null, dto, order.UserId).ConfigureAwait(false);

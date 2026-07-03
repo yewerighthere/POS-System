@@ -40,6 +40,21 @@ public partial class SalesViewModel : ObservableObject
     [ObservableProperty]
     private string _promotionInfo = "Không áp dụng";
 
+    [ObservableProperty]
+    private bool _isCustomerNotFoundPopupOpen;
+
+    [ObservableProperty]
+    private bool _isCreateCustomerPopupOpen;
+
+    [ObservableProperty]
+    private string _newCustomerPhone = string.Empty;
+
+    [ObservableProperty]
+    private string _newCustomerName = string.Empty;
+
+    [ObservableProperty]
+    private string _newCustomerEmail = string.Empty;
+
     public ObservableCollection<ProductDto> SearchResults { get; } = new();
 
     public SalesViewModel(
@@ -107,35 +122,31 @@ public partial class SalesViewModel : ObservableObject
             bool isPhone = System.Text.RegularExpressions.Regex.IsMatch(BarcodeQuery, @"^(0|\+84|84)\d{8,10}$");
             if (isPhone)
             {
-                // MOCK DATA: Giả lập thông tin khách hàng để test (không sửa file của người khác)
-                if (BarcodeQuery == "0987654321")
-                {
-                    CustomerInfo = "Nguyễn Văn A (0987654321)";
-                    BarcodeQuery = string.Empty;
-                    return;
-                }
-                else if (BarcodeQuery == "0912345678")
-                {
-                    CustomerInfo = "Trần Thị B (0912345678)";
-                    BarcodeQuery = string.Empty;
-                    return;
-                }
-
-                // Gọi service thật (an toàn nếu chưa cài đặt)
+                // Gọi service thật
                 try
                 {
                     var customer = await _customerService.FindByPhoneAsync(BarcodeQuery).ConfigureAwait(true);
                     if (customer != null)
                     {
                         CustomerInfo = $"{customer.FullName} ({customer.Phone})";
+                        Cart.Customer = customer;
+                        RecalculateCart();
+                        BarcodeQuery = string.Empty;
+                        return;
+                    }
+                    else
+                    {
+                        NewCustomerPhone = BarcodeQuery;
+                        IsCustomerNotFoundPopupOpen = true;
                         BarcodeQuery = string.Empty;
                         return;
                     }
                 }
-                catch (NotImplementedException) { }
-
-                ErrorMessage = $"Không tìm thấy khách hàng với SĐT: {BarcodeQuery}";
-                return;
+                catch (Exception ex)
+                {
+                    ErrorMessage = $"Lỗi tìm khách hàng: {ex.Message}";
+                    return;
+                }
             }
 
             // 3. Kiểm tra xem có phải là mã khuyến mãi không
@@ -357,6 +368,12 @@ public partial class SalesViewModel : ObservableObject
         _navigationService.NavigateTo<ReportViewModel>();
     }
 
+    [RelayCommand]
+    private void NavigateToCustomer()
+    {
+        _navigationService.NavigateTo<CustomerViewModel>();
+    }
+
     private void UpdateCart(CartSummaryDto newCart)
     {
         if (newCart != null)
@@ -377,6 +394,85 @@ public partial class SalesViewModel : ObservableObject
         {
             ErrorMessage = $"Lỗi tính toán giỏ hàng: {ex.Message}";
         }
+    }
+
+    [RelayCommand]
+    private void ShowCreateCustomerForm()
+    {
+        IsCustomerNotFoundPopupOpen = false;
+        NewCustomerName = string.Empty;
+        NewCustomerEmail = string.Empty;
+        IsCreateCustomerPopupOpen = true;
+    }
+
+    [RelayCommand]
+    private void CloseCustomerPopups()
+    {
+        IsCustomerNotFoundPopupOpen = false;
+        IsCreateCustomerPopupOpen = false;
+    }
+
+    [RelayCommand]
+    private async Task ConfirmCreateCustomerAsync()
+    {
+        if (string.IsNullOrWhiteSpace(NewCustomerName))
+        {
+            ErrorMessage = "Vui lòng nhập tên khách hàng";
+            return;
+        }
+
+        IsLoading = true;
+        try
+        {
+            var dto = new SmartPOS.Shared.DTOs.Customer.CreateCustomerDto(NewCustomerName, NewCustomerPhone, string.IsNullOrWhiteSpace(NewCustomerEmail) ? null : NewCustomerEmail);
+            var customer = await _customerService.CreateAsync(dto).ConfigureAwait(true);
+            CustomerInfo = $"{customer.FullName} ({customer.Phone})";
+            Cart.Customer = customer;
+            RecalculateCart();
+            CloseCustomerPopups();
+        }
+        catch (BusinessException ex)
+        {
+            ErrorMessage = ex.Message;
+        }
+        catch (Exception ex)
+        {
+            ErrorMessage = $"Lỗi tạo khách hàng: {ex.Message}";
+        }
+        finally
+        {
+            IsLoading = false;
+        }
+    }
+
+    [RelayCommand]
+    private void ToggleUsePoints()
+    {
+        if (Cart.Customer == null || Cart.Customer.LoyaltyPoints <= 0) return;
+        
+        if (Cart.PointsUsed > 0)
+        {
+            Cart.PointsUsed = 0;
+            Cart.PointsDiscountAmount = 0;
+        }
+        else
+        {
+            var maxPoints = Cart.Customer.LoyaltyPoints;
+            var currentSubtotalAfterPromo = Cart.Subtotal - Cart.DiscountAmount;
+            
+            if (maxPoints > currentSubtotalAfterPromo)
+            {
+                Cart.PointsUsed = (int)Math.Floor(currentSubtotalAfterPromo);
+                Cart.PointsDiscountAmount = currentSubtotalAfterPromo;
+            }
+            else
+            {
+                Cart.PointsUsed = maxPoints;
+                Cart.PointsDiscountAmount = maxPoints;
+            }
+        }
+        
+        RecalculateCart();
     }
 }
 

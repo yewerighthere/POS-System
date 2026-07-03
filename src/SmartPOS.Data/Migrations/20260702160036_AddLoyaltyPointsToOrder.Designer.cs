@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using SmartPOS.Data;
@@ -11,9 +12,11 @@ using SmartPOS.Data;
 namespace SmartPOS.Data.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260702160036_AddLoyaltyPointsToOrder")]
+    partial class AddLoyaltyPointsToOrder
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -92,9 +95,6 @@ namespace SmartPOS.Data.Migrations
 
                     b.Property<string>("FullName")
                         .HasColumnType("text");
-
-                    b.Property<bool>("IsActive")
-                        .HasColumnType("boolean");
 
                     b.Property<int>("LoyaltyPoints")
                         .HasColumnType("integer");
@@ -693,7 +693,7 @@ namespace SmartPOS.Data.Migrations
             modelBuilder.Entity("SmartPOS.Data.Entities.Order", b =>
                 {
                     b.HasOne("SmartPOS.Data.Entities.Customer", "Customer")
-                        .WithMany("Orders")
+                        .WithMany()
                         .HasForeignKey("CustomerId");
 
                     b.HasOne("SmartPOS.Data.Entities.Shift", "Shift")
@@ -826,11 +826,6 @@ namespace SmartPOS.Data.Migrations
             modelBuilder.Entity("SmartPOS.Data.Entities.Category", b =>
                 {
                     b.Navigation("Products");
-                });
-
-            modelBuilder.Entity("SmartPOS.Data.Entities.Customer", b =>
-                {
-                    b.Navigation("Orders");
                 });
 
             modelBuilder.Entity("SmartPOS.Data.Entities.Device", b =>
