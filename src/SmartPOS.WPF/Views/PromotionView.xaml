@@ -131,7 +131,7 @@
                         <!-- Inputs -->
                         <TextBox Grid.Row="1" Grid.Column="0" Text="{Binding NewCode, UpdateSourceTrigger=PropertyChanged}" Padding="10,8" BorderBrush="#E2E8F0" BorderThickness="1" Margin="0,0,8,0" FontSize="13"/>
                         <TextBox Grid.Row="1" Grid.Column="1" Text="{Binding NewName, UpdateSourceTrigger=PropertyChanged}" Padding="10,8" BorderBrush="#E2E8F0" BorderThickness="1" Margin="0,0,8,0" FontSize="13"/>
-                        <ComboBox Grid.Row="1" Grid.Column="2" SelectedItem="{Binding NewType}" Padding="10,8" BorderBrush="#E2E8F0" BorderThickness="1" Margin="0,0,8,0" FontSize="13">
+                        <ComboBox Grid.Row="1" Grid.Column="2" SelectedValue="{Binding NewType, UpdateSourceTrigger=PropertyChanged}" SelectedValuePath="Content" Padding="10,8" BorderBrush="#E2E8F0" BorderThickness="1" Margin="0,0,8,0" FontSize="13">
                             <ComboBoxItem Content="Percentage"/>
                             <ComboBoxItem Content="FixedAmount"/>
                         </ComboBox>
