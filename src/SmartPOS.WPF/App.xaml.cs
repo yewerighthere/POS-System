@@ -95,7 +95,13 @@ public partial class App : Application
         services.AddTransient<SyncViewModel>();
         services.AddTransient<UserManagementViewModel>();
         services.AddTransient<DashboardViewModel>();
-        services.AddTransient<LoginView>();
+        services.AddTransient<DashboardView>();
+        services.AddTransient<DashboardCatalogPromoViewModel>();
+        services.AddTransient<DashboardCatalogPromoView>();
+        services.AddTransient<DashboardUserStaffViewModel>();
+        services.AddTransient<DashboardUserStaffView>();
+        services.AddTransient<DashboardReportViewModel>();
+        services.AddTransient<DashboardReportView>();
         services.AddTransient<ShiftView>();
         services.AddTransient<SalesView>();
         services.AddTransient<PaymentView>();
@@ -108,7 +114,7 @@ public partial class App : Application
         services.AddTransient<AuditLogView>();
         services.AddTransient<SyncView>();
         services.AddTransient<UserManagementView>();
-        services.AddTransient<DashboardView>();
+        services.AddTransient<LoginView>();
         services.AddTransient<MainWindow>();
         _serviceProvider = services.BuildServiceProvider();
         using (var scope = _serviceProvider.CreateScope())

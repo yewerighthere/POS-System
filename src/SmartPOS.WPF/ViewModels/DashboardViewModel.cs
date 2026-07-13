@@ -65,22 +65,19 @@ public partial class DashboardViewModel : ObservableObject
     }
 
     [RelayCommand]
-    private void SwitchToPos()
-    {
-        _navigationService.NavigateTo<SalesViewModel>();
-    }
+    private void SwitchToPos() => _navigationService.NavigateTo<SalesViewModel>();
 
     [RelayCommand]
-    private void NavigateToCatalog()
-    {
-        _navigationService.NavigateTo<CatalogViewModel>();
-    }
+    private void NavigateToCatalogPromo() => _navigationService.NavigateTo<DashboardCatalogPromoViewModel>();
 
     [RelayCommand]
-    private void NavigateToPromotions()
-    {
-        _navigationService.NavigateTo<PromotionViewModel>();
-    }
+    private void NavigateToInventory() => _navigationService.NavigateTo<SyncViewModel>();
+
+    [RelayCommand]
+    private void NavigateToReports() => _navigationService.NavigateTo<DashboardReportViewModel>();
+
+    [RelayCommand]
+    private void NavigateToUsers() => _navigationService.NavigateTo<DashboardUserStaffViewModel>();
 
     [RelayCommand]
     private void Logout()

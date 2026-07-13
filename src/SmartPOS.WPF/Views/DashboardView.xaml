@@ -92,10 +92,10 @@
 
                 <StackPanel Grid.Row="1">
                     <Button Style="{StaticResource SidebarActiveButtonStyle}" Tag="📊" Content="Overview"/>
-                    <Button Style="{StaticResource SidebarButtonStyle}" Tag="🗂️" Content="Catalog &amp; Promo" Command="{Binding NavigateToCatalogCommand}"/>
-                    <Button Style="{StaticResource SidebarButtonStyle}" Tag="📦" Content="Inventory"/>
-                    <Button Style="{StaticResource SidebarButtonStyle}" Tag="👥" Content="Users &amp; Staff"/>
-                    <Button Style="{StaticResource SidebarButtonStyle}" Tag="📈" Content="Reports &amp; Analytics"/>
+                    <Button Style="{StaticResource SidebarButtonStyle}" Tag="🗂️" Content="Catalog &amp; Promo" Command="{Binding NavigateToCatalogPromoCommand}"/>
+                    <Button Style="{StaticResource SidebarButtonStyle}" Tag="📦" Content="Inventory" Command="{Binding NavigateToInventoryCommand}"/>
+                    <Button Style="{StaticResource SidebarButtonStyle}" Tag="👥" Content="Users &amp; Staff" Command="{Binding NavigateToUsersCommand}"/>
+                    <Button Style="{StaticResource SidebarButtonStyle}" Tag="📈" Content="Reports &amp; Analytics" Command="{Binding NavigateToReportsCommand}"/>
                     <Button Style="{StaticResource SidebarButtonStyle}" Tag="⚙️" Content="Settings"/>
                 </StackPanel>
             </Grid>
