@@ -65,13 +65,10 @@ public partial class DashboardViewModel : ObservableObject
     }
 
     [RelayCommand]
-    private void SwitchToPos() => _navigationService.NavigateTo<SalesViewModel>();
-
-    [RelayCommand]
     private void NavigateToCatalogPromo() => _navigationService.NavigateTo<DashboardCatalogPromoViewModel>();
 
     [RelayCommand]
-    private void NavigateToInventory() => _navigationService.NavigateTo<SyncViewModel>();
+    private void NavigateToInventory() => _navigationService.NavigateTo<DashboardInventoryViewModel>();
 
     [RelayCommand]
     private void NavigateToReports() => _navigationService.NavigateTo<DashboardReportViewModel>();

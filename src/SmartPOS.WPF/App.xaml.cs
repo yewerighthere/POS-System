@@ -100,6 +100,8 @@ public partial class App : Application
         services.AddTransient<DashboardCatalogPromoView>();
         services.AddTransient<DashboardUserStaffViewModel>();
         services.AddTransient<DashboardUserStaffView>();
+        services.AddTransient<DashboardInventoryViewModel>();
+        services.AddTransient<DashboardInventoryView>();
         services.AddTransient<DashboardReportViewModel>();
         services.AddTransient<DashboardReportView>();
         services.AddTransient<ShiftView>();

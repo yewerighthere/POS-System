@@ -180,16 +180,15 @@
                 </Grid.RowDefinitions>
 
                 <StackPanel Grid.Row="0" Margin="20,0,20,32">
-                    <TextBlock Text="SmartPOS" Foreground="White" FontSize="20" FontWeight="Black"/>
-                    <TextBlock Text="Retail" Foreground="#00288E" FontSize="20" FontWeight="Black" Margin="0,-4,0,0"/>
-                    <TextBlock Text="Terminal #01" Foreground="#94A3B8" FontSize="12" Margin="0,6,0,0" Opacity="0.8"/>
+                    <TextBlock Text="SmartPOS Admin" Foreground="#E2E8F0" FontSize="18" FontWeight="Black"/>
+                    <TextBlock Text="Terminal #01" Foreground="#94A3B8" FontSize="12" Margin="0,4,0,0" Opacity="0.8"/>
                 </StackPanel>
 
                 <StackPanel Grid.Row="1">
                     <Button Style="{StaticResource SidebarInactiveButton}" Tag="🖥️" Content="Point of Sale"     Command="{Binding NavigateToSalesCommand}"/>
                     <Button Style="{StaticResource SidebarInactiveButton}" Tag="🧾" Content="Transactions"/>
                     <Button Style="{StaticResource SidebarInactiveButton}" Tag="📦" Content="Inventory"          Command="{Binding NavigateToSyncCommand}"/>
-                    <Button Style="{StaticResource SidebarInactiveButton}" Tag="👤" Content="Customers"/>
+                    <Button Style="{StaticResource SidebarInactiveButton}" Tag="👤" Content="Customers"         Command="{Binding NavigateToCustomerCommand}"/>
                     <Button Style="{StaticResource SidebarInactiveButton}" Tag="🔄" Content="Returns &amp; Refunds"/>
                     <Button Style="{StaticResource SidebarInactiveButton}" Tag="🗂️" Content="Product Catalog"   Command="{Binding NavigateToCatalogCommand}"/>
                     <!-- ACTIVE -->

@@ -30,17 +30,21 @@ public partial class DashboardCatalogPromoViewModel : ObservableObject
         _catalogVM = catalogViewModel;
         _promotionVM = promotionViewModel;
         
-        // Gọi Load dữ liệu cho các tab
-        _ = _catalogVM.LoadAsync();
-        _ = _promotionVM.LoadAsync();
+        _catalogVM.ShowNavigation = false;
+        _ = LoadTabsSequentiallyAsync();
     }
-    private void SwitchToPos() => _navigationService.NavigateTo<SalesViewModel>();
+
+    private async Task LoadTabsSequentiallyAsync()
+    {
+        await _catalogVM.LoadAsync();
+        await _promotionVM.LoadAsync();
+    }
 
     [RelayCommand]
     private void NavigateToOverview() => _navigationService.NavigateTo<DashboardViewModel>();
 
     [RelayCommand]
-    private void NavigateToInventory() => _navigationService.NavigateTo<SyncViewModel>();
+    private void NavigateToInventory() => _navigationService.NavigateTo<DashboardInventoryViewModel>();
 
     [RelayCommand]
     private void NavigateToUsers() => _navigationService.NavigateTo<DashboardUserStaffViewModel>();

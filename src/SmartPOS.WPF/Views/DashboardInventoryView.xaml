@@ -1,0 +1,341 @@
+<UserControl x:Class="SmartPOS.WPF.Views.DashboardInventoryView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:conv="clr-namespace:SmartPOS.WPF.Converters"
+             xmlns:viewmodels="clr-namespace:SmartPOS.WPF.ViewModels"
+             mc:Ignorable="d"
+             d:DataContext="{d:DesignInstance Type=viewmodels:DashboardInventoryViewModel}"
+             Background="#F3F4F6"
+             Foreground="#111827"
+             d:DesignHeight="768" d:DesignWidth="1024">
+
+    <UserControl.Resources>
+        <conv:BoolToVisibilityConverter        x:Key="BoolToVisible"/>
+        <conv:NullOrEmptyToVisibilityConverter x:Key="NotEmptyToVisible"/>
+
+        <Style x:Key="SidebarButtonStyle" TargetType="Button">
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="Foreground" Value="#9CA3AF"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Padding" Value="16,12"/>
+            <Setter Property="Margin" Value="8,4"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="HorizontalContentAlignment" Value="Left"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border Name="Border" CornerRadius="8" Background="{TemplateBinding Background}" Padding="{TemplateBinding Padding}">
+                            <StackPanel Orientation="Horizontal">
+                                <TextBlock Text="{TemplateBinding Tag}" Margin="0,0,12,0" FontSize="16" VerticalAlignment="Center"/>
+                                <ContentPresenter VerticalAlignment="Center"/>
+                            </StackPanel>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="Border" Property="Background" Value="#374151"/>
+                                <Setter Property="Foreground" Value="White"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <Style x:Key="SidebarActiveButtonStyle" TargetType="Button" BasedOn="{StaticResource SidebarButtonStyle}">
+            <Setter Property="Background" Value="#6366F1"/>
+            <Setter Property="Foreground" Value="White"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border Name="Border" CornerRadius="8" Background="{TemplateBinding Background}" Padding="{TemplateBinding Padding}">
+                            <StackPanel Orientation="Horizontal">
+                                <TextBlock Text="{TemplateBinding Tag}" Margin="0,0,12,0" FontSize="16" VerticalAlignment="Center"/>
+                                <ContentPresenter VerticalAlignment="Center"/>
+                            </StackPanel>
+                        </Border>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+    </UserControl.Resources>
+
+    <Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="240"/>
+            <ColumnDefinition Width="*"/>
+        </Grid.ColumnDefinitions>
+
+        <!-- SIDEBAR -->
+        <Border Grid.Column="0" Background="#111827">
+            <Grid Margin="0,24,0,24">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="*"/>
+                </Grid.RowDefinitions>
+
+                <StackPanel Grid.Row="0" Margin="20,0,20,32">
+                    <TextBlock Text="SmartPOS" Foreground="White" FontSize="20" FontWeight="Black"/>
+                    <TextBlock Text="Backoffice" Foreground="#6366F1" FontSize="14" FontWeight="Bold" Margin="0,2,0,0"/>
+                </StackPanel>
+
+                <StackPanel Grid.Row="1">
+                    <Button Style="{StaticResource SidebarButtonStyle}" Tag="📊" Content="Overview" Command="{Binding NavigateToOverviewCommand}"/>
+                    <Button Style="{StaticResource SidebarButtonStyle}" Tag="🗂️" Content="Catalog &amp; Promo" Command="{Binding NavigateToCatalogPromoCommand}"/>
+                    <Button Style="{StaticResource SidebarActiveButtonStyle}" Tag="📦" Content="Inventory"/>
+                    <Button Style="{StaticResource SidebarButtonStyle}" Tag="👥" Content="Users &amp; Staff" Command="{Binding NavigateToUsersCommand}"/>
+                    <Button Style="{StaticResource SidebarButtonStyle}" Tag="📈" Content="Reports &amp; Analytics" Command="{Binding NavigateToReportsCommand}"/>
+                    <Button Style="{StaticResource SidebarButtonStyle}" Tag="⚙️" Content="Settings"/>
+                </StackPanel>
+            </Grid>
+        </Border>
+
+        <!-- MAIN CONTENT -->
+        <Grid Grid.Column="1">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="70"/>
+                <RowDefinition Height="*"/>
+            </Grid.RowDefinitions>
+
+            <!-- HEADER -->
+            <Border Grid.Row="0" Background="White" BorderBrush="#E5E7EB" BorderThickness="0,0,0,1" Padding="24,0">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+
+                    <TextBlock Grid.Column="0" Text="SMART STORE | BACKOFFICE" Foreground="#111827" FontSize="18" FontWeight="Black" VerticalAlignment="Center"/>
+
+                    <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center">
+                        <Border Background="#F9FAFB" BorderBrush="#E5E7EB" BorderThickness="1" CornerRadius="20" Padding="12,4" Margin="0,0,16,0">
+                            <StackPanel Orientation="Horizontal">
+                                <TextBlock Text="{Binding CurrentUserName}" FontWeight="SemiBold" VerticalAlignment="Center" Margin="0,0,8,0"/>
+                                <Border CornerRadius="12" Padding="8,2">
+                                    <Border.Style>
+                                        <Style TargetType="Border">
+                                            <Setter Property="Background" Value="#FEE2E2"/>
+                                            <Style.Triggers>
+                                                <DataTrigger Binding="{Binding CurrentUserRole}" Value="Manager">
+                                                    <Setter Property="Background" Value="#FEF3C7"/>
+                                                </DataTrigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </Border.Style>
+                                    <TextBlock Text="{Binding CurrentUserRole}" FontSize="11" FontWeight="Bold">
+                                        <TextBlock.Style>
+                                            <Style TargetType="TextBlock">
+                                                <Setter Property="Foreground" Value="#991B1B"/>
+                                                <Style.Triggers>
+                                                    <DataTrigger Binding="{Binding CurrentUserRole}" Value="Manager">
+                                                        <Setter Property="Foreground" Value="#B45309"/>
+                                                    </DataTrigger>
+                                                </Style.Triggers>
+                                            </Style>
+                                        </TextBlock.Style>
+                                    </TextBlock>
+                                </Border>
+                            </StackPanel>
+                        </Border>
+
+                        <Button Content="Logout" Command="{Binding LogoutCommand}" Background="Transparent" Foreground="#6B7280" FontWeight="SemiBold" BorderThickness="0" Cursor="Hand"/>
+                    </StackPanel>
+                </Grid>
+            </Border>
+
+            <!-- DASHBOARD CONTENT -->
+            <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto">
+                <StackPanel Margin="32" MaxWidth="800" DataContext="{Binding SyncVM}">
+
+                    <!-- Header -->
+                    <StackPanel Margin="0,0,0,28">
+                        <TextBlock Text="Inventory Sync" FontSize="24" FontWeight="Bold" Foreground="#111827"/>
+                        <TextBlock Margin="0,6,0,0" Foreground="#6B7280" FontSize="14" TextWrapping="Wrap"
+                                   Text="Sync catalog and stock from Inventory Manager to POS. Always run Sync Catalog before Sync Stock."/>
+                    </StackPanel>
+
+                    <!-- Sync All card -->
+                    <Border Background="#EFF6FF" CornerRadius="12" Padding="24,18"
+                            BorderBrush="#2563EB" BorderThickness="1" Margin="0,0,0,16">
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="Auto"/>
+                            </Grid.ColumnDefinitions>
+                            <StackPanel VerticalAlignment="Center">
+                                <TextBlock Text="⚡  Sync All" FontSize="16" FontWeight="Bold" Foreground="#2563EB"/>
+                                <TextBlock Margin="0,4,0,0" Foreground="#6B7280" FontSize="13"
+                                           Text="Run Sync Catalog then Sync Stock sequentially."/>
+                            </StackPanel>
+                            <Button Grid.Column="1" Content="⚡ Sync All"
+                                    Command="{Binding SyncAllCommand}"
+                                    Background="#2563EB" Foreground="White" FontWeight="SemiBold"
+                                    Padding="20,10" BorderThickness="0" Cursor="Hand" VerticalAlignment="Center">
+                                <Button.Template>
+                                    <ControlTemplate TargetType="Button">
+                                        <Border Background="{TemplateBinding Background}" CornerRadius="8" Padding="{TemplateBinding Padding}">
+                                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                        </Border>
+                                    </ControlTemplate>
+                                </Button.Template>
+                            </Button>
+                        </Grid>
+                    </Border>
+
+                    <!-- Loading -->
+                    <Border Background="#FFFBEB" CornerRadius="8" Padding="14,10" Margin="0,0,0,10"
+                            BorderBrush="#F59E0B" BorderThickness="1"
+                            Visibility="{Binding IsLoading, Converter={StaticResource BoolToVisible}}">
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Text="⏳" FontSize="15" Margin="0,0,10,0"/>
+                            <TextBlock Text="Processing, please wait..." Foreground="#92400E" FontSize="13"/>
+                        </StackPanel>
+                    </Border>
+
+                    <!-- Global error -->
+                    <Border Background="#FEF2F2" CornerRadius="8" Padding="14,10" Margin="0,0,0,10"
+                            BorderBrush="#DC2626" BorderThickness="1"
+                            Visibility="{Binding StatusMessage, Converter={StaticResource NotEmptyToVisible}}">
+                        <TextBlock Text="{Binding StatusMessage}" Foreground="#DC2626" FontSize="13" TextWrapping="Wrap"/>
+                    </Border>
+
+                    <!-- Sync Catalog card -->
+                    <Border Background="White" CornerRadius="12" Padding="24"
+                            BorderBrush="#E5E7EB" BorderThickness="1" Margin="0,0,0,14">
+                        <StackPanel>
+                            <Grid Margin="0,0,0,12">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="Auto"/>
+                                </Grid.ColumnDefinitions>
+                                <StackPanel>
+                                    <TextBlock Text="📦  Sync Catalog" FontSize="15" FontWeight="Bold" Foreground="#111827"/>
+                                    <TextBlock Margin="0,4,0,0" Foreground="#6B7280" FontSize="13"
+                                               Text="Pull product catalog and pricing from Inventory Manager into POS."/>
+                                </StackPanel>
+                                <Button Grid.Column="1" Content="Sync Catalog"
+                                        Command="{Binding SyncCatalogCommand}"
+                                        Background="#7C3AED" Foreground="White" FontWeight="SemiBold"
+                                        Padding="18,9" BorderThickness="0" Cursor="Hand" VerticalAlignment="Top">
+                                    <Button.Template>
+                                        <ControlTemplate TargetType="Button">
+                                            <Border Background="{TemplateBinding Background}" CornerRadius="8" Padding="{TemplateBinding Padding}">
+                                                <Border.Style>
+                                                    <Style TargetType="Border">
+                                                        <Style.Triggers>
+                                                            <DataTrigger Binding="{Binding RelativeSource={RelativeSource AncestorType=Button}, Path=IsEnabled}" Value="False">
+                                                                <Setter Property="Opacity" Value="0.5"/>
+                                                            </DataTrigger>
+                                                        </Style.Triggers>
+                                                    </Style>
+                                                </Border.Style>
+                                                <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                            </Border>
+                                        </ControlTemplate>
+                                    </Button.Template>
+                                </Button>
+                            </Grid>
+                            <Border CornerRadius="6" Padding="12,8"
+                                    Visibility="{Binding CatalogStatus, Converter={StaticResource NotEmptyToVisible}}">
+                                <Border.Style>
+                                    <Style TargetType="Border">
+                                        <Setter Property="Background"      Value="#F0FDF4"/>
+                                        <Setter Property="BorderBrush"     Value="#16A34A"/>
+                                        <Setter Property="BorderThickness" Value="1"/>
+                                        <Style.Triggers>
+                                            <DataTrigger Binding="{Binding CatalogSuccess}" Value="False">
+                                                <Setter Property="Background"  Value="#FEF2F2"/>
+                                                <Setter Property="BorderBrush" Value="#DC2626"/>
+                                            </DataTrigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </Border.Style>
+                                <TextBlock Text="{Binding CatalogStatus}" FontSize="13" TextWrapping="Wrap">
+                                    <TextBlock.Style>
+                                        <Style TargetType="TextBlock">
+                                            <Setter Property="Foreground" Value="#16A34A"/>
+                                            <Style.Triggers>
+                                                <DataTrigger Binding="{Binding CatalogSuccess}" Value="False">
+                                                    <Setter Property="Foreground" Value="#DC2626"/>
+                                                </DataTrigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </TextBlock.Style>
+                                </TextBlock>
+                            </Border>
+                        </StackPanel>
+                    </Border>
+
+                    <!-- Sync Stock card -->
+                    <Border Background="White" CornerRadius="12" Padding="24"
+                            BorderBrush="#E5E7EB" BorderThickness="1">
+                        <StackPanel>
+                            <Grid Margin="0,0,0,12">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="Auto"/>
+                                </Grid.ColumnDefinitions>
+                                <StackPanel>
+                                    <TextBlock Text="📊  Sync Stock" FontSize="15" FontWeight="Bold" Foreground="#111827"/>
+                                    <TextBlock Margin="0,4,0,0" Foreground="#6B7280" FontSize="13"
+                                               Text="Update stock quantities from Inventory Manager into POS."/>
+                                </StackPanel>
+                                <Button Grid.Column="1" Content="Sync Stock"
+                                        Command="{Binding SyncStockCommand}"
+                                        Background="#7C3AED" Foreground="White" FontWeight="SemiBold"
+                                        Padding="18,9" BorderThickness="0" Cursor="Hand" VerticalAlignment="Top">
+                                    <Button.Template>
+                                        <ControlTemplate TargetType="Button">
+                                            <Border Background="{TemplateBinding Background}" CornerRadius="8" Padding="{TemplateBinding Padding}">
+                                                <Border.Style>
+                                                    <Style TargetType="Border">
+                                                        <Style.Triggers>
+                                                            <DataTrigger Binding="{Binding RelativeSource={RelativeSource AncestorType=Button}, Path=IsEnabled}" Value="False">
+                                                                <Setter Property="Opacity" Value="0.5"/>
+                                                            </DataTrigger>
+                                                        </Style.Triggers>
+                                                    </Style>
+                                                </Border.Style>
+                                                <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                            </Border>
+                                        </ControlTemplate>
+                                    </Button.Template>
+                                </Button>
+                            </Grid>
+                            <Border CornerRadius="6" Padding="12,8"
+                                    Visibility="{Binding StockStatus, Converter={StaticResource NotEmptyToVisible}}">
+                                <Border.Style>
+                                    <Style TargetType="Border">
+                                        <Setter Property="Background"      Value="#F0FDF4"/>
+                                        <Setter Property="BorderBrush"     Value="#16A34A"/>
+                                        <Setter Property="BorderThickness" Value="1"/>
+                                        <Style.Triggers>
+                                            <DataTrigger Binding="{Binding StockStatus}" Value="False">
+                                                <Setter Property="Background"  Value="#FEF2F2"/>
+                                                <Setter Property="BorderBrush" Value="#DC2626"/>
+                                            </DataTrigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </Border.Style>
+                                <TextBlock Text="{Binding StockStatus}" FontSize="13" TextWrapping="Wrap">
+                                    <TextBlock.Style>
+                                        <Style TargetType="TextBlock">
+                                            <Setter Property="Foreground" Value="#16A34A"/>
+                                            <Style.Triggers>
+                                                <DataTrigger Binding="{Binding StockSuccess}" Value="False">
+                                                    <Setter Property="Foreground" Value="#DC2626"/>
+                                                </DataTrigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </TextBlock.Style>
+                                </TextBlock>
+                            </Border>
+                        </StackPanel>
+                    </Border>
+
+                </StackPanel>
+            </ScrollViewer>
+        </Grid>
+    </Grid>
+</UserControl>
