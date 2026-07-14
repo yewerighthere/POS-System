@@ -1,4 +1,4 @@
-﻿using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Logging;
 using SmartPOS.Data.Entities;
 using SmartPOS.Data.Repositories.Interfaces;
 using SmartPOS.Services.Interfaces;
@@ -30,19 +30,74 @@ public class PromotionService : IPromotionService
         _promotionRepository = promotionRepository;
     }
 
-    public Task<PromotionValidationResultDto> ValidateCodeAsync(string code, CartSummaryDto cart)
+    public async Task<PromotionValidationResultDto> ValidateCodeAsync(string code, CartSummaryDto cart)
     {
-        throw new NotImplementedException();
+        var promotion = await _promotionRepository.GetByCodeAsync(code);
+        if (promotion == null)
+            return new PromotionValidationResultDto { IsValid = false, Message = "Mã khuyến mãi không tồn tại." };
+
+        if (!promotion.IsActive)
+            return new PromotionValidationResultDto { IsValid = false, Message = "Mã khuyến mãi đang tạm ngưng." };
+
+        var today = DateOnly.FromDateTime(DateTime.Today);
+        if (today < promotion.StartDate)
+            return new PromotionValidationResultDto { IsValid = false, Message = "Mã khuyến mãi chưa tới thời gian áp dụng." };
+        if (today > promotion.EndDate)
+            return new PromotionValidationResultDto { IsValid = false, Message = "Mã khuyến mãi đã hết hạn." };
+
+        if (promotion.MinOrderAmount.HasValue && cart.Subtotal < promotion.MinOrderAmount.Value)
+            return new PromotionValidationResultDto { IsValid = false, Message = $"Đơn hàng phải đạt tối thiểu {promotion.MinOrderAmount.Value:N0} đ." };
+
+        decimal discountAmount = 0;
+        if (promotion.Type.Contains("Percentage", StringComparison.OrdinalIgnoreCase))
+        {
+            discountAmount = cart.Subtotal * (promotion.DiscountValue / 100m);
+        }
+        else if (promotion.Type.Contains("FixedAmount", StringComparison.OrdinalIgnoreCase) || promotion.Type.Contains("Amount", StringComparison.OrdinalIgnoreCase))
+        {
+            discountAmount = promotion.DiscountValue;
+        }
+
+        if (discountAmount > cart.Subtotal)
+            discountAmount = cart.Subtotal;
+
+        return new PromotionValidationResultDto 
+        { 
+            IsValid = true, 
+            DiscountAmount = discountAmount 
+        };
     }
 
     public Task<bool> RequestApprovalAsync(Guid promotionId, Guid managerId)
     {
-        throw new NotImplementedException();
+        return Task.FromResult(true); // Mock approval logic for now
     }
 
-    public Task<CartSummaryDto> ApplyPromotionAsync(string code, CartSummaryDto cart)
+    public async Task<CartSummaryDto> ApplyPromotionAsync(string code, CartSummaryDto cart)
     {
-        throw new NotImplementedException();
+        var validation = await ValidateCodeAsync(code, cart);
+        if (validation.IsValid)
+        {
+            var promotion = await _promotionRepository.GetByCodeAsync(code);
+            if (promotion != null)
+            {
+                cart.AppliedPromotion = new PromotionDto 
+                {
+                    Id = promotion.Id,
+                    Code = promotion.Code,
+                    Name = promotion.Name,
+                    Type = promotion.Type,
+                    DiscountValue = promotion.DiscountValue,
+                    MinOrderAmount = promotion.MinOrderAmount,
+                    StartDate = promotion.StartDate,
+                    EndDate = promotion.EndDate,
+                    IsActive = promotion.IsActive
+                };
+            }
+            cart.DiscountAmount = validation.DiscountAmount;
+            cart.TotalAmount = Math.Max(0, cart.Subtotal - cart.DiscountAmount - cart.PointsDiscountAmount + cart.TaxAmount);
+        }
+        return cart;
     }
 
     public async Task<PromotionDto> CreatePromotionAsync(CreatePromotionDto dto)

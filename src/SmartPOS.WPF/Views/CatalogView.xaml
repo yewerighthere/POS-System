@@ -109,78 +109,17 @@
         </Style>
     </UserControl.Resources>
 
-    <Grid>
-        <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="220"/>
-            <ColumnDefinition Width="*"/>
-        </Grid.ColumnDefinitions>
+    <Grid Background="#F8FAFC">
+        <!-- ERROR BAR & STATUS BAR -->
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
 
-        <!-- LEFT SIDEBAR (dark, same as SalesView) -->
-        <Border Grid.Column="0" Background="#1A1B22">
-            <Grid Margin="0,24,0,16">
-                <Grid.RowDefinitions>
-                    <RowDefinition Height="Auto"/>
-                    <RowDefinition Height="*"/>
-                    <RowDefinition Height="Auto"/>
-                </Grid.RowDefinitions>
-
-                <StackPanel Grid.Row="0" Margin="20,0,20,32">
-                    <TextBlock Text="SmartPOS Admin" Foreground="#E2E8F0" FontSize="18" FontWeight="Black"/>
-                    <TextBlock Text="Terminal #01" Foreground="#94A3B8" FontSize="12" Margin="0,4,0,0" Opacity="0.8"/>
-                </StackPanel>
-
-                <StackPanel Grid.Row="1">
-                    <Button Style="{StaticResource SidebarInactiveButton}" Tag="🖥️" Content="Point of Sale"
-                            Command="{Binding NavigateToSalesCommand}" FontSize="13"/>
-                    <Button Style="{StaticResource SidebarInactiveButton}" Tag="🧾" Content="Transactions" FontSize="13"/>
-                    <Button Style="{StaticResource SidebarInactiveButton}" Tag="📦" Content="Inventory" FontSize="13"/>
-                    <Button Style="{StaticResource SidebarInactiveButton}" Tag="👤" Content="Customers" FontSize="13"/>
-                    <Button Style="{StaticResource SidebarInactiveButton}" Tag="🔄" Content="Returns &amp; Refunds" FontSize="13"/>
-                    <Border Background="#00288E" CornerRadius="8" Margin="8,2" Padding="12,10">
-                        <StackPanel Orientation="Horizontal">
-                            <TextBlock Text="🗂️" Margin="0,0,12,0" FontSize="14" VerticalAlignment="Center"/>
-                            <TextBlock Text="Product Catalog" Foreground="White" FontSize="13" FontWeight="SemiBold" VerticalAlignment="Center"/>
-                        </StackPanel>
-                    </Border>
-                    <Button Style="{StaticResource SidebarInactiveButton}" Tag="📊" Content="Shift Reports" FontSize="13"/>
-                    <Button Style="{StaticResource SidebarInactiveButton}" Tag="⚙️" Content="Settings" FontSize="13"/>
-                </StackPanel>
-
-                <Button Grid.Row="2" Content="+ New Transaction" Margin="12,0"
-                        Command="{Binding NavigateToSalesCommand}"
-                        Style="{StaticResource PrimaryBtn}" Background="#B8C4FF" Foreground="#001453"/>
-            </Grid>
-        </Border>
-
-        <!-- MAIN CONTENT -->
-        <Grid Grid.Column="1">
-            <Grid.RowDefinitions>
-                <RowDefinition Height="64"/>
-                <RowDefinition Height="Auto"/>
-                <RowDefinition Height="Auto"/>
-                <RowDefinition Height="*"/>
-            </Grid.RowDefinitions>
-
-            <!-- Top header bar -->
-            <Border Grid.Row="0" Background="White" BorderBrush="#E2E8F0" BorderThickness="0,0,0,1" Padding="24,0">
-                <Grid VerticalAlignment="Center">
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="*"/>
-                        <ColumnDefinition Width="Auto"/>
-                    </Grid.ColumnDefinitions>
-                    <TextBlock Grid.Column="0" Text="SmartPOS Retail" Foreground="#00288E"
-                               FontSize="20" FontWeight="Black" VerticalAlignment="Center"/>
-                    <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center">
-                        <Button Content="Support" Background="Transparent" Foreground="#00288E"
-                                FontWeight="Bold" BorderThickness="0" Margin="0,0,16,0" Cursor="Hand"/>
-                        <Button Content="End Shift" Command="{Binding NavigateToSalesCommand}"
-                                Style="{StaticResource PrimaryBtn}" Background="#00288E" Padding="16,8"/>
-                    </StackPanel>
-                </Grid>
-            </Border>
-
-            <!-- Error bar -->
-            <Grid Grid.Row="1" Margin="24,12,24,0"
+        <!-- Error bar -->
+            <Grid Grid.Row="0" Margin="24,12,24,0"
                   Visibility="{Binding ErrorMessage, Converter={StaticResource NullOrEmptyToVisibilityConverter}, FallbackValue=Collapsed}">
                 <Border Background="#FEF2F2" BorderBrush="#FCA5A5" BorderThickness="1" CornerRadius="8" Padding="16,12">
                     <TextBlock Text="{Binding ErrorMessage}" Foreground="#991B1B" FontSize="13" TextWrapping="Wrap"/>
@@ -698,6 +637,5 @@
                     </Grid>
                 </Border>
             </Grid>
-        </Grid>
     </Grid>
 </UserControl>
