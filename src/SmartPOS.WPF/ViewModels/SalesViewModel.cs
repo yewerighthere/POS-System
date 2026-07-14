@@ -352,6 +352,20 @@ public partial class SalesViewModel : ObservableObject
             newCart.Items = new List<CartItemDto>(newCart.Items);
         }
         Cart = newCart ?? new CartSummaryDto();
+
+        if (Cart.AppliedPromotion != null)
+        {
+            if (Cart.DiscountAmount == 0 && Cart.AppliedPromotion.MinOrderAmount.HasValue && Cart.Subtotal < Cart.AppliedPromotion.MinOrderAmount.Value)
+            {
+                Cart.AppliedPromotion = null;
+                PromotionInfo = "Không áp dụng";
+            }
+            else
+            {
+                PromotionInfo = $"{Cart.AppliedPromotion.Code} (-{Cart.DiscountAmount:N0} đ)";
+            }
+        }
+
         OnPropertyChanged(nameof(Cart));
     }
 
@@ -508,7 +522,6 @@ public partial class SalesViewModel : ObservableObject
             {
                 var appliedCart = await _promotionService.ApplyPromotionAsync(codeToApply, Cart).ConfigureAwait(true);
                 UpdateCart(_cartService.Recalculate(appliedCart));
-                PromotionInfo = $"{codeToApply} (-{validation.DiscountAmount:N0} đ)";
                 ClosePromoPopup();
             }
             else
@@ -535,8 +548,8 @@ public partial class SalesViewModel : ObservableObject
     {
         ErrorMessage = string.Empty;
         Cart.DiscountAmount = 0;
+        Cart.AppliedPromotion = null;
         UpdateCart(_cartService.Recalculate(Cart));
-        PromotionInfo = "Không áp dụng";
     }
 }
 

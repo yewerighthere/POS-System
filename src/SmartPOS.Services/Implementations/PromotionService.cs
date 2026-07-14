@@ -78,6 +78,22 @@ public class PromotionService : IPromotionService
         var validation = await ValidateCodeAsync(code, cart);
         if (validation.IsValid)
         {
+            var promotion = await _promotionRepository.GetByCodeAsync(code);
+            if (promotion != null)
+            {
+                cart.AppliedPromotion = new PromotionDto 
+                {
+                    Id = promotion.Id,
+                    Code = promotion.Code,
+                    Name = promotion.Name,
+                    Type = promotion.Type,
+                    DiscountValue = promotion.DiscountValue,
+                    MinOrderAmount = promotion.MinOrderAmount,
+                    StartDate = promotion.StartDate,
+                    EndDate = promotion.EndDate,
+                    IsActive = promotion.IsActive
+                };
+            }
             cart.DiscountAmount = validation.DiscountAmount;
             cart.TotalAmount = Math.Max(0, cart.Subtotal - cart.DiscountAmount - cart.PointsDiscountAmount + cart.TaxAmount);
         }

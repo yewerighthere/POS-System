@@ -61,7 +61,8 @@ public class CartService : ICartService
             DiscountAmount = cart.DiscountAmount,
             Customer = cart.Customer,
             PointsUsed = cart.PointsUsed,
-            PointsDiscountAmount = cart.PointsDiscountAmount
+            PointsDiscountAmount = cart.PointsDiscountAmount,
+            AppliedPromotion = cart.AppliedPromotion
         });
     }
 
@@ -96,7 +97,8 @@ public class CartService : ICartService
             DiscountAmount = cart.DiscountAmount,
             Customer = cart.Customer,
             PointsUsed = cart.PointsUsed,
-            PointsDiscountAmount = cart.PointsDiscountAmount
+            PointsDiscountAmount = cart.PointsDiscountAmount,
+            AppliedPromotion = cart.AppliedPromotion
         });
     }
 
@@ -108,14 +110,40 @@ public class CartService : ICartService
             DiscountAmount = cart.DiscountAmount,
             Customer = cart.Customer,
             PointsUsed = cart.PointsUsed,
-            PointsDiscountAmount = cart.PointsDiscountAmount
+            PointsDiscountAmount = cart.PointsDiscountAmount,
+            AppliedPromotion = cart.AppliedPromotion
         });
     }
 
     public CartSummaryDto Recalculate(CartSummaryDto cart)
     {
         var subtotal = cart.Items.Sum(i => i.Subtotal);
-        var discount = Math.Min(cart.DiscountAmount, subtotal);
+        
+        decimal discount = 0;
+        if (cart.AppliedPromotion != null)
+        {
+            if (cart.AppliedPromotion.MinOrderAmount.HasValue && subtotal < cart.AppliedPromotion.MinOrderAmount.Value)
+            {
+                discount = 0;
+            }
+            else
+            {
+                if (cart.AppliedPromotion.Type.Contains("Percentage", StringComparison.OrdinalIgnoreCase))
+                {
+                    discount = subtotal * (cart.AppliedPromotion.DiscountValue / 100m);
+                }
+                else
+                {
+                    discount = cart.AppliedPromotion.DiscountValue;
+                }
+            }
+        }
+        else
+        {
+            discount = cart.DiscountAmount;
+        }
+
+        discount = Math.Min(discount, subtotal);
         var pointsDiscount = Math.Min(cart.PointsDiscountAmount, subtotal - discount);
         var pointsEarned = (int)Math.Floor(subtotal / 10000m);
         var taxableAmount = Math.Max(0, subtotal - discount);
@@ -132,7 +160,8 @@ public class CartService : ICartService
             PointsUsed = cart.PointsUsed,
             PointsEarned = pointsEarned,
             TaxAmount = 0,
-            TotalAmount = Math.Max(0, subtotal - discount - pointsDiscount)
+            TotalAmount = Math.Max(0, subtotal - discount - pointsDiscount),
+            AppliedPromotion = cart.AppliedPromotion
         };
     }
 
