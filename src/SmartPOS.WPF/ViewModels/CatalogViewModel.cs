@@ -51,6 +51,7 @@ public partial class CatalogViewModel : ObservableObject
     [ObservableProperty] private string _searchQuery = string.Empty;
     [ObservableProperty] private string _categoryFilter = "Tất cả";
     [ObservableProperty] private string _statusFilter = "Tất cả";
+    [ObservableProperty] private bool _showNavigation = true;
 
     public int FilteredCount => FilteredProducts.Count;
 
@@ -73,6 +74,15 @@ public partial class CatalogViewModel : ObservableObject
 
     [RelayCommand]
     private void NavigateToSales() => _navigationService.NavigateTo<SalesViewModel>();
+
+    [RelayCommand]
+    private void NavigateToCustomer() => _navigationService.NavigateTo<CustomerViewModel>();
+
+    [RelayCommand]
+    private void NavigateToSync() => _navigationService.NavigateTo<SyncViewModel>();
+
+    [RelayCommand]
+    private void NavigateToReport() => _navigationService.NavigateTo<ReportViewModel>();
 
     [RelayCommand]
     private void ToggleAddProduct() => IsAddProductVisible = !IsAddProductVisible;

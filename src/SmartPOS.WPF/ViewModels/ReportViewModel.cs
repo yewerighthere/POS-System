@@ -50,6 +50,9 @@ public partial class ReportViewModel : ObservableObject
     private void NavigateToSync() => _navigationService.NavigateTo<SyncViewModel>();
 
     [RelayCommand]
+    private void NavigateToCustomer() => _navigationService.NavigateTo<CustomerViewModel>();
+
+    [RelayCommand]
     public async Task GenerateReportAsync()
     {
         if (_session.CurrentShift is null)

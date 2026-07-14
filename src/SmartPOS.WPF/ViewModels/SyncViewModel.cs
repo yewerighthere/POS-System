@@ -2,12 +2,14 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using SmartPOS.Services.Interfaces;
 using SmartPOS.Shared.DTOs.Inventory;
+using SmartPOS.WPF.Navigation;
 
 namespace SmartPOS.WPF.ViewModels;
 
 public partial class SyncViewModel : ObservableObject
 {
     private readonly IInventorySyncService _inventorySyncService;
+    private readonly NavigationService _navigationService;
 
     [ObservableProperty]
     private bool _isLoading;
@@ -27,10 +29,23 @@ public partial class SyncViewModel : ObservableObject
     [ObservableProperty]
     private bool _stockSuccess;
 
-    public SyncViewModel(IInventorySyncService inventorySyncService)
+    public SyncViewModel(IInventorySyncService inventorySyncService, NavigationService navigationService)
     {
         _inventorySyncService = inventorySyncService;
+        _navigationService = navigationService;
     }
+
+    [RelayCommand]
+    private void NavigateToSales() => _navigationService.NavigateTo<SalesViewModel>();
+
+    [RelayCommand]
+    private void NavigateToCustomer() => _navigationService.NavigateTo<CustomerViewModel>();
+
+    [RelayCommand]
+    private void NavigateToCatalog() => _navigationService.NavigateTo<CatalogViewModel>();
+
+    [RelayCommand]
+    private void NavigateToReport() => _navigationService.NavigateTo<ReportViewModel>();
 
     // Khi IsLoading thay đổi → thông báo lại CanExecute cho tất cả command
     partial void OnIsLoadingChanged(bool value)
