@@ -10,14 +10,7 @@
         <conv:BoolToVisibilityConverter          x:Key="BoolToVisible"/>
         <conv:NullOrEmptyToVisibilityConverter   x:Key="NotEmptyToVisible"/>
 
-        <SolidColorBrush x:Key="PrimaryBlue"  Color="#2563EB"/>
-        <SolidColorBrush x:Key="SuccessGreen" Color="#16A34A"/>
-        <SolidColorBrush x:Key="DangerRed"    Color="#DC2626"/>
-        <SolidColorBrush x:Key="DarkText"     Color="#0F172A"/>
-        <SolidColorBrush x:Key="MutedText"    Color="#64748B"/>
-        <SolidColorBrush x:Key="PageBg"       Color="#F8FAFC"/>
-        <SolidColorBrush x:Key="CardBg"       Color="#FFFFFF"/>
-        <SolidColorBrush x:Key="BorderColor"  Color="#E2E8F0"/>
+        
 
         <Style x:Key="ActionButton" TargetType="Button">
             <Setter Property="Foreground"      Value="White"/>
@@ -45,26 +38,26 @@
         </Style>
 
         <Style x:Key="PrimaryActionButton" TargetType="Button" BasedOn="{StaticResource ActionButton}">
-            <Setter Property="Background" Value="{StaticResource PrimaryBlue}"/>
+            <Setter Property="Background" Value="{StaticResource PrimaryBrush}"/>
         </Style>
     </UserControl.Resources>
 
-    <Grid Background="{StaticResource PageBg}">
+    <Grid Background="{StaticResource BackgroundBrush}">
         <ScrollViewer VerticalScrollBarVisibility="Auto">
             <StackPanel Margin="32" MaxWidth="780">
 
                 <!-- ═══ Header ═══ -->
                 <StackPanel Margin="0,0,0,28">
                     <TextBlock Text="Đồng Bộ Kho Hàng" FontSize="26" FontWeight="Bold"
-                               Foreground="{StaticResource DarkText}"/>
-                    <TextBlock Margin="0,6,0,0" Foreground="{StaticResource MutedText}" FontSize="14"
+                               Foreground="{StaticResource TextPrimaryBrush}"/>
+                    <TextBlock Margin="0,6,0,0" Foreground="{StaticResource TextMutedBrush}" FontSize="14"
                                TextWrapping="Wrap"
                                Text="Đồng bộ danh mục và tồn kho từ Inventory Manager về POS. Chạy Sync Catalog trước khi Sync Tồn Kho."/>
                 </StackPanel>
 
                 <!-- ═══ Nút Sync Tất Cả ═══ -->
                 <Border Background="#EFF6FF" CornerRadius="16" Padding="28,20"
-                        BorderBrush="{StaticResource PrimaryBlue}" BorderThickness="1"
+                        BorderBrush="{StaticResource PrimaryBrush}" BorderThickness="1"
                         Margin="0,0,0,20">
                     <Grid>
                         <Grid.ColumnDefinitions>
@@ -73,8 +66,8 @@
                         </Grid.ColumnDefinitions>
                         <StackPanel VerticalAlignment="Center">
                             <TextBlock Text="⚡  Đồng Bộ Toàn Bộ" FontSize="17" FontWeight="Bold"
-                                       Foreground="{StaticResource PrimaryBlue}"/>
-                            <TextBlock Margin="0,4,0,0" Foreground="{StaticResource MutedText}" FontSize="13"
+                                       Foreground="{StaticResource PrimaryBrush}"/>
+                            <TextBlock Margin="0,4,0,0" Foreground="{StaticResource TextMutedBrush}" FontSize="13"
                                        Text="Chạy Sync Catalog rồi Sync Tồn Kho tuần tự."/>
                         </StackPanel>
                         <Button Grid.Column="1" Content="⚡ Sync Tất Cả"
@@ -96,15 +89,15 @@
 
                 <!-- ═══ Lỗi tổng ═══ -->
                 <Border Background="#FEF2F2" CornerRadius="10" Padding="16,12" Margin="0,0,0,12"
-                        BorderBrush="{StaticResource DangerRed}" BorderThickness="1"
+                        BorderBrush="{StaticResource DangerBrush}" BorderThickness="1"
                         Visibility="{Binding StatusMessage, Converter={StaticResource NotEmptyToVisible}}">
-                    <TextBlock Text="{Binding StatusMessage}" Foreground="{StaticResource DangerRed}"
+                    <TextBlock Text="{Binding StatusMessage}" Foreground="{StaticResource DangerBrush}"
                                FontSize="13" TextWrapping="Wrap"/>
                 </Border>
 
                 <!-- ═══ Card: Sync Catalog ═══ -->
-                <Border Background="{StaticResource CardBg}" CornerRadius="16" Padding="28"
-                        BorderBrush="{StaticResource BorderColor}" BorderThickness="1"
+                <Border Background="{StaticResource SurfaceBrush}" CornerRadius="16" Padding="28"
+                        BorderBrush="{StaticResource BorderMediumBrush}" BorderThickness="1"
                         Margin="0,0,0,16">
                     <StackPanel>
                         <Grid Margin="0,0,0,14">
@@ -114,8 +107,8 @@
                             </Grid.ColumnDefinitions>
                             <StackPanel>
                                 <TextBlock Text="📦  Đồng Bộ Catalog" FontSize="16" FontWeight="Bold"
-                                           Foreground="{StaticResource DarkText}"/>
-                                <TextBlock Margin="0,4,0,0" Foreground="{StaticResource MutedText}" FontSize="13"
+                                           Foreground="{StaticResource TextPrimaryBrush}"/>
+                                <TextBlock Margin="0,4,0,0" Foreground="{StaticResource TextMutedBrush}" FontSize="13"
                                            Text="Kéo danh mục và thông tin sản phẩm từ Inventory Manager về POS."/>
                             </StackPanel>
                             <Button Grid.Column="1" Content="Sync Catalog"
@@ -130,12 +123,12 @@
                             <Border.Style>
                                 <Style TargetType="Border">
                                     <Setter Property="Background"      Value="#F0FDF4"/>
-                                    <Setter Property="BorderBrush"     Value="{StaticResource SuccessGreen}"/>
+                                    <Setter Property="BorderBrush"     Value="{StaticResource SuccessBrush}"/>
                                     <Setter Property="BorderThickness" Value="1"/>
                                     <Style.Triggers>
                                         <DataTrigger Binding="{Binding CatalogSuccess}" Value="False">
                                             <Setter Property="Background"  Value="#FEF2F2"/>
-                                            <Setter Property="BorderBrush" Value="{StaticResource DangerRed}"/>
+                                            <Setter Property="BorderBrush" Value="{StaticResource DangerBrush}"/>
                                         </DataTrigger>
                                     </Style.Triggers>
                                 </Style>
@@ -143,10 +136,10 @@
                             <TextBlock Text="{Binding CatalogStatus}" FontSize="13" TextWrapping="Wrap">
                                 <TextBlock.Style>
                                     <Style TargetType="TextBlock">
-                                        <Setter Property="Foreground" Value="{StaticResource SuccessGreen}"/>
+                                        <Setter Property="Foreground" Value="{StaticResource SuccessBrush}"/>
                                         <Style.Triggers>
                                             <DataTrigger Binding="{Binding CatalogSuccess}" Value="False">
-                                                <Setter Property="Foreground" Value="{StaticResource DangerRed}"/>
+                                                <Setter Property="Foreground" Value="{StaticResource DangerBrush}"/>
                                             </DataTrigger>
                                         </Style.Triggers>
                                     </Style>
@@ -157,8 +150,8 @@
                 </Border>
 
                 <!-- ═══ Card: Sync Stock ═══ -->
-                <Border Background="{StaticResource CardBg}" CornerRadius="16" Padding="28"
-                        BorderBrush="{StaticResource BorderColor}" BorderThickness="1">
+                <Border Background="{StaticResource SurfaceBrush}" CornerRadius="16" Padding="28"
+                        BorderBrush="{StaticResource BorderMediumBrush}" BorderThickness="1">
                     <StackPanel>
                         <Grid Margin="0,0,0,14">
                             <Grid.ColumnDefinitions>
@@ -167,8 +160,8 @@
                             </Grid.ColumnDefinitions>
                             <StackPanel>
                                 <TextBlock Text="📊  Đồng Bộ Tồn Kho" FontSize="16" FontWeight="Bold"
-                                           Foreground="{StaticResource DarkText}"/>
-                                <TextBlock Margin="0,4,0,0" Foreground="{StaticResource MutedText}" FontSize="13"
+                                           Foreground="{StaticResource TextPrimaryBrush}"/>
+                                <TextBlock Margin="0,4,0,0" Foreground="{StaticResource TextMutedBrush}" FontSize="13"
                                            Text="Cập nhật số lượng tồn kho từ Inventory Manager vào POS."/>
                             </StackPanel>
                             <Button Grid.Column="1" Content="Sync Tồn Kho"
@@ -183,12 +176,12 @@
                             <Border.Style>
                                 <Style TargetType="Border">
                                     <Setter Property="Background"      Value="#F0FDF4"/>
-                                    <Setter Property="BorderBrush"     Value="{StaticResource SuccessGreen}"/>
+                                    <Setter Property="BorderBrush"     Value="{StaticResource SuccessBrush}"/>
                                     <Setter Property="BorderThickness" Value="1"/>
                                     <Style.Triggers>
                                         <DataTrigger Binding="{Binding StockSuccess}" Value="False">
                                             <Setter Property="Background"  Value="#FEF2F2"/>
-                                            <Setter Property="BorderBrush" Value="{StaticResource DangerRed}"/>
+                                            <Setter Property="BorderBrush" Value="{StaticResource DangerBrush}"/>
                                         </DataTrigger>
                                     </Style.Triggers>
                                 </Style>
@@ -196,10 +189,10 @@
                             <TextBlock Text="{Binding StockStatus}" FontSize="13" TextWrapping="Wrap">
                                 <TextBlock.Style>
                                     <Style TargetType="TextBlock">
-                                        <Setter Property="Foreground" Value="{StaticResource SuccessGreen}"/>
+                                        <Setter Property="Foreground" Value="{StaticResource SuccessBrush}"/>
                                         <Style.Triggers>
                                             <DataTrigger Binding="{Binding StockSuccess}" Value="False">
-                                                <Setter Property="Foreground" Value="{StaticResource DangerRed}"/>
+                                                <Setter Property="Foreground" Value="{StaticResource DangerBrush}"/>
                                             </DataTrigger>
                                         </Style.Triggers>
                                     </Style>

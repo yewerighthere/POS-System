@@ -3,19 +3,7 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:conv="clr-namespace:SmartPOS.WPF.Converters">
     <UserControl.Resources>
-        <SolidColorBrush x:Key="PrimaryBrush" Color="#00288E"/>
-        <SolidColorBrush x:Key="PrimaryLightBrush" Color="#DBEAFE"/>
-        <SolidColorBrush x:Key="BackgroundBrush" Color="#F8FAFC"/>
-        <SolidColorBrush x:Key="SurfaceBrush" Color="#FFFFFF"/>
-        <SolidColorBrush x:Key="TextPrimaryBrush" Color="#0F172A"/>
-        <SolidColorBrush x:Key="TextSecondaryBrush" Color="#64748B"/>
-        <SolidColorBrush x:Key="BorderBrush" Color="#E2E8F0"/>
-        <SolidColorBrush x:Key="SurfaceContainerLowBrush" Color="#F4F2FC"/>
-        <SolidColorBrush x:Key="SecondaryContainerBrush" Color="#DAE2FD"/>
-        <SolidColorBrush x:Key="OnSecondaryContainerBrush" Color="#5C647A"/>
-        <SolidColorBrush x:Key="SuccessBrush" Color="#16A34A"/>
-        <SolidColorBrush x:Key="DangerBrush" Color="#DC2626"/>
-        <SolidColorBrush x:Key="WarningBrush" Color="#D97706"/>
+        
 
         <conv:BoolToVisibilityConverter x:Key="BoolToVisibilityConverter"/>
         <conv:InverseBoolToVisibilityConverter x:Key="InverseBoolToVisibilityConverter"/>
@@ -25,7 +13,7 @@
         <Style x:Key="QuickAmountButtonStyle" TargetType="Button">
             <Setter Property="Height" Value="36"/>
             <Setter Property="Background" Value="White"/>
-            <Setter Property="Foreground" Value="{StaticResource TextSecondaryBrush}"/>
+            <Setter Property="Foreground" Value="{StaticResource TextMutedBrush}"/>
             <Setter Property="BorderBrush" Value="{StaticResource BorderBrush}"/>
             <Setter Property="BorderThickness" Value="1"/>
             <Setter Property="FontSize" Value="12"/>
@@ -111,7 +99,7 @@
             <Setter Property="Background" Value="Transparent"/>
             <Setter Property="BorderThickness" Value="0"/>
             <Setter Property="Cursor" Value="Hand"/>
-            <Setter Property="Foreground" Value="{StaticResource TextSecondaryBrush}"/>
+            <Setter Property="Foreground" Value="{StaticResource TextMutedBrush}"/>
             <Setter Property="FontSize" Value="12"/>
             <Setter Property="Template">
                 <Setter.Value>
@@ -167,7 +155,7 @@
                                            Foreground="{StaticResource TextPrimaryBrush}"
                                            HorizontalAlignment="Center"/>
                                 <TextBlock Text="Terminal #01 • SmartPOS Retail" FontSize="14"
-                                           Foreground="{StaticResource TextSecondaryBrush}"
+                                           Foreground="{StaticResource TextMutedBrush}"
                                            HorizontalAlignment="Center" Margin="0,4,0,0"/>
                             </StackPanel>
 
@@ -189,7 +177,7 @@
                                     </Border>
                                     <StackPanel Grid.Column="1" VerticalAlignment="Center">
                                         <TextBlock Text="Staff Member" FontSize="12"
-                                                   Foreground="{StaticResource TextSecondaryBrush}"/>
+                                                   Foreground="{StaticResource TextMutedBrush}"/>
                                         <TextBlock Text="{Binding StaffName}" FontSize="14"
                                                    FontWeight="SemiBold"
                                                    Foreground="{StaticResource TextPrimaryBrush}"/>
@@ -197,7 +185,7 @@
                                     <StackPanel Grid.Column="2" VerticalAlignment="Center"
                                                 HorizontalAlignment="Right">
                                         <TextBlock Text="Role" FontSize="12"
-                                                   Foreground="{StaticResource TextSecondaryBrush}"
+                                                   Foreground="{StaticResource TextMutedBrush}"
                                                    HorizontalAlignment="Right"/>
                                         <Border Background="{StaticResource SecondaryContainerBrush}"
                                                 CornerRadius="99" Padding="8,3"
@@ -213,17 +201,17 @@
                             <!-- Date/Time row -->
                             <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
                                 <TextBlock Text="📅" FontSize="14" VerticalAlignment="Center"
-                                           Foreground="{StaticResource TextSecondaryBrush}"/>
+                                           Foreground="{StaticResource TextMutedBrush}"/>
                                 <TextBlock Text="{Binding CurrentDateDisplay}" FontSize="14"
-                                           Foreground="{StaticResource TextSecondaryBrush}"
+                                           Foreground="{StaticResource TextMutedBrush}"
                                            VerticalAlignment="Center" Margin="6,0,0,0"/>
                                 <TextBlock Text="|" FontSize="14" Opacity="0.3"
-                                           Foreground="{StaticResource TextSecondaryBrush}"
+                                           Foreground="{StaticResource TextMutedBrush}"
                                            Margin="12,0" VerticalAlignment="Center"/>
                                 <TextBlock Text="⏰" FontSize="14" VerticalAlignment="Center"
-                                           Foreground="{StaticResource TextSecondaryBrush}"/>
+                                           Foreground="{StaticResource TextMutedBrush}"/>
                                 <TextBlock Text="{Binding CurrentTimeDisplay}" FontSize="14"
-                                           Foreground="{StaticResource TextSecondaryBrush}"
+                                           Foreground="{StaticResource TextMutedBrush}"
                                            VerticalAlignment="Center" Margin="6,0,0,0"/>
                             </StackPanel>
 
@@ -233,7 +221,7 @@
 
                             <!-- Opening Cash label -->
                             <TextBlock Text="OPENING CASH AMOUNT" FontSize="11" FontWeight="Medium"
-                                       Foreground="{StaticResource TextSecondaryBrush}"
+                                       Foreground="{StaticResource TextMutedBrush}"
                                        Margin="0,0,0,8"/>
 
                             <!-- Input with ₫ prefix -->
@@ -242,7 +230,7 @@
                                          Text="{Binding OpeningCash, Mode=TwoWay,
                                                 UpdateSourceTrigger=PropertyChanged}"/>
                                 <TextBlock Text="₫" FontFamily="Consolas" FontSize="16"
-                                           Foreground="{StaticResource TextSecondaryBrush}"
+                                           Foreground="{StaticResource TextMutedBrush}"
                                            VerticalAlignment="Center" Margin="14,0,0,0"
                                            IsHitTestVisible="False"/>
                             </Grid>
@@ -296,7 +284,7 @@
                                     Command="{Binding NavigateToLoginCommand}"
                                     HorizontalAlignment="Center" Margin="0,12,0,0">
                                 <TextBlock Text="← Back to Login" FontSize="12"
-                                           Foreground="{StaticResource TextSecondaryBrush}"/>
+                                           Foreground="{StaticResource TextMutedBrush}"/>
                             </Button>
                         </StackPanel>
 
@@ -310,7 +298,7 @@
                                            Foreground="{StaticResource WarningBrush}"
                                            VerticalAlignment="Top" Margin="0,0,12,0"/>
                                 <TextBlock FontSize="12" TextWrapping="Wrap"
-                                           Foreground="{StaticResource TextSecondaryBrush}">
+                                           Foreground="{StaticResource TextMutedBrush}">
                                     Ensure the opening cash matches the physical amount in the drawer. This will be used to calculate the variance at the end of the shift.
                                 </TextBlock>
                             </StackPanel>
@@ -353,7 +341,7 @@
                                            Foreground="{StaticResource TextPrimaryBrush}"
                                            HorizontalAlignment="Center"/>
                                 <TextBlock Text="Terminal #01 • SmartPOS Retail" FontSize="14"
-                                           Foreground="{StaticResource TextSecondaryBrush}"
+                                           Foreground="{StaticResource TextMutedBrush}"
                                            HorizontalAlignment="Center" Margin="0,4,0,0"/>
                             </StackPanel>
 
@@ -375,7 +363,7 @@
                                     </Border>
                                     <StackPanel Grid.Column="1" VerticalAlignment="Center">
                                         <TextBlock Text="Staff Member" FontSize="12"
-                                                   Foreground="{StaticResource TextSecondaryBrush}"/>
+                                                   Foreground="{StaticResource TextMutedBrush}"/>
                                         <TextBlock Text="{Binding StaffName}" FontSize="14"
                                                    FontWeight="SemiBold"
                                                    Foreground="{StaticResource TextPrimaryBrush}"/>
@@ -383,7 +371,7 @@
                                     <StackPanel Grid.Column="2" VerticalAlignment="Center"
                                                 HorizontalAlignment="Right">
                                         <TextBlock Text="Role" FontSize="12"
-                                                   Foreground="{StaticResource TextSecondaryBrush}"
+                                                   Foreground="{StaticResource TextMutedBrush}"
                                                    HorizontalAlignment="Right"/>
                                         <Border Background="{StaticResource SecondaryContainerBrush}"
                                                 CornerRadius="99" Padding="8,3"
@@ -399,17 +387,17 @@
                             <!-- Date/Time row -->
                             <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
                                 <TextBlock Text="📅" FontSize="14" VerticalAlignment="Center"
-                                           Foreground="{StaticResource TextSecondaryBrush}"/>
+                                           Foreground="{StaticResource TextMutedBrush}"/>
                                 <TextBlock Text="{Binding CurrentDateDisplay}" FontSize="14"
-                                           Foreground="{StaticResource TextSecondaryBrush}"
+                                           Foreground="{StaticResource TextMutedBrush}"
                                            VerticalAlignment="Center" Margin="6,0,0,0"/>
                                 <TextBlock Text="|" FontSize="14" Opacity="0.3"
-                                           Foreground="{StaticResource TextSecondaryBrush}"
+                                           Foreground="{StaticResource TextMutedBrush}"
                                            Margin="12,0" VerticalAlignment="Center"/>
                                 <TextBlock Text="⏰" FontSize="14" VerticalAlignment="Center"
-                                           Foreground="{StaticResource TextSecondaryBrush}"/>
+                                           Foreground="{StaticResource TextMutedBrush}"/>
                                 <TextBlock Text="{Binding CurrentTimeDisplay}" FontSize="14"
-                                           Foreground="{StaticResource TextSecondaryBrush}"
+                                           Foreground="{StaticResource TextMutedBrush}"
                                            VerticalAlignment="Center" Margin="6,0,0,0"/>
                             </StackPanel>
 
@@ -429,7 +417,7 @@
                                             <ColumnDefinition Width="Auto"/>
                                         </Grid.ColumnDefinitions>
                                         <TextBlock Text="Giờ mở:" FontSize="13"
-                                                   Foreground="{StaticResource TextSecondaryBrush}"/>
+                                                   Foreground="{StaticResource TextMutedBrush}"/>
                                         <TextBlock Grid.Column="1" FontSize="13" FontWeight="Medium"
                                                    Foreground="{StaticResource TextPrimaryBrush}"
                                                    Text="{Binding ShiftOpenedAtDisplay}"/>
@@ -440,7 +428,7 @@
                                             <ColumnDefinition Width="Auto"/>
                                         </Grid.ColumnDefinitions>
                                         <TextBlock Text="Tiền đầu ca:" FontSize="13"
-                                                   Foreground="{StaticResource TextSecondaryBrush}"/>
+                                                   Foreground="{StaticResource TextMutedBrush}"/>
                                         <TextBlock Grid.Column="1" FontSize="13" FontWeight="Medium"
                                                    Foreground="{StaticResource TextPrimaryBrush}"
                                                    Text="{Binding CurrentShift.OpeningCash,
@@ -451,7 +439,7 @@
 
                             <!-- Closing Cash label -->
                             <TextBlock Text="CLOSING CASH AMOUNT" FontSize="11" FontWeight="Medium"
-                                       Foreground="{StaticResource TextSecondaryBrush}"
+                                       Foreground="{StaticResource TextMutedBrush}"
                                        Margin="0,0,0,8"/>
 
                             <!-- Input with ₫ prefix -->
@@ -460,7 +448,7 @@
                                          Text="{Binding ClosingCash, Mode=TwoWay,
                                                 UpdateSourceTrigger=PropertyChanged}"/>
                                 <TextBlock Text="₫" FontFamily="Consolas" FontSize="16"
-                                           Foreground="{StaticResource TextSecondaryBrush}"
+                                           Foreground="{StaticResource TextMutedBrush}"
                                            VerticalAlignment="Center" Margin="14,0,0,0"
                                            IsHitTestVisible="False"/>
                             </Grid>
@@ -502,7 +490,7 @@
                                             <ColumnDefinition Width="Auto"/>
                                         </Grid.ColumnDefinitions>
                                         <TextBlock Text="Tổng doanh thu:" FontSize="13"
-                                                   Foreground="{StaticResource TextSecondaryBrush}"/>
+                                                   Foreground="{StaticResource TextMutedBrush}"/>
                                         <TextBlock Grid.Column="1" FontSize="13" FontWeight="SemiBold"
                                                    Foreground="{StaticResource TextPrimaryBrush}"
                                                    Text="{Binding LastSummary.TotalSales,
@@ -514,7 +502,7 @@
                                             <ColumnDefinition Width="Auto"/>
                                         </Grid.ColumnDefinitions>
                                         <TextBlock Text="Tiền mặt kỳ vọng:" FontSize="13"
-                                                   Foreground="{StaticResource TextSecondaryBrush}"/>
+                                                   Foreground="{StaticResource TextMutedBrush}"/>
                                         <TextBlock Grid.Column="1" FontSize="13" FontWeight="SemiBold"
                                                    Foreground="{StaticResource TextPrimaryBrush}"
                                                    Text="{Binding LastSummary.ExpectedCash,
@@ -543,7 +531,7 @@
                                            Foreground="{StaticResource WarningBrush}"
                                            VerticalAlignment="Top" Margin="0,0,12,0"/>
                                 <TextBlock FontSize="12" TextWrapping="Wrap"
-                                           Foreground="{StaticResource TextSecondaryBrush}">
+                                           Foreground="{StaticResource TextMutedBrush}">
                                     Count the physical cash in the drawer before entering the closing amount. The system will calculate the variance automatically.
                                 </TextBlock>
                             </StackPanel>

@@ -9,22 +9,6 @@
              MinWidth="860"
              MinHeight="560">
     <UserControl.Resources>
-        <Color x:Key="PrimaryColor">#00288E</Color>
-        <Color x:Key="PrimaryHoverColor">#1E40AF</Color>
-        <Color x:Key="BackgroundColor">#F8FAFC</Color>
-        <Color x:Key="SurfaceColor">#FFFFFF</Color>
-        <Color x:Key="TextPrimaryColor">#0F172A</Color>
-        <Color x:Key="TextSecondaryColor">#64748B</Color>
-        <Color x:Key="BorderColor">#E2E8F0</Color>
-        <Color x:Key="SuccessColor">#16A34A</Color>
-        <SolidColorBrush x:Key="PrimaryBrush" Color="{StaticResource PrimaryColor}" />
-        <SolidColorBrush x:Key="PrimaryHoverBrush" Color="{StaticResource PrimaryHoverColor}" />
-        <SolidColorBrush x:Key="BackgroundBrush" Color="{StaticResource BackgroundColor}" />
-        <SolidColorBrush x:Key="SurfaceBrush" Color="{StaticResource SurfaceColor}" />
-        <SolidColorBrush x:Key="TextPrimaryBrush" Color="{StaticResource TextPrimaryColor}" />
-        <SolidColorBrush x:Key="TextSecondaryBrush" Color="{StaticResource TextSecondaryColor}" />
-        <SolidColorBrush x:Key="BorderBrush" Color="{StaticResource BorderColor}" />
-        <SolidColorBrush x:Key="SuccessBrush" Color="{StaticResource SuccessColor}" />
 
         <Style x:Key="FieldLabelStyle" TargetType="TextBlock">
             <Setter Property="Foreground" Value="{StaticResource TextPrimaryBrush}" />
@@ -89,32 +73,6 @@
             </Style.Triggers>
         </Style>
 
-        <Style x:Key="PrimaryButtonStyle" TargetType="Button">
-            <Setter Property="Height" Value="48" />
-            <Setter Property="Foreground" Value="White" />
-            <Setter Property="Background" Value="{StaticResource PrimaryBrush}" />
-            <Setter Property="BorderThickness" Value="0" />
-            <Setter Property="FontSize" Value="16" />
-            <Setter Property="FontWeight" Value="SemiBold" />
-            <Setter Property="Cursor" Value="Hand" />
-            <Setter Property="Template">
-                <Setter.Value>
-                    <ControlTemplate TargetType="Button">
-                        <Border Background="{TemplateBinding Background}" CornerRadius="8">
-                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center" />
-                        </Border>
-                    </ControlTemplate>
-                </Setter.Value>
-            </Setter>
-            <Style.Triggers>
-                <Trigger Property="IsMouseOver" Value="True">
-                    <Setter Property="Background" Value="{StaticResource PrimaryHoverBrush}" />
-                </Trigger>
-                <Trigger Property="IsEnabled" Value="False">
-                    <Setter Property="Opacity" Value="0.68" />
-                </Trigger>
-            </Style.Triggers>
-        </Style>
     </UserControl.Resources>
 
     <Grid Background="{StaticResource BackgroundBrush}">
@@ -258,14 +216,14 @@
                                FontSize="26"
                                FontWeight="Bold" />
                     <TextBlock Text="Sign in to your account"
-                               Foreground="{StaticResource TextSecondaryBrush}"
+                               Foreground="{StaticResource TextMutedBrush}"
                                FontSize="14"
                                Margin="0,4,0,30" />
 
                     <TextBlock Text="Username" Style="{StaticResource FieldLabelStyle}" />
                     <Grid Margin="0,0,0,18">
                         <TextBlock Text="👤"
-                                   Foreground="{StaticResource TextSecondaryBrush}"
+                                   Foreground="{StaticResource TextMutedBrush}"
                                    FontSize="15"
                                    Margin="13,0,0,0"
                                    VerticalAlignment="Center"
@@ -278,7 +236,7 @@
                     <TextBlock Text="Password" Style="{StaticResource FieldLabelStyle}" />
                     <Grid Margin="0,0,0,24">
                         <TextBlock Text="🔒"
-                                   Foreground="{StaticResource TextSecondaryBrush}"
+                                   Foreground="{StaticResource TextMutedBrush}"
                                    FontSize="15"
                                    Margin="13,0,0,0"
                                    VerticalAlignment="Center"
@@ -304,7 +262,7 @@
                                       ToolTip="Show or hide password">
                             <TextBlock x:Name="PasswordToggleIcon"
                                        Text="👁"
-                                       Foreground="{StaticResource TextSecondaryBrush}"
+                                       Foreground="{StaticResource TextMutedBrush}"
                                        HorizontalAlignment="Center"
                                        VerticalAlignment="Center" />
                         </ToggleButton>
@@ -329,12 +287,12 @@
                             Padding="0,20,0,0">
                         <StackPanel Orientation="Horizontal">
                             <TextBlock Text="ⓘ"
-                                       Foreground="{StaticResource TextSecondaryBrush}"
+                                       Foreground="{StaticResource TextMutedBrush}"
                                        FontSize="16"
                                        Margin="0,0,10,0"
                                        VerticalAlignment="Top" />
                             <TextBlock Text="Contact your manager if you cannot log in. Technical support is available via the internal portal for all terminal sessions."
-                                       Foreground="{StaticResource TextSecondaryBrush}"
+                                       Foreground="{StaticResource TextMutedBrush}"
                                        FontSize="12"
                                        TextWrapping="Wrap"
                                        Width="360"
@@ -347,13 +305,13 @@
             <Grid Grid.Row="1" Margin="0,24,0,0">
                 <TextBlock Text="v1.0.0"
                            HorizontalAlignment="Left"
-                           Foreground="{StaticResource TextSecondaryBrush}"
+                           Foreground="{StaticResource TextMutedBrush}"
                            FontFamily="Consolas"
                            FontSize="12"
                            Opacity="0.7" />
                 <TextBlock Text="SmartPOS Retail"
                            HorizontalAlignment="Right"
-                           Foreground="{StaticResource TextSecondaryBrush}"
+                           Foreground="{StaticResource TextMutedBrush}"
                            FontSize="12"
                            FontWeight="Bold"
                            Opacity="0.7" />

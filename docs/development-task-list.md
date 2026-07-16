@@ -216,6 +216,10 @@ Liên quan: F-15.
 - [ ] TASK-1309: Cập nhật `implementation-status.md` sau buổi test demo.
 - [ ] TASK-1310: Chuẩn bị checklist trước khi nộp bài.
 
+## Phase 14 - Theme System (CSS to WPF)
+
+- [x] TASK-1401 đến TASK-1420: Đã hoàn thành toàn bộ hệ thống theme trung tâm. 13 file XAML trong `Themes/`, đăng ký trong `App.xaml`, refactor 9 view (Login, Shift, Sales, Payment, Catalog, Customer, Report, Sync, Invoice). Màu primary chuyển sang `#0062FF`. Build pass 0 lỗi. Docs đã cập nhật.
+
 ## Definition Of Done
 
 Một task chỉ nên đánh dấu `[x]` khi:

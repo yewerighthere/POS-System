@@ -247,6 +247,13 @@ Thư mục: `SmartPOS.WPF/Converters`
 - `LocalImagePathConverter`
 - `PercentToGridLengthConverter`
 - `ProductImageConverter`
+- `ImagePathToVisibilityConverter`
+
+### Theme System
+
+Thư mục: `SmartPOS.WPF/Themes`
+
+Hệ thống theme trung tâm chuyển đổi từ `style.css` (glassmorphism) sang WPF ResourceDictionary. Đăng ký trong `App.xaml` qua `Themes/Generic.xaml`. 13 file XAML: Colors, Fonts, Spacing, Shadows, ButtonStyles, TextBoxStyles, BorderStyles, BadgeStyles, ModalStyles, ScrollBarStyles, SidebarStyles, TableStyles, Generic. Màu primary: `#0062FF`. Font: Inter/Segoe UI. 9 view đã refactor: Login, Shift, Sales, Payment, Catalog, Customer, Report, Sync, Invoice.
 
 ## SmartPOS.CallbackApi
 
