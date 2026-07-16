@@ -67,6 +67,12 @@ public class ProductRepository : IProductRepository
         await _context.SaveChangesAsync();
     }
 
+    public async Task DeleteAsync(Product product)
+    {
+        _context.Products.Remove(product);
+        await _context.SaveChangesAsync();
+    }
+
     public async Task<IReadOnlyList<Product>> GetAllAsync()
     {
         return await _context.Products

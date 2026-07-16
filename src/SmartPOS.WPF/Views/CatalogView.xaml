@@ -1,4 +1,4 @@
-<UserControl x:Class="SmartPOS.WPF.Views.CatalogView"
+﻿<UserControl x:Class="SmartPOS.WPF.Views.CatalogView"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
@@ -16,8 +16,6 @@
         <converters:InverseBoolConverter x:Key="BoolInverter"/>
         <converters:LocalImagePathConverter x:Key="LocalImagePathConverter"/>
         <converters:ImagePathToVisibilityConverter x:Key="ImagePathToVis"/>
-
-        
 
         <Style x:Key="PrimaryBtn" TargetType="Button">
             <Setter Property="Foreground" Value="White"/>
@@ -85,55 +83,50 @@
 
     <Grid>
         <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="220"/>
+            <ColumnDefinition Width="Auto"/>
             <ColumnDefinition Width="*"/>
         </Grid.ColumnDefinitions>
 
-        <!-- LEFT SIDEBAR (dark, same as SalesView) -->
-        <Border Grid.Column="0" Background="#1A1B22">
-            <Grid Margin="0,24,0,16">
+        <!-- LEFT SIDEBAR -->
+        <Border Grid.Column="0" Width="220" Background="#1A1B22"
+                Visibility="{Binding ShowNavigation, Converter={StaticResource BoolToVis}}">
+            <Grid Margin="0,24,0,24">
                 <Grid.RowDefinitions>
                     <RowDefinition Height="Auto"/>
                     <RowDefinition Height="*"/>
-                    <RowDefinition Height="Auto"/>
                 </Grid.RowDefinitions>
-
                 <StackPanel Grid.Row="0" Margin="20,0,20,32">
                     <TextBlock Text="SmartPOS Admin" Foreground="#E2E8F0" FontSize="18" FontWeight="Black"/>
                     <TextBlock Text="Terminal #01" Foreground="{StaticResource SidebarTextBrush}" FontSize="12" Margin="0,4,0,0" Opacity="0.8"/>
                 </StackPanel>
-
                 <StackPanel Grid.Row="1">
-                    <Button Style="{StaticResource SidebarNavButtonStyle}" Tag="🖥️" Content="Point of Sale"
-                            Command="{Binding NavigateToSalesCommand}" FontSize="13"/>
-                    <Button Style="{StaticResource SidebarNavButtonStyle}" Tag="🧾" Content="Transactions" FontSize="13"/>
-                    <Button Style="{StaticResource SidebarNavButtonStyle}" Tag="📦" Content="Inventory" FontSize="13"/>
-                    <Button Style="{StaticResource SidebarNavButtonStyle}" Tag="👤" Content="Customers" FontSize="13"/>
-                    <Button Style="{StaticResource SidebarNavButtonStyle}" Tag="🔄" Content="Returns &amp; Refunds" FontSize="13"/>
-                    <Border Background="#00288E" CornerRadius="8" Margin="8,2" Padding="12,10">
+                    <Button Style="{StaticResource SidebarNavButtonStyle}" Tag="🖥️" Content="Point of Sale"      Command="{Binding NavigateToSalesCommand}"/>
+                    <Button Style="{StaticResource SidebarNavButtonStyle}" Tag="🧾" Content="Transactions"/>
+                    <Button Style="{StaticResource SidebarNavButtonStyle}" Tag="📦" Content="Inventory"           Command="{Binding NavigateToSyncCommand}"/>
+                    <Button Style="{StaticResource SidebarNavButtonStyle}" Tag="👤" Content="Customers"           Command="{Binding NavigateToCustomerCommand}"/>
+                    <Button Style="{StaticResource SidebarNavButtonStyle}" Tag="🔄" Content="Returns &amp; Refunds"/>
+                    <!-- ACTIVE: Product Catalog -->
+                    <Border Background="#00288E" CornerRadius="8" Margin="8,2" Padding="16,10">
                         <StackPanel Orientation="Horizontal">
                             <TextBlock Text="🗂️" Margin="0,0,12,0" FontSize="14" VerticalAlignment="Center"/>
                             <TextBlock Text="Product Catalog" Foreground="White" FontSize="13" FontWeight="SemiBold" VerticalAlignment="Center"/>
                         </StackPanel>
                     </Border>
-                    <Button Style="{StaticResource SidebarNavButtonStyle}" Tag="📊" Content="Shift Reports" FontSize="13"/>
-                    <Button Style="{StaticResource SidebarNavButtonStyle}" Tag="⚙️" Content="Settings" FontSize="13"/>
+                    <Button Style="{StaticResource SidebarNavButtonStyle}" Tag="📊" Content="Shift Reports"       Command="{Binding NavigateToReportCommand}"/>
+                    <Button Style="{StaticResource SidebarNavButtonStyle}" Tag="⚙️" Content="Settings"/>
                 </StackPanel>
-
-                <Button Grid.Row="2" Content="+ New Transaction" Margin="12,0"
-                        Command="{Binding NavigateToSalesCommand}"
-                        Style="{StaticResource PrimaryBtn}" Background="#B8C4FF" Foreground="#001453"/>
             </Grid>
         </Border>
 
         <!-- MAIN CONTENT -->
-        <Grid Grid.Column="1">
-            <Grid.RowDefinitions>
-                <RowDefinition Height="64"/>
-                <RowDefinition Height="Auto"/>
-                <RowDefinition Height="Auto"/>
-                <RowDefinition Height="*"/>
-            </Grid.RowDefinitions>
+        <Grid Grid.Column="1" Background="#F8FAFC">
+        <!-- ERROR BAR & STATUS BAR -->
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
 
             <!-- Top header bar -->
             <Border Grid.Row="0" Background="White" BorderBrush="{StaticResource BorderMediumBrush}" BorderThickness="0,0,0,1" Padding="24,0">
@@ -177,6 +170,7 @@
                 </Grid.ColumnDefinitions>
                 <StackPanel Grid.Column="0">
                     <TextBlock Text="Product Catalog" FontSize="22" FontWeight="Bold" Foreground="{StaticResource TextPrimaryBrush}"/>
+                    <TextBlock Text="{Binding LastSyncedText}" Foreground="{StaticResource TextMutedBrush}" FontSize="12" Margin="0,4,0,0"/>
                     <TextBlock Text="Quản lý sản phẩm &amp; danh mục trong hệ thống"
                                Foreground="{StaticResource TextMutedBrush}" FontSize="12" Margin="0,4,0,0"/>
                 </StackPanel>
@@ -387,13 +381,17 @@
                         <StackPanel Grid.Column="1" Orientation="Horizontal" Margin="12,0" VerticalAlignment="Center">
                             <TextBlock Text="Giá mới:" VerticalAlignment="Center" Margin="0,0,8,0" Foreground="{StaticResource TextPrimaryBrush}" FontSize="13"/>
                             <TextBox Text="{Binding UpdatedPrice, UpdateSourceTrigger=PropertyChanged}"
-                                     Width="120" Padding="10,8" BorderBrush="{StaticResource BorderMediumBrush}" BorderThickness="1" FontSize="13"/>
+                                     Width="100" Padding="10,8" BorderBrush="{StaticResource BorderMediumBrush}" BorderThickness="1" FontSize="13"/>
+                                     
+                            <TextBlock Text="Tồn kho:" VerticalAlignment="Center" Margin="12,0,8,0" Foreground="{StaticResource TextPrimaryBrush}" FontSize="13"/>
+                            <TextBox Text="{Binding UpdatedStock, UpdateSourceTrigger=PropertyChanged}"
+                                     Width="70" Padding="10,8" BorderBrush="{StaticResource BorderMediumBrush}" BorderThickness="1" FontSize="13"/>
                         </StackPanel>
                         
                         <Button Grid.Column="2" Content="📷 Đổi ảnh" Command="{Binding UpdateImageCommand}"
                                 Style="{StaticResource OutlineBtn}" Margin="0,0,8,0"/>
                                 
-                        <Button Grid.Column="3" Content="✏ Cập nhật giá" Command="{Binding UpdatePriceCommand}"
+                        <Button Grid.Column="3" Content="✏ Cập nhật" Command="{Binding UpdateProductInfoCommand}"
                                 Style="{StaticResource PrimaryBtn}" Background="#2563EB" Margin="0,0,8,0"/>
                                 
                         <Grid Grid.Column="4">
@@ -651,6 +649,11 @@
                                                             Margin="4,0,0,0" Foreground="{StaticResource TextMutedBrush}"
                                                             Style="{StaticResource RowIconBtn}"
                                                             Command="{Binding DataContext.DeactivateProductCommand, RelativeSource={RelativeSource AncestorType=ItemsControl}}"
+                                                            CommandParameter="{Binding}"/>
+                                                    <Button ToolTip="Xóa" Content="🗑️" FontSize="13"
+                                                            Margin="4,0,0,0" Foreground="#EF4444"
+                                                            Style="{StaticResource RowIconBtn}"
+                                                            Command="{Binding DataContext.DeleteProductCommand, RelativeSource={RelativeSource AncestorType=ItemsControl}}"
                                                             CommandParameter="{Binding}"/>
                                                 </StackPanel>
                                             </Grid>

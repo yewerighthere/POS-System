@@ -7,6 +7,7 @@ using SmartPOS.Shared.DTOs.Product;
 using SmartPOS.Shared.Exceptions;
 using SmartPOS.WPF.Navigation;
 using SmartPOS.WPF.Session;
+using SmartPOS.Shared.DTOs.Promotion;
 
 namespace SmartPOS.WPF.ViewModels;
 
@@ -54,6 +55,14 @@ public partial class SalesViewModel : ObservableObject
 
     [ObservableProperty]
     private string _newCustomerEmail = string.Empty;
+
+    [ObservableProperty]
+    private bool _isPromoPopupOpen;
+
+    [ObservableProperty]
+    private string _promoCodeInput = string.Empty;
+
+    public ObservableCollection<PromotionDto> AvailablePromotions { get; } = new();
 
     public ObservableCollection<ProductDto> SearchResults { get; } = new();
 
@@ -148,46 +157,8 @@ public partial class SalesViewModel : ObservableObject
                     return;
                 }
             }
+            // Không xử lý Khuyến mãi ở đây nữa, sẽ dùng Popup riêng
 
-            // 3. Kiểm tra xem có phải là mã khuyến mãi không
-            // MOCK DATA: Giả lập mã khuyến mãi để test (không sửa file của người khác)
-            if (BarcodeQuery.Equals("KM10", StringComparison.OrdinalIgnoreCase))
-            {
-                decimal discount = Math.Round(Cart.Subtotal * 0.1m);
-                Cart.DiscountAmount = discount;
-                UpdateCart(_cartService.Recalculate(Cart));
-                PromotionInfo = $"KM10 (-{discount:N0} đ)";
-                BarcodeQuery = string.Empty;
-                return;
-            }
-            else if (BarcodeQuery.Equals("KM20", StringComparison.OrdinalIgnoreCase))
-            {
-                decimal discount = Math.Round(Cart.Subtotal * 0.2m);
-                Cart.DiscountAmount = discount;
-                UpdateCart(_cartService.Recalculate(Cart));
-                PromotionInfo = $"KM20 (-{discount:N0} đ)";
-                BarcodeQuery = string.Empty;
-                return;
-            }
-
-            // Gọi service thật (an toàn nếu chưa cài đặt)
-            try
-            {
-                var validation = await _promotionService.ValidateCodeAsync(BarcodeQuery, Cart).ConfigureAwait(true);
-                if (validation.IsValid)
-                {
-                    UpdateCart(await _promotionService.ApplyPromotionAsync(BarcodeQuery, Cart).ConfigureAwait(true));
-                    PromotionInfo = $"{BarcodeQuery} (-{validation.DiscountAmount:N0} đ)";
-                    BarcodeQuery = string.Empty;
-                    return;
-                }
-                else if (!string.IsNullOrEmpty(validation.Message) && validation.Message != "Promotion not found")
-                {
-                    ErrorMessage = $"Mã khuyến mãi không khả dụng: {validation.Message}";
-                    return;
-                }
-            }
-            catch (NotImplementedException) { }
 
             // 4. Nếu không khớp với bất kỳ trường hợp nào
             ErrorMessage = $"Không tìm thấy sản phẩm, số điện thoại hoặc mã khuyến mãi phù hợp cho: {BarcodeQuery}";
@@ -381,6 +352,20 @@ public partial class SalesViewModel : ObservableObject
             newCart.Items = new List<CartItemDto>(newCart.Items);
         }
         Cart = newCart ?? new CartSummaryDto();
+
+        if (Cart.AppliedPromotion != null)
+        {
+            if (Cart.DiscountAmount == 0 && Cart.AppliedPromotion.MinOrderAmount.HasValue && Cart.Subtotal < Cart.AppliedPromotion.MinOrderAmount.Value)
+            {
+                Cart.AppliedPromotion = null;
+                PromotionInfo = "Không áp dụng";
+            }
+            else
+            {
+                PromotionInfo = $"{Cart.AppliedPromotion.Code} (-{Cart.DiscountAmount:N0} đ)";
+            }
+        }
+
         OnPropertyChanged(nameof(Cart));
     }
 
@@ -446,6 +431,16 @@ public partial class SalesViewModel : ObservableObject
     }
 
     [RelayCommand]
+    private void RemoveCustomer()
+    {
+        CustomerInfo = "Khách vãng lai";
+        Cart.Customer = null;
+        Cart.PointsUsed = 0;
+        Cart.PointsDiscountAmount = 0;
+        RecalculateCart();
+    }
+
+    [RelayCommand]
     private void ToggleUsePoints()
     {
         if (Cart.Customer == null || Cart.Customer.LoyaltyPoints <= 0) return;
@@ -473,6 +468,88 @@ public partial class SalesViewModel : ObservableObject
         }
         
         RecalculateCart();
+    }
+
+    [RelayCommand]
+    private async Task OpenPromoPopupAsync()
+    {
+        ErrorMessage = string.Empty;
+        IsPromoPopupOpen = true;
+        PromoCodeInput = string.Empty;
+
+        try
+        {
+            var promotions = await _promotionService.GetActiveAsync(DateOnly.FromDateTime(DateTime.Today)).ConfigureAwait(true);
+            AvailablePromotions.Clear();
+            if (promotions != null)
+            {
+                foreach (var p in promotions)
+                {
+                    AvailablePromotions.Add(p);
+                }
+            }
+        }
+        catch (Exception ex)
+        {
+            // Bỏ qua lỗi nếu không load được gợi ý
+        }
+    }
+
+    [RelayCommand]
+    private void ClosePromoPopup()
+    {
+        IsPromoPopupOpen = false;
+        PromoCodeInput = string.Empty;
+    }
+
+    [RelayCommand]
+    private async Task ApplyPromoAsync(string code)
+    {
+        ErrorMessage = string.Empty;
+        var codeToApply = string.IsNullOrWhiteSpace(code) ? PromoCodeInput : code;
+        
+        if (string.IsNullOrWhiteSpace(codeToApply))
+        {
+            ErrorMessage = "Vui lòng nhập mã khuyến mãi.";
+            return;
+        }
+
+        IsLoading = true;
+        try
+        {
+            var validation = await _promotionService.ValidateCodeAsync(codeToApply, Cart).ConfigureAwait(true);
+            if (validation.IsValid)
+            {
+                var appliedCart = await _promotionService.ApplyPromotionAsync(codeToApply, Cart).ConfigureAwait(true);
+                UpdateCart(_cartService.Recalculate(appliedCart));
+                ClosePromoPopup();
+            }
+            else
+            {
+                ErrorMessage = $"Mã khuyến mãi không khả dụng: {validation.Message}";
+            }
+        }
+        catch (NotImplementedException) 
+        {
+            ErrorMessage = "Dịch vụ khuyến mãi chưa được hỗ trợ hoàn toàn.";
+        }
+        catch (Exception ex)
+        {
+            ErrorMessage = $"Lỗi áp dụng khuyến mãi: {ex.Message}";
+        }
+        finally
+        {
+            IsLoading = false;
+        }
+    }
+
+    [RelayCommand]
+    private void RemovePromo()
+    {
+        ErrorMessage = string.Empty;
+        Cart.DiscountAmount = 0;
+        Cart.AppliedPromotion = null;
+        UpdateCart(_cartService.Recalculate(Cart));
     }
 }
 

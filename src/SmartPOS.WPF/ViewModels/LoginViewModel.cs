@@ -78,10 +78,18 @@ public partial class LoginViewModel : ObservableObject
 
     private void NavigateAfterLogin(string? role)
     {
-        if (Enum.TryParse<UserRole>(role, out var parsedRole) && parsedRole == UserRole.Staff)
+        if (Enum.TryParse<UserRole>(role, out var parsedRole))
         {
-            _navigationService.NavigateTo<ShiftViewModel>();
-            return;
+            if (parsedRole == UserRole.Admin || parsedRole == UserRole.Manager)
+            {
+                _navigationService.NavigateTo<DashboardViewModel>();
+                return;
+            }
+            if (parsedRole == UserRole.Staff)
+            {
+                _navigationService.NavigateTo<ShiftViewModel>();
+                return;
+            }
         }
 
         _navigationService.NavigateTo<SyncViewModel>();

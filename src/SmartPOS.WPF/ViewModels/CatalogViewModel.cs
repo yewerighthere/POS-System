@@ -10,6 +10,7 @@ using SmartPOS.WPF.Session;
 using System.Collections.ObjectModel;
 using Microsoft.Extensions.Logging;
 using SmartPOS.Shared.DTOs.Inventory;
+using SmartPOS.Data.Repositories.Interfaces;
 
 namespace SmartPOS.WPF.ViewModels;
 
@@ -20,11 +21,14 @@ public partial class CatalogViewModel : ObservableObject
     private readonly NavigationService _navigationService;
     private readonly IInventorySyncService _inventorySyncService;
 
+    private readonly IInventorySyncLogRepository _syncLogRepository;
+
     private List<ProductDto> _allProducts = new();
 
     [ObservableProperty] private bool _isLoading;
     [ObservableProperty] private string _errorMessage = string.Empty;
     [ObservableProperty] private string _successMessage = string.Empty;
+    [ObservableProperty] private string _lastSyncedText = string.Empty;
     [ObservableProperty] private ObservableCollection<CategoryDto> _categories = new();
     [ObservableProperty] private ObservableCollection<ProductDto> _filteredProducts = new();
     [ObservableProperty] private CategoryDto? _selectedCategory;
@@ -39,6 +43,7 @@ public partial class CatalogViewModel : ObservableObject
     [ObservableProperty] private string? _newProductImagePath;
 
     [ObservableProperty] private decimal _updatedPrice;
+    [ObservableProperty] private int _updatedStock;
 
     [ObservableProperty] private bool _isAddProductVisible;
     [ObservableProperty] private bool _isSyncing;
@@ -46,6 +51,7 @@ public partial class CatalogViewModel : ObservableObject
     [ObservableProperty] private string _searchQuery = string.Empty;
     [ObservableProperty] private string _categoryFilter = "Tất cả";
     [ObservableProperty] private string _statusFilter = "Tất cả";
+    [ObservableProperty] private bool _showNavigation = true;
 
     public int FilteredCount => FilteredProducts.Count;
 
@@ -53,12 +59,13 @@ public partial class CatalogViewModel : ObservableObject
 
     [ObservableProperty] private List<string> _categoryFilterOptions = new() { "Tất cả" };
 
-    public CatalogViewModel(ICatalogService catalogService, CurrentSessionContext session, NavigationService navigationService, IInventorySyncService inventorySyncService)
+    public CatalogViewModel(ICatalogService catalogService, CurrentSessionContext session, NavigationService navigationService, IInventorySyncService inventorySyncService, IInventorySyncLogRepository syncLogRepository)
     {
         _catalogService = catalogService;
         _session = session;
         _navigationService = navigationService;
         _inventorySyncService = inventorySyncService;
+        _syncLogRepository = syncLogRepository;
     }
 
     partial void OnSearchQueryChanged(string value) => ApplyFilter();
@@ -67,6 +74,15 @@ public partial class CatalogViewModel : ObservableObject
 
     [RelayCommand]
     private void NavigateToSales() => _navigationService.NavigateTo<SalesViewModel>();
+
+    [RelayCommand]
+    private void NavigateToCustomer() => _navigationService.NavigateTo<CustomerViewModel>();
+
+    [RelayCommand]
+    private void NavigateToSync() => _navigationService.NavigateTo<SyncViewModel>();
+
+    [RelayCommand]
+    private void NavigateToReport() => _navigationService.NavigateTo<ReportViewModel>();
 
     [RelayCommand]
     private void ToggleAddProduct() => IsAddProductVisible = !IsAddProductVisible;
@@ -119,6 +135,18 @@ public partial class CatalogViewModel : ObservableObject
 
             SyncStatus = (catalogResult.Message ?? string.Empty) + stockMsg;
             SuccessMessage = "Đồng bộ hoàn tất!";
+            LastSyncedText = $"Last synced: {DateTime.Now:dd/MM/yyyy HH:mm}";
+
+            // Tự động ẩn thông báo sau 8 giây
+            _ = Task.Run(async () =>
+            {
+                await Task.Delay(8000);
+                App.Current.Dispatcher.Invoke(() =>
+                {
+                    SyncStatus = string.Empty;
+                    SuccessMessage = string.Empty;
+                });
+            });
         }
         catch (Exception ex)
         {
@@ -144,6 +172,16 @@ public partial class CatalogViewModel : ObservableObject
             var products = await _catalogService.GetProductsAsync();
             _allProducts = products.ToList();
             ApplyFilter();
+
+            var lastSync = await _syncLogRepository.GetLatestAsync("CATALOG");
+            if (lastSync != null)
+            {
+                LastSyncedText = $"Last synced: {lastSync.SyncedAt.ToLocalTime():dd/MM/yyyy HH:mm}";
+            }
+            else
+            {
+                LastSyncedText = "Last synced: Chưa từng đồng bộ";
+            }
         }
         catch (Exception ex)
         {
@@ -209,7 +247,80 @@ public partial class CatalogViewModel : ObservableObject
     [RelayCommand]
     private async Task AddProduct()
     {
-        if (string.IsNullOrWhiteSpace(NewProductName) || SelectedCategory == null) return;
+        if (string.IsNullOrWhiteSpace(NewProductName))
+        {
+            ErrorMessage = "Tên sản phẩm là bắt buộc.";
+            return;
+        }
+
+        if (SelectedCategory == null)
+        {
+            ErrorMessage = "Vui lòng chọn danh mục.";
+            return;
+        }
+
+        if (NewProductName.Length > 255)
+        {
+            ErrorMessage = "Tên sản phẩm không được vượt quá 255 ký tự.";
+            return;
+        }
+
+        if (string.IsNullOrWhiteSpace(NewProductSku))
+        {
+            ErrorMessage = "Mã SKU là bắt buộc.";
+            return;
+        }
+
+        if (NewProductSku.Length > 50)
+        {
+            ErrorMessage = "Mã SKU không được vượt quá 50 ký tự.";
+            return;
+        }
+
+        if (NewProductSku.Contains(" "))
+        {
+            ErrorMessage = "Mã SKU không được chứa khoảng trắng.";
+            return;
+        }
+
+        if (!string.IsNullOrWhiteSpace(NewProductBarcode))
+        {
+            if (NewProductBarcode.Length > 50)
+            {
+                ErrorMessage = "Barcode không được vượt quá 50 ký tự.";
+                return;
+            }
+
+            if (!NewProductBarcode.All(char.IsDigit))
+            {
+                ErrorMessage = "Barcode chỉ được chứa chữ số.";
+                return;
+            }
+        }
+
+        if (NewProductPrice < 0)
+        {
+            ErrorMessage = "Giá sản phẩm không được âm.";
+            return;
+        }
+
+        if (NewProductPrice > 1_000_000_000)
+        {
+            ErrorMessage = "Giá sản phẩm không hợp lý (vượt quá 1 tỷ).";
+            return;
+        }
+
+        if (NewProductStock < 0)
+        {
+            ErrorMessage = "Số lượng tồn kho ban đầu không được âm.";
+            return;
+        }
+
+        if (NewProductStock > 100_000)
+        {
+            ErrorMessage = "Số lượng tồn kho không được vượt quá 100,000.";
+            return;
+        }
 
         ErrorMessage = string.Empty;
         SuccessMessage = string.Empty;
@@ -251,10 +362,11 @@ public partial class CatalogViewModel : ObservableObject
     {
         SelectedProduct = product;
         UpdatedPrice = product.UnitPrice;
+        UpdatedStock = product.LocalStockQuantity;
     }
 
     [RelayCommand]
-    private async Task UpdatePrice()
+    private async Task UpdateProductInfo()
     {
         if (SelectedProduct == null) return;
 
@@ -263,19 +375,35 @@ public partial class CatalogViewModel : ObservableObject
         try
         {
             var userId = _session.RequireUserId();
-            var dto = new UpdatePriceDto(SelectedProduct.Id, UpdatedPrice);
-            var updated = await _catalogService.UpdatePriceAsync(dto, userId);
+            ProductDto updated = SelectedProduct;
 
-            var index = _allProducts.FindIndex(p => p.Id == updated.Id);
-            if (index >= 0)
+            bool priceChanged = UpdatedPrice != SelectedProduct.UnitPrice;
+            bool stockChanged = UpdatedStock != SelectedProduct.LocalStockQuantity;
+
+            if (priceChanged)
             {
-                updated.CategoryName = _allProducts[index].CategoryName;
-                updated.IsActive = _allProducts[index].IsActive;
-                _allProducts[index] = updated;
+                var dto = new UpdatePriceDto(SelectedProduct.Id, UpdatedPrice);
+                updated = await _catalogService.UpdatePriceAsync(dto, userId);
             }
-            ApplyFilter();
-            SuccessMessage = $"Đã cập nhật giá thành {UpdatedPrice:N0} VND!";
-            SelectedProduct = null;
+
+            if (stockChanged)
+            {
+                updated = await _catalogService.UpdateStockAsync(SelectedProduct.Id, UpdatedStock, userId);
+            }
+
+            if (priceChanged || stockChanged)
+            {
+                var index = _allProducts.FindIndex(p => p.Id == updated.Id);
+                if (index >= 0)
+                {
+                    updated.CategoryName = _allProducts[index].CategoryName;
+                    updated.IsActive = _allProducts[index].IsActive;
+                    _allProducts[index] = updated;
+                }
+                ApplyFilter();
+                SuccessMessage = $"Đã cập nhật thông tin sản phẩm '{updated.Name}' thành công!";
+                SelectedProduct = null;
+            }
         }
         catch (BusinessException ex)
         {
@@ -324,6 +452,37 @@ public partial class CatalogViewModel : ObservableObject
             ApplyFilter();
             if (SelectedProduct?.Id == target.Id) SelectedProduct = null;
             SuccessMessage = $"Đã kinh doanh lại sản phẩm '{target.Name}'.";
+        }
+        catch (BusinessException ex)
+        {
+            ErrorMessage = ex.Message;
+        }
+    }
+
+    [RelayCommand]
+    private async Task DeleteProduct(ProductDto? product = null)
+    {
+        var target = product ?? SelectedProduct;
+        if (target == null) return;
+
+        var result = System.Windows.MessageBox.Show(
+            $"Bạn có chắc chắn muốn xóa sản phẩm '{target.Name}' không?",
+            "Xác nhận xóa",
+            System.Windows.MessageBoxButton.YesNo,
+            System.Windows.MessageBoxImage.Warning);
+
+        if (result != System.Windows.MessageBoxResult.Yes) return;
+
+        ErrorMessage = string.Empty;
+        SuccessMessage = string.Empty;
+        try
+        {
+            var userId = _session.RequireUserId();
+            await _catalogService.DeleteProductAsync(target.Id, userId);
+            _allProducts.RemoveAll(p => p.Id == target.Id);
+            ApplyFilter();
+            if (SelectedProduct?.Id == target.Id) SelectedProduct = null;
+            SuccessMessage = $"Đã xóa sản phẩm '{target.Name}'.";
         }
         catch (BusinessException ex)
         {

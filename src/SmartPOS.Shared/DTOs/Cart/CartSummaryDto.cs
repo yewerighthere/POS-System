@@ -10,5 +10,6 @@ public class CartSummaryDto {
     public int PointsUsed { get; set; }
     public decimal TaxAmount { get; set; } 
     public decimal TotalAmount { get; set; } 
+    public SmartPOS.Shared.DTOs.Promotion.PromotionDto? AppliedPromotion { get; set; }
 }
 

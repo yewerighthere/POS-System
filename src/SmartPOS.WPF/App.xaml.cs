@@ -73,6 +73,7 @@ public partial class App : Application
         services.AddTransient<ICatalogService, CatalogService>();
         services.AddTransient<IReportService, ReportService>();
         services.AddTransient<IAuditService, AuditService>();
+        services.AddTransient<IDashboardService, DashboardService>();
         services.AddHttpClient<IInventorySyncService, InventorySyncService>(client =>
         {
             client.BaseAddress = new Uri(configuration["InventoryManager:BaseUrl"] ?? "http://localhost:5145");
@@ -93,7 +94,16 @@ public partial class App : Application
         services.AddTransient<AuditLogViewModel>();
         services.AddTransient<SyncViewModel>();
         services.AddTransient<UserManagementViewModel>();
-        services.AddTransient<LoginView>();
+        services.AddTransient<DashboardViewModel>();
+        services.AddTransient<DashboardView>();
+        services.AddTransient<DashboardCatalogPromoViewModel>();
+        services.AddTransient<DashboardCatalogPromoView>();
+        services.AddTransient<DashboardUserStaffViewModel>();
+        services.AddTransient<DashboardUserStaffView>();
+        services.AddTransient<DashboardInventoryViewModel>();
+        services.AddTransient<DashboardInventoryView>();
+        services.AddTransient<DashboardReportViewModel>();
+        services.AddTransient<DashboardReportView>();
         services.AddTransient<ShiftView>();
         services.AddTransient<SalesView>();
         services.AddTransient<PaymentView>();
@@ -106,6 +116,7 @@ public partial class App : Application
         services.AddTransient<AuditLogView>();
         services.AddTransient<SyncView>();
         services.AddTransient<UserManagementView>();
+        services.AddTransient<LoginView>();
         services.AddTransient<MainWindow>();
         _serviceProvider = services.BuildServiceProvider();
         using (var scope = _serviceProvider.CreateScope())
