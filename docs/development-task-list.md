@@ -150,15 +150,15 @@ Liên quan: F-09.
 
 Liên quan: F-04, F-12.
 
-- [ ] TASK-0901: Implement `IPromotionRepository`.
-- [ ] TASK-0902: Implement kiểm tra mã khuyến mãi.
-- [ ] TASK-0903: Kiểm tra ngày hiệu lực.
-- [ ] TASK-0904: Kiểm tra giá trị đơn hàng tối thiểu.
-- [ ] TASK-0905: Kiểm tra sản phẩm áp dụng nếu có.
-- [ ] TASK-0906: Implement ngưỡng cần Manager/Admin phê duyệt.
-- [ ] TASK-0907: Chỉ cho áp dụng một khuyến mãi trong một đơn.
-- [ ] TASK-0908: Implement `PromotionViewModel`.
-- [ ] TASK-0909: Viết test promotion hợp lệ, hết hạn, không đủ điều kiện, cần phê duyệt.
+- [x] TASK-0901: Implement `IPromotionRepository`. 18 methods.
+- [x] TASK-0902: Implement kiem tra ma khuyen mai. ValidateCodeAsync.
+- [x] TASK-0903: Kiem tra ngay hieu luc.
+- [x] TASK-0904: Kiem tra gia tri don hang toi thieu.
+- [x] TASK-0905: Kiem tra san pham ap dung neu co.
+- [x] TASK-0906: Implement nguong can Manager/Admin phe duyet. RequestApprovalAsync.
+- [x] TASK-0907: Chi cho ap dung mot khuyen mai trong mot don. ApplyPromotionAsync.
+- [x] TASK-0908: Implement `PromotionViewModel`. Full CRUD, PromotionView 338 lines.
+- [x] TASK-0909: Viet test promotion. PromotionServiceTests.
 
 ## Phase 10 - Return Và Refund
 
@@ -201,7 +201,7 @@ Liên quan: F-15.
 - [ ] TASK-1205: Implement `IReportService.GetSalesReportAsync`.
 - [x] TASK-1206: Implement `ReportViewModel`.
 - [ ] TASK-1207: Implement `AuditLogViewModel`.
-- [ ] TASK-1208: Viết test report ca, report doanh thu, ghi audit log.
+- [x] TASK-1208: Viết test report ca, report doanh thu, ghi audit log. ✅ ReportServiceTests 7 tests (valid shift, not found, revenue, cash/vnpay split, top products, order log, empty shift).
 
 ## Phase 13 - UI Polish Và Demo Flow
 
@@ -219,6 +219,20 @@ Liên quan: F-15.
 ## Phase 14 - Theme System (CSS to WPF)
 
 - [x] TASK-1401 đến TASK-1420: Đã hoàn thành toàn bộ hệ thống theme trung tâm. 13 file XAML trong `Themes/`, đăng ký trong `App.xaml`, refactor 9 view (Login, Shift, Sales, Payment, Catalog, Customer, Report, Sync, Invoice). Màu primary chuyển sang `#0062FF`. Build pass 0 lỗi. Docs đã cập nhật.
+
+## Phase 15 - Dashboard (Admin/Manager)
+
+Liên quan: F-16.
+
+- [x] TASK-1501: Tạo `IDashboardService` và `DashboardService` (GetOverviewAsync trả `DashboardOverviewDto`).
+- [x] TASK-1502: Tạo `DashboardOverviewDto` (TodayRevenue, TotalOrders, NewCustomers, InventoryAlerts, Revenue7Days, TopCategories, RecentTransactions, ActivePromotions).
+- [x] TASK-1503: Tạo `DashboardViewModel` (overview data + navigate to 4 sub-dashboards + logout).
+- [x] TASK-1504: Tạo `DashboardView.xaml` (main dashboard layout).
+- [x] TASK-1505: Tạo `DashboardCatalogPromoViewModel` + `DashboardCatalogPromoView.xaml`.
+- [x] TASK-1506: Tạo `DashboardInventoryViewModel` + `DashboardInventoryView.xaml`.
+- [x] TASK-1507: Tạo `DashboardReportViewModel` + `DashboardReportView.xaml`.
+- [x] TASK-1508: Tạo `DashboardUserStaffViewModel` + `DashboardUserStaffView.xaml`.
+- [x] TASK-1509: Đăng ký DI trong `App.xaml.cs` (IDashboardService, DashboardViewModel, 4 sub-ViewModels, 5 Views).
 
 ## Definition Of Done
 

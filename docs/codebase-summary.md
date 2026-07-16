@@ -332,7 +332,7 @@ Tập trung kiểm thử Service:
 
 Dùng xUnit, Moq và FluentAssertions.
 
-Hiện test suite có 44 test thật + 2 placeholder (Promotion, Return chỉ `Assert.True(true)`). Chạy:
+Hiện test suite có **51 test thật** + 1 placeholder (ReturnServiceTests). Chạy:
 `dotnet test tests/SmartPOS.Tests/SmartPOS.Tests.csproj --no-build`.
 
 ## Cấu hình chính
