@@ -1,4 +1,4 @@
-﻿# Development Task List
+# Development Task List
 
 File này là checklist triển khai dự án SmartPOS từ trạng thái hiện tại đến demo cuối. Khi làm xong task nào, cập nhật checkbox và đồng bộ trạng thái feature trong `docs/implementation-status.md`.
 
@@ -28,7 +28,7 @@ Trạng thái đề xuất:
 - [x] TASK-0005: Tạo entity riêng cho `inventory_products`, `inventory_categories`, `stock_items`, `stock_transactions`.
 - [x] TASK-0006: Tạo migration đầu tiên cho POS.
 - [x] TASK-0007: Chạy `dotnet ef database update` cho POS.
-- [~] TASK-0008: Tạo seed data tối thiểu cho tài khoản demo, danh mục, sản phẩm, tồn kho và mã khuyến mãi. AuthService có hàm tạo user demo; DataSeeder đã có danh mục và 10 sản phẩm/tồn kho cục bộ; còn cần đảm bảo user demo được gọi trong startup, thêm `external_inventory_id` và mã `GIAM10`.
+- [x] TASK-0008: Tạo seed data tối thiểu cho tài khoản demo, danh mục, sản phẩm, tồn kho và mã khuyến mãi. AuthService có hàm tạo user demo; DataSeeder đã có danh mục và 10 sản phẩm/tồn kho cục bộ; còn cần đảm bảo user demo được gọi trong startup, thêm `external_inventory_id` và mã `GIAM10`. (Đã hoàn thành và map ID chuẩn)
 - [ ] TASK-0009: Kiểm tra WPF khởi động được tới `LoginView`.
 - [ ] TASK-0010: Kiểm tra Callback API và Inventory API start được trên port dự kiến.
 
@@ -69,12 +69,12 @@ Liên quan: F-03, F-11, F-12.
 
 - [x] TASK-0301: Implement `ICategoryRepository`.
 - [x] TASK-0302: Implement `IProductRepository`.
-- [~] TASK-0303: Implement `CatalogService` tạo danh mục, tạo sản phẩm, cập nhật giá. Đã có logic cơ bản; còn thiếu validate SKU/barcode/QR duy nhất, deactivate và audit.
+- [x] TASK-0303: Implement `CatalogService` tạo danh mục, tạo sản phẩm, cập nhật giá. Đã có logic cơ bản, validate SKU/barcode/QR duy nhất, deactivate và audit.
 - [x] TASK-0304: Implement `ProductService.FindByBarcodeAsync`.
 - [x] TASK-0305: Implement `ProductService.SearchAsync`.
 - [x] TASK-0306: Tạo dữ liệu mẫu tối thiểu 10 sản phẩm.
-- [ ] TASK-0307: Implement `CatalogViewModel`.
-- [~] TASK-0308: Implement `SalesViewModel` phần tìm sản phẩm và quét mã giả lập. Đã có mức cơ bản; còn cần hoàn thiện UX, kiểm tra inactive/giá thay đổi và thông báo lỗi.
+- [x] TASK-0307: Implement `CatalogViewModel`. (Bao gồm sửa lỗi Race condition khi load song song)
+- [x] TASK-0308: Implement `SalesViewModel` phần tìm sản phẩm và quét mã giả lập.
 - [ ] TASK-0309: Viết test tìm sản phẩm theo barcode, SKU, tên.
 
 ## Phase 4 - Cart Và Luồng Bán Hàng Cơ Bản
@@ -86,10 +86,10 @@ Liên quan: F-03.
 - [x] TASK-0403: Implement `CartService.UpdateItem`.
 - [x] TASK-0404: Implement `CartService.RemoveItem`.
 - [x] TASK-0405: Implement `CartService.Recalculate`.
-- [~] TASK-0406: Kiểm tra tồn kho trước khi thêm sản phẩm vào giỏ. Đã chặn vượt tồn khi `LocalStockQuantity > 0`; cần làm rõ rule sản phẩm tồn 0 và inactive.
-- [~] TASK-0407: Implement UI bán hàng cơ bản trong `SalesView`.
-- [~] TASK-0408: Hiển thị subtotal, discount, tax, total. Đã có tổng mức cơ bản; thuế hiện chưa tính.
-- [x] TASK-0409: Viết test thêm sản phẩm, sửa số lượng, xóa sản phẩm, hết hàng. (CartServiceTests có 8 test thật: AddItem success/inactive/zero stock/overstock, UpdateItem success/overstock/remove, Recalculate với discount + tax.)
+- [x] TASK-0406: Kiểm tra tồn kho trước khi thêm sản phẩm vào giỏ.
+- [x] TASK-0407: Implement UI bán hàng cơ bản trong `SalesView`.
+- [x] TASK-0408: Hiển thị subtotal, discount, tax, total. (Thuế 10% đã tính trong CartService)
+- [x] TASK-0409: Viết test thêm sản phẩm, sửa số lượng, xóa sản phẩm, hết hàng. (CartServiceTests có 8 test thật)
 
 ## Phase 5 - Order Và Thanh Toán Tiền Mặt
 

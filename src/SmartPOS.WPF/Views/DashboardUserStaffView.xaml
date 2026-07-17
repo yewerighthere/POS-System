@@ -150,13 +150,8 @@
                 
                 <TextBlock Grid.Row="0" Text="Users &amp; Staff Management" FontSize="24" FontWeight="Bold" Foreground="#111827" Margin="0,0,0,16"/>
                 
-                <Border Grid.Row="1" Background="White" BorderBrush="#E5E7EB" BorderThickness="1" CornerRadius="8" Padding="24">
-                    <!-- TODO: CRUD UI for Users & Staff -->
-                    <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center">
-                        <TextBlock Text="👥" FontSize="48" HorizontalAlignment="Center" Foreground="#9CA3AF"/>
-                        <TextBlock Text="Users &amp; Staff CRUD" FontSize="18" FontWeight="SemiBold" Foreground="#4B5563" Margin="0,16,0,0" HorizontalAlignment="Center"/>
-                        <TextBlock Text="(Danh sách nhân viên/quản lý, Phân quyền, Thêm/Sửa/Xóa sẽ hiển thị ở đây)" FontSize="14" Foreground="#6B7280" Margin="0,8,0,0" HorizontalAlignment="Center"/>
-                    </StackPanel>
+                <Border Grid.Row="1" Background="White" BorderBrush="#E5E7EB" BorderThickness="1" CornerRadius="8" Padding="0">
+                    <local:UserManagementView DataContext="{Binding UserManagementVM}" Margin="0"/>
                 </Border>
             </Grid>
         </Grid>

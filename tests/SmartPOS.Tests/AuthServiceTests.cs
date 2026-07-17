@@ -201,6 +201,11 @@ public class AuthServiceTests
         {
             return Task.CompletedTask;
         }
+
+        public Task<System.Collections.Generic.IReadOnlyList<User>> GetAllAsync()
+        {
+            return Task.FromResult<System.Collections.Generic.IReadOnlyList<User>>(Users);
+        }
     }
 
     private sealed class FakeUserSessionRepository : IUserSessionRepository
