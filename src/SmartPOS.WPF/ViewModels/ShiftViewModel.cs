@@ -19,11 +19,14 @@ public partial class ShiftViewModel : ObservableObject
 
     [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(IsNotLoading))]
+    [NotifyPropertyChangedFor(nameof(CanCloseShift))]
     private bool _isLoading;
 
     [ObservableProperty] private string _errorMessage = string.Empty;
     [ObservableProperty] private decimal _openingCash;
-    [ObservableProperty] private decimal _closingCash;
+    [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(CanCloseShift))]
+    private decimal? _closingCash;
     [ObservableProperty] private bool _hasOpenShift;
     [ObservableProperty] private string _statusMessage = string.Empty;
     [ObservableProperty]
@@ -39,7 +42,8 @@ public partial class ShiftViewModel : ObservableObject
     [ObservableProperty] private string _currentDateDisplay = string.Empty;
     [ObservableProperty] private string _currentTimeDisplay = string.Empty;
 
-    public bool IsNotLoading => !IsLoading;
+    public bool IsNotLoading  => !IsLoading;
+    public bool CanCloseShift => !IsLoading && ClosingCash.HasValue;
 
     public ShiftViewModel(IShiftService shiftService, CurrentSessionContext session,
         ILogger<ShiftViewModel> logger, NavigationService navigation)
@@ -159,7 +163,7 @@ public partial class ShiftViewModel : ObservableObject
 
         try
         {
-            var closeDto = new CloseShiftDto(CurrentShift.Id, ClosingCash);
+            var closeDto = new CloseShiftDto(CurrentShift.Id, ClosingCash!.Value);
             await _shiftService.CloseShiftAsync(closeDto);
 
             LastSummary = await _shiftService.GetShiftSummaryAsync(CurrentShift.Id);

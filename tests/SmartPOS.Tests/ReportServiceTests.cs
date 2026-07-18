@@ -4,6 +4,7 @@ using Moq;
 using SmartPOS.Data.Entities;
 using SmartPOS.Data.Repositories.Interfaces;
 using SmartPOS.Services.Implementations;
+using SmartPOS.Services.Interfaces;
 using SmartPOS.Shared.DTOs.Report;
 using SmartPOS.Shared.Enums;
 using SmartPOS.Shared.Exceptions;
@@ -14,7 +15,7 @@ namespace SmartPOS.Tests;
 public class ReportServiceTests
 {
     private static ReportService CreateService(IShiftRepository shiftRepo, IOrderRepository orderRepo)
-        => new(NullLogger<ReportService>.Instance, shiftRepo, orderRepo);
+        => new(NullLogger<ReportService>.Instance, shiftRepo, orderRepo, Mock.Of<IAuditService>());
 
     // ── GetShiftReportAsync ──────────────────────────────────────────────────
 
@@ -239,5 +240,225 @@ public class ReportServiceTests
         result.Should().BeEmpty();
         shiftMock.Verify(r => r.GetTotalSalesAsync(It.IsAny<Guid>()), Times.Never);
         orderMock.Verify(r => r.GetOrderCountByShiftAsync(It.IsAny<Guid>()), Times.Never);
+    }
+
+    // ── GetSalesReportAsync ──────────────────────────────────────────────────
+
+    [Fact]
+    public async Task GetSalesReportAsync_NoOrdersInRange_ReturnsZeroTotals()
+    {
+        // Arrange
+        var filter = new SalesReportFilterDto(new DateTime(2024, 1, 1), new DateTime(2024, 1, 31));
+
+        var orderMock = new Mock<IOrderRepository>();
+        orderMock.Setup(r => r.GetOrdersByDateRangeAsync(filter.FromDate, filter.ToDate, It.IsAny<Guid?>(), It.IsAny<Guid?>(), It.IsAny<PaymentMethod?>()))
+                 .ReturnsAsync(new List<Order>());
+        orderMock.Setup(r => r.GetTopProductsByDateRangeAsync(filter.FromDate, filter.ToDate, 5, It.IsAny<Guid?>(), It.IsAny<Guid?>(), It.IsAny<PaymentMethod?>()))
+                 .ReturnsAsync(new List<TopProductDto>());
+
+        var service = CreateService(new Mock<IShiftRepository>().Object, orderMock.Object);
+
+        // Act
+        var result = await service.GetSalesReportAsync(filter);
+
+        // Assert
+        result.TotalRevenue.Should().Be(0);
+        result.TotalOrders.Should().Be(0);
+        result.TotalShifts.Should().Be(0);
+        result.OrderLog.Should().BeEmpty();
+        result.TopProducts.Should().BeEmpty();
+    }
+
+    [Fact]
+    public async Task GetSalesReportAsync_ReturnsCorrectAggregates()
+    {
+        // Arrange
+        var filter  = new SalesReportFilterDto(new DateTime(2024, 1, 1), new DateTime(2024, 1, 31));
+        var shiftId = Guid.NewGuid();
+
+        var orders = new List<Order>
+        {
+            new()
+            {
+                Id            = Guid.NewGuid(),
+                ShiftId       = shiftId,
+                Status        = OrderStatus.Confirmed,
+                PaymentMethod = PaymentMethod.Cash,
+                TotalAmount   = 100_000m,
+                DiscountAmount = 0m,
+                PointsDiscountAmount = 0m,
+                TaxAmount     = 10_000m,
+                PaymentStatus = PaymentStatus.Success,
+                CreatedAt     = new DateTime(2024, 1, 10, 9, 0, 0, DateTimeKind.Utc),
+                User          = new User { FullName = "Nguyen Van A" },
+                Items         = new List<OrderItem> { new() { Quantity = 2, ProductName = "Cà phê" } }
+            },
+            new()
+            {
+                Id            = Guid.NewGuid(),
+                ShiftId       = shiftId,
+                Status        = OrderStatus.Confirmed,
+                PaymentMethod = PaymentMethod.VNPay,
+                TotalAmount   = 200_000m,
+                DiscountAmount = 0m,
+                PointsDiscountAmount = 0m,
+                TaxAmount     = 20_000m,
+                PaymentStatus = PaymentStatus.Success,
+                CreatedAt     = new DateTime(2024, 1, 15, 10, 0, 0, DateTimeKind.Utc),
+                User          = new User { FullName = "Tran Thi B" },
+                Items         = new List<OrderItem> { new() { Quantity = 1, ProductName = "Trà sữa" } }
+            }
+        };
+
+        var orderMock = new Mock<IOrderRepository>();
+        orderMock.Setup(r => r.GetOrdersByDateRangeAsync(filter.FromDate, filter.ToDate, It.IsAny<Guid?>(), It.IsAny<Guid?>(), It.IsAny<PaymentMethod?>()))
+                 .ReturnsAsync(orders);
+        orderMock.Setup(r => r.GetTopProductsByDateRangeAsync(filter.FromDate, filter.ToDate, 5, It.IsAny<Guid?>(), It.IsAny<Guid?>(), It.IsAny<PaymentMethod?>()))
+                 .ReturnsAsync(new List<TopProductDto>());
+
+        var service = CreateService(new Mock<IShiftRepository>().Object, orderMock.Object);
+
+        // Act
+        var result = await service.GetSalesReportAsync(filter);
+
+        // Assert
+        result.TotalRevenue.Should().Be(300_000m);
+        result.TotalOrders.Should().Be(2);
+        result.TotalShifts.Should().Be(1);
+        result.TotalTax.Should().Be(30_000m);
+        result.OrderLog.Should().HaveCount(2);
+    }
+
+    [Fact]
+    public async Task GetSalesReportAsync_ExcludesCancelledOrdersFromAggregates()
+    {
+        // Arrange
+        var filter  = new SalesReportFilterDto(new DateTime(2024, 1, 1), new DateTime(2024, 1, 31));
+        var shiftId = Guid.NewGuid();
+
+        var orders = new List<Order>
+        {
+            new()
+            {
+                Id            = Guid.NewGuid(),
+                ShiftId       = shiftId,
+                Status        = OrderStatus.Confirmed,
+                PaymentMethod = PaymentMethod.Cash,
+                TotalAmount   = 150_000m,
+                DiscountAmount = 0m,
+                PointsDiscountAmount = 0m,
+                TaxAmount     = 0m,
+                PaymentStatus = PaymentStatus.Success,
+                CreatedAt     = new DateTime(2024, 1, 5, 8, 0, 0, DateTimeKind.Utc),
+                User          = new User { FullName = "A" },
+                Items         = new List<OrderItem>()
+            },
+            new()
+            {
+                Id            = Guid.NewGuid(),
+                ShiftId       = shiftId,
+                Status        = OrderStatus.Cancelled,
+                PaymentMethod = PaymentMethod.Cash,
+                TotalAmount   = 999_000m,
+                DiscountAmount = 0m,
+                PointsDiscountAmount = 0m,
+                TaxAmount     = 0m,
+                PaymentStatus = PaymentStatus.Success,
+                CreatedAt     = new DateTime(2024, 1, 6, 8, 0, 0, DateTimeKind.Utc),
+                User          = new User { FullName = "B" },
+                Items         = new List<OrderItem>()
+            }
+        };
+
+        var orderMock = new Mock<IOrderRepository>();
+        orderMock.Setup(r => r.GetOrdersByDateRangeAsync(filter.FromDate, filter.ToDate, It.IsAny<Guid?>(), It.IsAny<Guid?>(), It.IsAny<PaymentMethod?>()))
+                 .ReturnsAsync(orders);
+        orderMock.Setup(r => r.GetTopProductsByDateRangeAsync(filter.FromDate, filter.ToDate, 5, It.IsAny<Guid?>(), It.IsAny<Guid?>(), It.IsAny<PaymentMethod?>()))
+                 .ReturnsAsync(new List<TopProductDto>());
+
+        var service = CreateService(new Mock<IShiftRepository>().Object, orderMock.Object);
+
+        // Act
+        var result = await service.GetSalesReportAsync(filter);
+
+        // Assert
+        result.TotalRevenue.Should().Be(150_000m);
+        result.TotalOrders.Should().Be(1);
+        result.OrderLog.Should().HaveCount(2);  // all orders in log regardless of status
+    }
+
+    [Fact]
+    public async Task GetSalesReportAsync_SeparatesCashAndVNPayRevenue()
+    {
+        // Arrange
+        var filter = new SalesReportFilterDto(new DateTime(2024, 2, 1), new DateTime(2024, 2, 28));
+
+        var orders = new List<Order>
+        {
+            new()
+            {
+                Id            = Guid.NewGuid(),
+                ShiftId       = Guid.NewGuid(),
+                Status        = OrderStatus.Confirmed,
+                PaymentMethod = PaymentMethod.Cash,
+                TotalAmount   = 80_000m,
+                DiscountAmount = 0m,
+                PointsDiscountAmount = 0m,
+                TaxAmount     = 0m,
+                PaymentStatus = PaymentStatus.Success,
+                CreatedAt     = new DateTime(2024, 2, 5, 9, 0, 0, DateTimeKind.Utc),
+                User          = new User { FullName = "A" },
+                Items         = new List<OrderItem>()
+            },
+            new()
+            {
+                Id            = Guid.NewGuid(),
+                ShiftId       = Guid.NewGuid(),
+                Status        = OrderStatus.Confirmed,
+                PaymentMethod = PaymentMethod.VNPay,
+                TotalAmount   = 120_000m,
+                DiscountAmount = 0m,
+                PointsDiscountAmount = 0m,
+                TaxAmount     = 0m,
+                PaymentStatus = PaymentStatus.Success,
+                CreatedAt     = new DateTime(2024, 2, 10, 10, 0, 0, DateTimeKind.Utc),
+                User          = new User { FullName = "B" },
+                Items         = new List<OrderItem>()
+            }
+        };
+
+        var orderMock = new Mock<IOrderRepository>();
+        orderMock.Setup(r => r.GetOrdersByDateRangeAsync(filter.FromDate, filter.ToDate, It.IsAny<Guid?>(), It.IsAny<Guid?>(), It.IsAny<PaymentMethod?>()))
+                 .ReturnsAsync(orders);
+        orderMock.Setup(r => r.GetTopProductsByDateRangeAsync(filter.FromDate, filter.ToDate, 5, It.IsAny<Guid?>(), It.IsAny<Guid?>(), It.IsAny<PaymentMethod?>()))
+                 .ReturnsAsync(new List<TopProductDto>());
+
+        var service = CreateService(new Mock<IShiftRepository>().Object, orderMock.Object);
+
+        // Act
+        var result = await service.GetSalesReportAsync(filter);
+
+        // Assert
+        result.CashRevenue.Should().Be(80_000m);
+        result.VNPayRevenue.Should().Be(120_000m);
+        result.TotalRevenue.Should().Be(200_000m);
+    }
+
+    [Fact]
+    public async Task GetSalesReportAsync_InvalidDateRange_ThrowsBusinessException()
+    {
+        // Arrange
+        var filter = new SalesReportFilterDto(
+            new DateTime(2024, 1, 31),
+            new DateTime(2024, 1, 1));  // from > to
+
+        var service = CreateService(new Mock<IShiftRepository>().Object, new Mock<IOrderRepository>().Object);
+
+        // Act
+        var act = async () => await service.GetSalesReportAsync(filter);
+
+        // Assert
+        await act.Should().ThrowAsync<BusinessException>()
+            .WithMessage("*Ngày bắt đầu không được lớn hơn ngày kết thúc*");
     }
 }

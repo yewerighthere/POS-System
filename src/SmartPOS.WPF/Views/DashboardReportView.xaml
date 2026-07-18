@@ -300,6 +300,241 @@
                         <TextBlock FontSize="12" Foreground="{StaticResource TextSecondaryBrush}" Margin="0,0,0,20"
                                    Text="{Binding TotalShiftsCount, StringFormat='Data from last {0} shifts'}"/>
 
+                        <!-- ══ SALES DATE RANGE FILTER ══ -->
+                        <Border Style="{StaticResource ReportCardStyle}" Margin="0,0,0,16">
+                            <StackPanel>
+                                <TextBlock Text="Sales Date Range Report" FontSize="15" FontWeight="SemiBold"
+                                           Foreground="{StaticResource TextPrimaryBrush}" Margin="0,0,0,14"/>
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="Auto"/>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="16"/>
+                                        <ColumnDefinition Width="Auto"/>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="16"/>
+                                        <ColumnDefinition Width="Auto"/>
+                                    </Grid.ColumnDefinitions>
+                                    <TextBlock Grid.Column="0" Text="From" VerticalAlignment="Center"
+                                               FontSize="13" Foreground="{StaticResource TextSecondaryBrush}" Margin="0,0,10,0"/>
+                                    <DatePicker Grid.Column="1" SelectedDate="{Binding SalesFromDate}"
+                                                Padding="10,6" BorderBrush="#E2E8F0" BorderThickness="1" FontSize="13"/>
+                                    <TextBlock Grid.Column="3" Text="To" VerticalAlignment="Center"
+                                               FontSize="13" Foreground="{StaticResource TextSecondaryBrush}" Margin="0,0,10,0"/>
+                                    <DatePicker Grid.Column="4" SelectedDate="{Binding SalesToDate}"
+                                                Padding="10,6" BorderBrush="#E2E8F0" BorderThickness="1" FontSize="13"/>
+                                    <Button Grid.Column="6" Content="Generate Report"
+                                            Command="{Binding GenerateSalesReportCommand}"
+                                            Background="{StaticResource PrimaryBrush}" Foreground="White"
+                                            Padding="16,8" BorderThickness="0" Cursor="Hand" FontWeight="SemiBold"/>
+                                </Grid>
+
+                                <!-- Filter row 2: Staff / Payment Method -->
+                                <Grid Margin="0,10,0,0">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="Auto"/>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="16"/>
+                                        <ColumnDefinition Width="Auto"/>
+                                        <ColumnDefinition Width="150"/>
+                                    </Grid.ColumnDefinitions>
+                                    <TextBlock Grid.Column="0" Text="Nhân viên" VerticalAlignment="Center"
+                                               FontSize="13" Foreground="{StaticResource TextSecondaryBrush}" Margin="0,0,10,0"/>
+                                    <ComboBox Grid.Column="1"
+                                              ItemsSource="{Binding StaffList}"
+                                              SelectedItem="{Binding SelectedStaff}"
+                                              DisplayMemberPath="FullName"
+                                              Padding="10,6" FontSize="13" BorderBrush="#E2E8F0" BorderThickness="1"/>
+                                    <TextBlock Grid.Column="3" Text="Thanh toán" VerticalAlignment="Center"
+                                               FontSize="13" Foreground="{StaticResource TextSecondaryBrush}" Margin="0,0,10,0"/>
+                                    <ComboBox Grid.Column="4"
+                                              ItemsSource="{Binding PaymentMethodOptions}"
+                                              SelectedItem="{Binding SelectedPaymentMethodFilter}"
+                                              Padding="10,6" FontSize="13" BorderBrush="#E2E8F0" BorderThickness="1"/>
+                                </Grid>
+
+                                <Border Background="#EFF6FF" Padding="12,8" Margin="0,12,0,0" CornerRadius="6"
+                                        Visibility="{Binding IsSalesReportLoading, Converter={StaticResource BoolToVisibility}}">
+                                    <TextBlock Text="⏳  Generating report..." FontSize="13" Foreground="#1D4ED8"/>
+                                </Border>
+                                <Border Background="#FEE2E2" Padding="12,8" Margin="0,8,0,0" CornerRadius="6"
+                                        Visibility="{Binding SalesReportError, Converter={StaticResource StringToVisibility}}">
+                                    <TextBlock Text="{Binding SalesReportError}" FontSize="13"
+                                               Foreground="{StaticResource DangerBrush}" TextWrapping="Wrap"/>
+                                </Border>
+                            </StackPanel>
+                        </Border>
+
+                        <!-- ══ SALES REPORT RESULTS ══ -->
+                        <StackPanel Visibility="{Binding SalesReport, Converter={StaticResource NullToVisibility}}"
+                                    Margin="0,0,0,20">
+
+                            <!-- 4 Summary Cards -->
+                            <Grid Margin="0,0,0,16">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="12"/>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="12"/>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="12"/>
+                                    <ColumnDefinition Width="*"/>
+                                </Grid.ColumnDefinitions>
+
+                                <Border Grid.Column="0" Style="{StaticResource ReportCardStyle}">
+                                    <StackPanel>
+                                        <TextBlock Text="TOTAL REVENUE" Style="{StaticResource TableHeaderStyle}" Margin="0,0,0,10"/>
+                                        <TextBlock FontSize="24" FontWeight="Bold" Foreground="{StaticResource PrimaryBrush}"
+                                                   Text="{Binding SalesReport.TotalRevenue, StringFormat='{}{0:N0} ₫'}"/>
+                                        <TextBlock FontSize="12" Foreground="{StaticResource TextSecondaryBrush}" Margin="0,6,0,0"
+                                                   Text="{Binding SalesReport.AverageTicket, StringFormat='Avg. ticket: {0:N0} ₫'}"/>
+                                    </StackPanel>
+                                </Border>
+
+                                <Border Grid.Column="2" Style="{StaticResource ReportCardStyle}">
+                                    <StackPanel>
+                                        <TextBlock Text="TOTAL ORDERS" Style="{StaticResource TableHeaderStyle}" Margin="0,0,0,10"/>
+                                        <StackPanel Orientation="Horizontal">
+                                            <TextBlock FontSize="24" FontWeight="Bold" Foreground="{StaticResource PrimaryBrush}"
+                                                       Text="{Binding SalesReport.TotalOrders}"/>
+                                            <TextBlock Text=" transactions" FontSize="13" Foreground="{StaticResource TextSecondaryBrush}"
+                                                       VerticalAlignment="Bottom" Margin="4,0,0,3"/>
+                                        </StackPanel>
+                                        <TextBlock FontSize="12" Foreground="{StaticResource TextSecondaryBrush}" Margin="0,6,0,0"
+                                                   Text="{Binding SalesReport.TotalShifts, StringFormat='{}{0} shifts'}"/>
+                                    </StackPanel>
+                                </Border>
+
+                                <Border Grid.Column="4" Style="{StaticResource ReportCardStyle}">
+                                    <StackPanel>
+                                        <TextBlock Text="CASH VS VNPAY" Style="{StaticResource TableHeaderStyle}" Margin="0,0,0,10"/>
+                                        <Grid Height="28" Margin="0,0,0,8">
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="{Binding SalesCashPercent, Converter={StaticResource PercentToGridLength}, Mode=OneWay}"/>
+                                                <ColumnDefinition Width="{Binding SalesVNPayPercent, Converter={StaticResource PercentToGridLength}, Mode=OneWay}"/>
+                                            </Grid.ColumnDefinitions>
+                                            <Border Grid.Column="0" Background="#00288E" CornerRadius="6,0,0,6">
+                                                <TextBlock Text="{Binding SalesCashPercent, StringFormat='{}{0:F0}%'}"
+                                                           FontSize="11" FontWeight="Bold" Foreground="White"
+                                                           HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                            </Border>
+                                            <Border Grid.Column="1" Background="#93C5FD" CornerRadius="0,6,6,0">
+                                                <TextBlock Text="{Binding SalesVNPayPercent, StringFormat='{}{0:F0}%'}"
+                                                           FontSize="11" FontWeight="Bold" Foreground="#1E3A8A"
+                                                           HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                            </Border>
+                                        </Grid>
+                                        <StackPanel Orientation="Horizontal">
+                                            <Ellipse Width="8" Height="8" Fill="#00288E" Margin="0,0,6,0" VerticalAlignment="Center"/>
+                                            <TextBlock Text="Cash" FontSize="11" Foreground="{StaticResource TextSecondaryBrush}" Margin="0,0,12,0"/>
+                                            <Ellipse Width="8" Height="8" Fill="#93C5FD" Margin="0,0,6,0" VerticalAlignment="Center"/>
+                                            <TextBlock Text="VNPay" FontSize="11" Foreground="{StaticResource TextSecondaryBrush}"/>
+                                        </StackPanel>
+                                    </StackPanel>
+                                </Border>
+
+                                <Border Grid.Column="6" Style="{StaticResource ReportCardStyle}">
+                                    <StackPanel>
+                                        <TextBlock Text="DISCOUNT &amp; TAX" Style="{StaticResource TableHeaderStyle}" Margin="0,0,0,10"/>
+                                        <TextBlock FontSize="16" FontWeight="Bold" Foreground="{StaticResource DangerBrush}"
+                                                   Text="{Binding SalesReport.TotalDiscount, StringFormat='- {0:N0} ₫'}"/>
+                                        <TextBlock FontSize="12" Foreground="{StaticResource TextSecondaryBrush}" Margin="0,6,0,0"
+                                                   Text="{Binding SalesReport.TotalTax, StringFormat='Tax: {0:N0} ₫'}"/>
+                                    </StackPanel>
+                                </Border>
+                            </Grid>
+
+                            <!-- Order Log + Top Products -->
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="16"/>
+                                    <ColumnDefinition Width="280"/>
+                                </Grid.ColumnDefinitions>
+
+                                <Border Grid.Column="0" Style="{StaticResource ReportCardStyle}">
+                                    <StackPanel>
+                                        <TextBlock Text="Order Log" FontSize="15" FontWeight="SemiBold"
+                                                   Foreground="{StaticResource TextPrimaryBrush}" Margin="0,0,0,12"/>
+                                        <Grid Margin="0,0,0,8">
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="120*"/>
+                                                <ColumnDefinition Width="100*"/>
+                                                <ColumnDefinition Width="90*"/>
+                                                <ColumnDefinition Width="130*"/>
+                                                <ColumnDefinition Width="80*"/>
+                                            </Grid.ColumnDefinitions>
+                                            <TextBlock Grid.Column="0" Text="TIME"    Style="{StaticResource TableHeaderStyle}"/>
+                                            <TextBlock Grid.Column="1" Text="STAFF"   Style="{StaticResource TableHeaderStyle}"/>
+                                            <TextBlock Grid.Column="2" Text="AMOUNT"  Style="{StaticResource TableHeaderStyle}"/>
+                                            <TextBlock Grid.Column="3" Text="PAYMENT" Style="{StaticResource TableHeaderStyle}"/>
+                                            <TextBlock Grid.Column="4" Text="STATUS"  Style="{StaticResource TableHeaderStyle}"/>
+                                        </Grid>
+                                        <Rectangle Height="1" Fill="{StaticResource CardBorderBrush}" Margin="0,0,0,8"/>
+                                        <ItemsControl ItemsSource="{Binding SalesOrderLog}">
+                                            <ItemsControl.ItemTemplate>
+                                                <DataTemplate>
+                                                    <StackPanel>
+                                                        <Grid Margin="0,10,0,10">
+                                                            <Grid.ColumnDefinitions>
+                                                                <ColumnDefinition Width="120*"/>
+                                                                <ColumnDefinition Width="100*"/>
+                                                                <ColumnDefinition Width="90*"/>
+                                                                <ColumnDefinition Width="130*"/>
+                                                                <ColumnDefinition Width="80*"/>
+                                                            </Grid.ColumnDefinitions>
+                                                            <TextBlock Grid.Column="0" Style="{StaticResource TableCellStyle}" FontSize="12"
+                                                                       Text="{Binding CreatedAt, StringFormat='{}{0:dd/MM HH:mm}'}"/>
+                                                            <TextBlock Grid.Column="1" Style="{StaticResource TableCellStyle}" FontSize="12"
+                                                                       Text="{Binding StaffName}" TextTrimming="CharacterEllipsis"/>
+                                                            <TextBlock Grid.Column="2" Style="{StaticResource TableCellStyle}" FontSize="12" FontWeight="SemiBold"
+                                                                       Text="{Binding TotalAmount, StringFormat='{}{0:N0} ₫'}"/>
+                                                            <TextBlock Grid.Column="3" Style="{StaticResource TableCellStyle}" FontSize="12"
+                                                                       Text="{Binding PaymentMethod}"/>
+                                                            <TextBlock Grid.Column="4" Style="{StaticResource TableCellStyle}" FontSize="12"
+                                                                       Text="{Binding PaymentStatus}"/>
+                                                        </Grid>
+                                                        <Rectangle Height="1" Fill="{StaticResource CardBorderBrush}"/>
+                                                    </StackPanel>
+                                                </DataTemplate>
+                                            </ItemsControl.ItemTemplate>
+                                        </ItemsControl>
+                                    </StackPanel>
+                                </Border>
+
+                                <Border Grid.Column="2" Style="{StaticResource ReportCardStyle}">
+                                    <StackPanel>
+                                        <TextBlock Text="Top Products" FontSize="15" FontWeight="SemiBold"
+                                                   Foreground="{StaticResource TextPrimaryBrush}" Margin="0,0,0,4"/>
+                                        <TextBlock Text="Highest volume items" FontSize="12"
+                                                   Foreground="{StaticResource TextSecondaryBrush}" Margin="0,0,0,16"/>
+                                        <ItemsControl ItemsSource="{Binding SalesTopProducts}">
+                                            <ItemsControl.ItemTemplate>
+                                                <DataTemplate>
+                                                    <StackPanel Margin="0,0,0,14">
+                                                        <Grid Margin="0,0,0,6">
+                                                            <TextBlock FontSize="13" Foreground="{StaticResource TextPrimaryBrush}"
+                                                                       Text="{Binding ProductName}" TextTrimming="CharacterEllipsis"/>
+                                                            <TextBlock HorizontalAlignment="Right" FontSize="12" FontWeight="SemiBold"
+                                                                       Foreground="{StaticResource PrimaryBrush}"
+                                                                       Text="{Binding TotalSold, StringFormat='{}{0} sold'}"/>
+                                                        </Grid>
+                                                        <Grid Height="6" Background="#F1F5F9">
+                                                            <Grid.ColumnDefinitions>
+                                                                <ColumnDefinition Width="{Binding TotalSold, Converter={StaticResource PercentToGridLength}, Mode=OneWay}"/>
+                                                                <ColumnDefinition Width="*"/>
+                                                            </Grid.ColumnDefinitions>
+                                                            <Border Grid.Column="0" Background="{StaticResource PrimaryBrush}" CornerRadius="3"/>
+                                                        </Grid>
+                                                    </StackPanel>
+                                                </DataTemplate>
+                                            </ItemsControl.ItemTemplate>
+                                        </ItemsControl>
+                                    </StackPanel>
+                                </Border>
+                            </Grid>
+                        </StackPanel>
+
                         <!-- Empty state: no shift selected -->
                         <Border Style="{StaticResource ReportCardStyle}"
                                 Visibility="{Binding ShiftReport, Converter={StaticResource NullToVisibility}, ConverterParameter=inverse}">

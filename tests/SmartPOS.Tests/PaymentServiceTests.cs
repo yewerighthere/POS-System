@@ -26,7 +26,8 @@ public class PaymentServiceTests
         var syncMock = inventorySync ?? Mock.Of<IInventorySyncService>();
         var auditMock = auditService ?? Mock.Of<IAuditService>();
         var customerMock = customerService ?? Mock.Of<ICustomerService>();
-        return new PaymentService(orderRepo, syncMock, auditMock, customerMock, NullLogger<PaymentService>.Instance, invoiceService, configuration);
+        var invoiceMock = invoiceService ?? Mock.Of<IInvoiceService>();
+        return new PaymentService(orderRepo, syncMock, auditMock, customerMock, invoiceMock, NullLogger<PaymentService>.Instance, configuration);
     }
 
     private static IConfiguration BuildVNPayConfiguration() => new ConfigurationBuilder()
@@ -48,7 +49,10 @@ public class PaymentServiceTests
         IsLocked = isLocked,
         PaymentStatus = PaymentStatus.Pending,
         Status = OrderStatus.Draft,
-        Items = new List<OrderItem>()
+        Items = new List<OrderItem>
+        {
+            new() { Id = Guid.NewGuid(), ProductName = "Test Item", Quantity = 1, UnitPrice = total, Subtotal = total }
+        }
     };
 
     [Fact]
