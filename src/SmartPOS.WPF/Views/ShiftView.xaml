@@ -446,7 +446,8 @@
                             <Grid Margin="0,0,0,24">
                                 <TextBox Style="{StaticResource CashInputStyle}"
                                          Text="{Binding ClosingCash, Mode=TwoWay,
-                                                UpdateSourceTrigger=PropertyChanged}"/>
+                                                UpdateSourceTrigger=PropertyChanged,
+                                                TargetNullValue=''}"/>
                                 <TextBlock Text="₫" FontFamily="Consolas" FontSize="16"
                                            Foreground="{StaticResource TextMutedBrush}"
                                            VerticalAlignment="Center" Margin="14,0,0,0"
@@ -466,7 +467,7 @@
                             <Button Background="{StaticResource DangerBrush}"
                                     Style="{StaticResource ActionButtonStyle}"
                                     Command="{Binding CloseShiftCommand}"
-                                    IsEnabled="{Binding IsNotLoading}"
+                                    IsEnabled="{Binding CanCloseShift}"
                                     HorizontalAlignment="Stretch">
                                 <StackPanel Orientation="Horizontal">
                                     <TextBlock Text="🔒" FontSize="16" VerticalAlignment="Center"

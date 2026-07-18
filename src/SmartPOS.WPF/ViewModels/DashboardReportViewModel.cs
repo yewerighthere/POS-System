@@ -1,8 +1,11 @@
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Microsoft.Extensions.Logging;
+using SmartPOS.Data.Repositories.Interfaces;
 using SmartPOS.Services.Interfaces;
+using SmartPOS.Shared.DTOs.Auth;
 using SmartPOS.Shared.DTOs.Report;
+using SmartPOS.Shared.Enums;
 using SmartPOS.WPF.Navigation;
 using SmartPOS.WPF.Session;
 using System.Collections.ObjectModel;
@@ -12,12 +15,16 @@ namespace SmartPOS.WPF.ViewModels;
 public partial class DashboardReportViewModel : ObservableObject
 {
     private readonly IReportService _reportService;
+    private readonly IUserRepository _userRepository;
     private readonly ILogger<DashboardReportViewModel> _logger;
     private readonly NavigationService _navigationService;
     private readonly CurrentSessionContext _sessionContext;
 
     public string CurrentUserName => _sessionContext.CurrentUser?.Username ?? "Unknown";
     public string CurrentUserRole => _sessionContext.CurrentUser?.Role ?? "Unknown";
+
+    private bool IsManagerOrAdmin =>
+        CurrentUserRole is "Manager" or "Admin";
 
     [ObservableProperty] private bool _isLoading;
     [ObservableProperty] private string _errorMessage = string.Empty;
@@ -27,6 +34,20 @@ public partial class DashboardReportViewModel : ObservableObject
     [ObservableProperty] private ObservableCollection<OrderLogDto> _orderLog = new();
     [ObservableProperty] private ObservableCollection<TopProductDto> _topProducts = new();
 
+    [ObservableProperty] private DateTime _salesFromDate = DateTime.Today.AddDays(-7);
+    [ObservableProperty] private DateTime _salesToDate   = DateTime.Today;
+    [ObservableProperty] private SalesReportDto? _salesReport;
+    [ObservableProperty] private bool   _isSalesReportLoading;
+    [ObservableProperty] private string _salesReportError = string.Empty;
+    [ObservableProperty] private ObservableCollection<OrderLogDto>   _salesOrderLog    = new();
+    [ObservableProperty] private ObservableCollection<TopProductDto> _salesTopProducts = new();
+
+    [ObservableProperty] private ObservableCollection<UserDto> _staffList = new();
+    [ObservableProperty] private UserDto?         _selectedStaff;
+    [ObservableProperty] private string           _selectedPaymentMethodFilter = "Tất cả";
+
+    public IReadOnlyList<string> PaymentMethodOptions { get; } = ["Tất cả", "Tiền mặt", "VNPay"];
+
     public int MaxTopSold => TopProducts.Count > 0 ? TopProducts.Max(p => p.TotalSold) : 1;
 
     public double CashPercent => ShiftReport is { TotalSales: > 0 }
@@ -34,6 +55,12 @@ public partial class DashboardReportViewModel : ObservableObject
 
     public double VNPayPercent => ShiftReport is { TotalSales: > 0 }
         ? (double)(ShiftReport.VNPayRevenue / ShiftReport.TotalSales * 100) : 0;
+
+    public double SalesCashPercent => SalesReport is { TotalRevenue: > 0 }
+        ? (double)(SalesReport.CashRevenue / SalesReport.TotalRevenue * 100) : 0;
+
+    public double SalesVNPayPercent => SalesReport is { TotalRevenue: > 0 }
+        ? (double)(SalesReport.VNPayRevenue / SalesReport.TotalRevenue * 100) : 0;
 
     public decimal TotalRevenueAllShifts => RecentShifts.Sum(s => s.TotalRevenue);
     public int     TotalOrdersAllShifts  => RecentShifts.Sum(s => s.TotalOrders);
@@ -46,11 +73,13 @@ public partial class DashboardReportViewModel : ObservableObject
 
     public DashboardReportViewModel(
         IReportService reportService,
+        IUserRepository userRepository,
         ILogger<DashboardReportViewModel> logger,
         NavigationService navigationService,
         CurrentSessionContext sessionContext)
     {
         _reportService = reportService;
+        _userRepository = userRepository;
         _logger = logger;
         _navigationService = navigationService;
         _sessionContext = sessionContext;
@@ -59,6 +88,11 @@ public partial class DashboardReportViewModel : ObservableObject
     [RelayCommand]
     private async Task LoadShiftsAsync()
     {
+        if (!IsManagerOrAdmin)
+        {
+            ErrorMessage = "Bạn không có quyền xem báo cáo";
+            return;
+        }
         IsLoading = true;
         ErrorMessage = string.Empty;
         try
@@ -71,6 +105,17 @@ public partial class DashboardReportViewModel : ObservableObject
             OnPropertyChanged(nameof(TodayOrders));
             OnPropertyChanged(nameof(TotalShiftsCount));
             OnPropertyChanged(nameof(ActiveShiftsCount));
+
+            var users    = await _userRepository.GetAllAsync();
+            var allStaff = new UserDto { Id = Guid.Empty, FullName = "Tất cả nhân viên" };
+            StaffList = new ObservableCollection<UserDto>(
+                new[] { allStaff }.Concat(users.Select(u => new UserDto
+                {
+                    Id       = u.Id,
+                    FullName = u.FullName ?? u.Username,
+                    Role     = u.Role.ToString()
+                })));
+            SelectedStaff = allStaff;
         }
         catch (Exception ex)
         {
@@ -106,6 +151,46 @@ public partial class DashboardReportViewModel : ObservableObject
         finally
         {
             IsLoading = false;
+        }
+    }
+
+    [RelayCommand]
+    private async Task GenerateSalesReportAsync()
+    {
+        if (!IsManagerOrAdmin)
+        {
+            SalesReportError = "Bạn không có quyền xem báo cáo";
+            return;
+        }
+        IsSalesReportLoading = true;
+        SalesReportError = string.Empty;
+        try
+        {
+            var paymentMethod = SelectedPaymentMethodFilter switch
+            {
+                "Tiền mặt" => (PaymentMethod?)PaymentMethod.Cash,
+                "VNPay"    => (PaymentMethod?)PaymentMethod.VNPay,
+                _          => null
+            };
+            var staffId = SelectedStaff?.Id == Guid.Empty ? (Guid?)null : SelectedStaff?.Id;
+            var filter = new SalesReportFilterDto(
+                SalesFromDate, SalesToDate, staffId,
+                null, paymentMethod,
+                _sessionContext.CurrentUser?.UserId);
+            SalesReport      = await _reportService.GetSalesReportAsync(filter);
+            SalesOrderLog    = new ObservableCollection<OrderLogDto>(SalesReport.OrderLog);
+            SalesTopProducts = new ObservableCollection<TopProductDto>(SalesReport.TopProducts);
+            OnPropertyChanged(nameof(SalesCashPercent));
+            OnPropertyChanged(nameof(SalesVNPayPercent));
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Lỗi khi tạo báo cáo doanh thu");
+            SalesReportError = ex.Message;
+        }
+        finally
+        {
+            IsSalesReportLoading = false;
         }
     }
 

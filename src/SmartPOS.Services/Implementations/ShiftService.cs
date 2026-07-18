@@ -11,11 +11,13 @@ namespace SmartPOS.Services.Implementations;
 public class ShiftService : IShiftService
 {
     private readonly IShiftRepository _shiftRepo;
+    private readonly IUserRepository _userRepo;
     private readonly ILogger<ShiftService> _logger;
 
-    public ShiftService(IShiftRepository shiftRepo, ILogger<ShiftService> logger)
+    public ShiftService(IShiftRepository shiftRepo, IUserRepository userRepo, ILogger<ShiftService> logger)
     {
         _shiftRepo = shiftRepo;
+        _userRepo = userRepo;
         _logger = logger;
     }
 
@@ -23,6 +25,11 @@ public class ShiftService : IShiftService
     {
         if (dto.OpeningCash < 0)
             throw new BusinessException("Tiền đầu ca không được âm");
+
+        var user = await _userRepo.GetByIdAsync(dto.UserId).ConfigureAwait(false)
+            ?? throw new BusinessException("Không tìm thấy người dùng");
+        if (user.Status == UserStatus.Locked)
+            throw new BusinessException("Tài khoản đã bị khóa, không thể mở ca");
 
         var existing = await _shiftRepo.GetOpenShiftAsync(dto.UserId).ConfigureAwait(false);
         if (existing is not null)
@@ -50,6 +57,9 @@ public class ShiftService : IShiftService
 
         if (shift.Status != ShiftStatus.Open)
             throw new BusinessException("Ca đã được đóng");
+
+        if (dto.ClosingCash < 0)
+            throw new BusinessException("Tiền cuối ca không được âm");
 
         var cashRevenue = await _shiftRepo.GetCashRevenueAsync(dto.ShiftId).ConfigureAwait(false);
         var expectedCash = shift.OpeningCash + cashRevenue;
@@ -82,9 +92,12 @@ public class ShiftService : IShiftService
 
         return new ShiftSummaryDto
         {
-            ShiftId = shiftId,
-            TotalSales = totalSales,
-            ExpectedCash = shift.OpeningCash + cashRevenue
+            ShiftId       = shiftId,
+            TotalSales    = totalSales,
+            ExpectedCash  = shift.OpeningCash + cashRevenue,
+            OpeningCash   = shift.OpeningCash,
+            ClosingCash   = shift.ClosingCash ?? 0,
+            CashDifference = shift.CashDifference ?? 0
         };
     }
 

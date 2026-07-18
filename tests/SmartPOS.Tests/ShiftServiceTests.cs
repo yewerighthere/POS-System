@@ -13,8 +13,19 @@ namespace SmartPOS.Tests;
 
 public class ShiftServiceTests
 {
-    private static ShiftService CreateService(IShiftRepository repo)
-        => new(repo, NullLogger<ShiftService>.Instance);
+    private static ShiftService CreateService(IShiftRepository repo, IUserRepository? userRepo = null)
+        => new(repo, userRepo ?? Mock.Of<IUserRepository>(), NullLogger<ShiftService>.Instance);
+
+    private static Mock<IUserRepository> ActiveUserRepo(Guid userId)
+    {
+        var mock = new Mock<IUserRepository>();
+        mock.Setup(r => r.GetByIdAsync(userId)).ReturnsAsync(new User
+        {
+            Id = userId,
+            Status = UserStatus.Active
+        });
+        return mock;
+    }
 
     [Fact]
     public async Task OpenShiftAsync_ValidInput_ReturnsShiftDto()
@@ -25,7 +36,7 @@ public class ShiftServiceTests
         repoMock.Setup(r => r.GetOpenShiftAsync(userId)).ReturnsAsync((Shift?)null);
         repoMock.Setup(r => r.AddAsync(It.IsAny<Shift>())).Returns(Task.CompletedTask);
 
-        var service = CreateService(repoMock.Object);
+        var service = CreateService(repoMock.Object, ActiveUserRepo(userId).Object);
         var dto = new OpenShiftDto(userId, 500_000m);
 
         // Act
@@ -51,7 +62,7 @@ public class ShiftServiceTests
         var repoMock = new Mock<IShiftRepository>();
         repoMock.Setup(r => r.GetOpenShiftAsync(userId)).ReturnsAsync(existingShift);
 
-        var service = CreateService(repoMock.Object);
+        var service = CreateService(repoMock.Object, ActiveUserRepo(userId).Object);
         var dto = new OpenShiftDto(userId, 100_000m);
 
         // Act

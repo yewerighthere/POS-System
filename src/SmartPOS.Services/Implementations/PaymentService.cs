@@ -23,7 +23,7 @@ public class PaymentService : IPaymentService
     private readonly IInventorySyncService _inventorySyncService;
     private readonly IAuditService _auditService;
     private readonly ICustomerService _customerService;
-    private readonly IInvoiceService? _invoiceService;
+    private readonly IInvoiceService _invoiceService;
     private readonly IConfiguration _configuration;
     private readonly ILogger<PaymentService> _logger;
 
@@ -32,8 +32,8 @@ public class PaymentService : IPaymentService
         IInventorySyncService inventorySyncService,
         IAuditService auditService,
         ICustomerService customerService,
+        IInvoiceService invoiceService,
         ILogger<PaymentService> logger,
-        IInvoiceService? invoiceService = null,
         IConfiguration? configuration = null)
     {
         _orderRepository = orderRepository;
@@ -87,6 +87,9 @@ public class PaymentService : IPaymentService
         var order = await _orderRepository.GetByIdWithItemsAsync(orderId).ConfigureAwait(false)
             ?? throw new BusinessException("Không tìm thấy đơn hàng");
 
+        if (!order.Items.Any())
+            throw new BusinessException("Không thể thanh toán đơn hàng trống");
+
         if (order.IsLocked)
             throw new BusinessException("Đơn hàng đang bị khóa bởi phiên thanh toán khác");
 
@@ -126,6 +129,7 @@ public class PaymentService : IPaymentService
         await CreateInvoiceIfNeededAsync(orderId).ConfigureAwait(false);
 
         await NotifySideEffectsAsync(order, userId).ConfigureAwait(false);
+        await LogCashPaymentAuditAsync(order, userId).ConfigureAwait(false);
 
         _logger.LogInformation("Đã ghi nhận thanh toán tiền mặt cho đơn hàng {OrderId}", orderId);
 
@@ -269,9 +273,6 @@ public class PaymentService : IPaymentService
 
     private async Task CreateInvoiceIfNeededAsync(Guid orderId)
     {
-        if (_invoiceService is null)
-            return;
-
         try
         {
             await _invoiceService.CreateInvoiceAsync(orderId).ConfigureAwait(false);
@@ -301,7 +302,10 @@ public class PaymentService : IPaymentService
         {
             _logger.LogWarning("InventorySyncService.SendStockDeductionAsync chưa được triển khai, bỏ qua trừ kho cho đơn hàng {OrderId}", order.Id);
         }
+    }
 
+    private async Task LogCashPaymentAuditAsync(Order order, Guid userId)
+    {
         try
         {
             await _auditService.LogAsync("CASH_PAYMENT", "Order", order.Id, null, new { order.Id, order.TotalAmount }, userId).ConfigureAwait(false);

@@ -5,6 +5,6 @@ namespace SmartPOS.Services.Interfaces;
 public interface IReportService
 {
     Task<ShiftReportDto> GetShiftReportAsync(Guid shiftId);
-    Task<SalesReportDto> GetSalesReportAsync(DateTime fromDate, DateTime toDate);
+    Task<SalesReportDto> GetSalesReportAsync(SalesReportFilterDto filter);
     Task<IReadOnlyList<RecentShiftDto>> GetRecentShiftSummariesAsync(int count = 10);
 }
