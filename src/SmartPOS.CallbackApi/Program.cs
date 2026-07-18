@@ -41,7 +41,11 @@ builder.Services.AddScoped<ICatalogService, CatalogService>();
 builder.Services.AddScoped<IInventorySyncService, InventorySyncService>();
 builder.Services.AddScoped<IReportService, ReportService>();
 builder.Services.AddScoped<IAuditService, AuditService>();
-builder.Services.AddHttpClient<IInventorySyncService, InventorySyncService>(client => client.BaseAddress = new Uri(builder.Configuration["InventoryManager:BaseUrl"] ?? "http://localhost:5145"));
+builder.Services.AddHttpClient<IInventorySyncService, InventorySyncService>(client => client.BaseAddress = new Uri(builder.Configuration["InventoryManager:BaseUrl"] ?? "http://localhost:5145"))
+    .ConfigurePrimaryHttpMessageHandler(() => new System.Net.Http.HttpClientHandler
+    {
+        ServerCertificateCustomValidationCallback = System.Net.Http.HttpClientHandler.DangerousAcceptAnyServerCertificateValidator
+    });
 builder.Services.AddControllers();
 
 var app = builder.Build();

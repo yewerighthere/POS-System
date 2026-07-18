@@ -10,15 +10,20 @@ public partial class DashboardUserStaffViewModel : ObservableObject
     private readonly NavigationService _navigationService;
     private readonly CurrentSessionContext _sessionContext;
 
+    [ObservableProperty]
+    private UserManagementViewModel _userManagementVM;
+
     public string CurrentUserName => _sessionContext.CurrentUser?.Username ?? "Unknown";
     public string CurrentUserRole => _sessionContext.CurrentUser?.Role ?? "Unknown";
 
     public DashboardUserStaffViewModel(
         NavigationService navigationService,
-        CurrentSessionContext sessionContext)
+        CurrentSessionContext sessionContext,
+        UserManagementViewModel userManagementVM)
     {
         _navigationService = navigationService;
         _sessionContext = sessionContext;
+        _userManagementVM = userManagementVM;
     }
 
     [RelayCommand]

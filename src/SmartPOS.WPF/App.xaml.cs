@@ -78,6 +78,10 @@ public partial class App : Application
         {
             client.BaseAddress = new Uri(configuration["InventoryManager:BaseUrl"] ?? "http://localhost:5145");
             client.Timeout = TimeSpan.FromSeconds(10);
+        })
+        .ConfigurePrimaryHttpMessageHandler(() => new System.Net.Http.HttpClientHandler
+        {
+            ServerCertificateCustomValidationCallback = System.Net.Http.HttpClientHandler.DangerousAcceptAnyServerCertificateValidator
         });
         services.AddSingleton<CurrentSessionContext>();
         services.AddSingleton<NavigationService>();

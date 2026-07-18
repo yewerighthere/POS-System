@@ -72,7 +72,7 @@ Thư mục: `SmartPOS.Shared/Constants`
 
 Thư mục: `SmartPOS.Shared/DTOs`
 
-- Auth: `LoginRequestDto`, `LoginResponseDto`, `UserSessionDto`, `CreateUserDto`, `UserDto`.
+- Auth: `LoginRequestDto`, `LoginResponseDto`, `UserSessionDto`, `CreateUserDto`, `UserDto`, `UpdateUserDto`.
 - Shift: `OpenShiftDto`, `CloseShiftDto`, `ShiftDto`, `ShiftSummaryDto`.
 - Product: `ProductDto`, `ProductSearchResultDto`, `SyncProductDto`.
 - Cart: `CartItemDto`, `CartSummaryDto`.
@@ -127,7 +127,7 @@ Nhiệm vụ:
 
 Thư mục: `SmartPOS.Data/Repositories/Interfaces`
 
-- `IUserRepository`: tìm theo username, tìm theo id, thêm, cập nhật.
+- `IUserRepository`: tìm theo username, tìm theo id, thêm, cập nhật, lấy tất cả (GetAllAsync).
 - `IUserSessionRepository`: thêm phiên, cập nhật đăng xuất.
 - `IShiftRepository`: lấy ca đang mở, tìm theo id, thêm, cập nhật.
 - `IProductRepository`: tìm theo id, mã vạch, external id, tìm kiếm, thêm, cập nhật.
@@ -146,7 +146,7 @@ Thư mục: `SmartPOS.Data/Repositories/Interfaces`
 
 Thư mục interface: `SmartPOS.Services/Interfaces`
 
-- `IAuthService`: đăng nhập, đăng xuất, kiểm tra JWT, tạo tài khoản demo khi cần.
+- `IAuthService`: đăng nhập, đăng xuất, kiểm tra JWT, tạo tài khoản demo khi cần, tạo/cập nhật/khóa/reset mật khẩu nhân viên (User Management).
 - `IShiftService`: mở ca, đóng ca, lấy ca đang mở, tóm tắt ca.
 - `IProductService`: tìm sản phẩm theo mã, tìm kiếm sản phẩm.
 - `ICartService`: thêm, sửa, xóa, tính lại giỏ hàng.
@@ -201,11 +201,11 @@ Thư mục: `SmartPOS.WPF/ViewModels`
 - `CustomerViewModel`: quản lý khách hàng (search/filter/sort/detail/edit/toggle status/view orders).
 - `ReturnViewModel`: hiện còn TODO.
 - `CatalogViewModel`: quản lý danh mục, sản phẩm, giá (CRUD + filter/search + deactivate/reactivate + image + inline sync).
-- `PromotionViewModel`: hiện còn TODO.
+- `PromotionViewModel`: quản lý khuyến mãi (CRUD, tìm kiếm, lọc, kích hoạt/khóa).
 - `ReportViewModel`: báo cáo ca với shift report, recent shifts, top products, order log.
 - `AuditLogViewModel`: hiện còn TODO.
 - `SyncViewModel`: đồng bộ catalog và tồn kho với Inventory Manager (SyncCatalog, SyncStock, SyncAll commands).
-- `UserManagementViewModel`: hiện còn TODO.
+- `UserManagementViewModel`: quản lý nhân viên (tìm kiếm, lọc vai trò/trạng thái, tạo mới, sửa thông tin, đặt lại mật khẩu, khóa/mở khóa tài khoản).
 
 ### View
 
@@ -218,7 +218,10 @@ Mỗi ViewModel nên có View tương ứng.
 - `SalesView`: đã có UI hoàn chỉnh (tích hợp customer lookup/creation popup, promotion code, loyalty points, checkout).
 - `CatalogView`: đã có UI hoàn chỉnh (CRUD + filter/search + deactivate/reactivate + image + inline sync).
 - `ReportView`, `SyncView`: đã có UI hoàn chỉnh.
-- `CustomerView`, `ReturnView`, `PromotionView`, `AuditLogView`, `UserManagementView`: hiện vẫn là placeholder TODO.
+- `CustomerView`: giao diện quản lý khách hàng đầy đủ thông tin, lịch sử mua hàng, sửa thông tin và khóa/mở khóa.
+- `PromotionView`: giao diện quản lý khuyến mãi với danh sách và popup tạo mới/sửa.
+- `UserManagementView`: giao diện quản lý nhân viên trực quan với bảng dữ liệu và 3 popup overlay (thêm, sửa, reset mật khẩu), tích hợp trong Dashboard.
+- `ReturnView`, `AuditLogView`: hiện vẫn là placeholder TODO.
 
 ### Control Dự Kiến
 
