@@ -5,6 +5,7 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:local="clr-namespace:SmartPOS.WPF.Views"
              xmlns:viewmodels="clr-namespace:SmartPOS.WPF.ViewModels"
+             xmlns:converters="clr-namespace:SmartPOS.WPF.Converters"
              mc:Ignorable="d" 
              d:DataContext="{d:DesignInstance Type=viewmodels:DashboardCatalogPromoViewModel}"
              Background="#F3F4F6"
@@ -12,6 +13,7 @@
              d:DesignHeight="768" d:DesignWidth="1024">
 
     <UserControl.Resources>
+        <converters:RoleToVisibilityConverter x:Key="RoleToVisibilityConverter" />
         <Style x:Key="SidebarButtonStyle" TargetType="Button">
             <Setter Property="Background" Value="Transparent"/>
             <Setter Property="Foreground" Value="#9CA3AF"/>
@@ -78,12 +80,13 @@
                 </StackPanel>
 
                 <StackPanel Grid.Row="1">
-                    <Button Style="{StaticResource SidebarButtonStyle}" Tag="📊" Content="Overview" Command="{Binding NavigateToOverviewCommand}"/>
-                    <Button Style="{StaticResource SidebarActiveButtonStyle}" Tag="🗂️" Content="Catalog &amp; Promo"/>
-                    <Button Style="{StaticResource SidebarButtonStyle}" Tag="📦" Content="Inventory" Command="{Binding NavigateToInventoryCommand}"/>
-                    <Button Style="{StaticResource SidebarButtonStyle}" Tag="👥" Content="Users &amp; Staff" Command="{Binding NavigateToUsersCommand}"/>
-                    <Button Style="{StaticResource SidebarButtonStyle}" Tag="📈" Content="Reports &amp; Analytics" Command="{Binding NavigateToReportsCommand}"/>
-                    <Button Style="{StaticResource SidebarButtonStyle}" Tag="⚙️" Content="Settings"/>
+                    <Button Style="{StaticResource SidebarButtonStyle}" Tag="📊" Content="Overview" Command="{Binding NavigateToOverviewCommand}" Visibility="{Binding CurrentUserRole, Converter={StaticResource RoleToVisibilityConverter}}"/>
+                    <Button Style="{StaticResource SidebarActiveButtonStyle}" Tag="🗂️" Content="Catalog &amp; Promo" Visibility="{Binding CurrentUserRole, Converter={StaticResource RoleToVisibilityConverter}}"/>
+                    <Button Style="{StaticResource SidebarButtonStyle}" Tag="📦" Content="Inventory" Command="{Binding NavigateToInventoryCommand}" Visibility="{Binding CurrentUserRole, Converter={StaticResource RoleToVisibilityConverter}}"/>
+                    <Button Style="{StaticResource SidebarButtonStyle}" Tag="👥" Content="Users &amp; Staff" Command="{Binding NavigateToUsersCommand}" Visibility="{Binding CurrentUserRole, Converter={StaticResource RoleToVisibilityConverter}}"/>
+                    <Button Style="{StaticResource SidebarButtonStyle}" Tag="📈" Content="Reports &amp; Analytics" Command="{Binding NavigateToReportsCommand}" Visibility="{Binding CurrentUserRole, Converter={StaticResource RoleToVisibilityConverter}}"/>
+                    <Button Style="{StaticResource SidebarButtonStyle}" Tag="📋" Content="Audit Logs" Command="{Binding NavigateToAuditLogsCommand}" Visibility="{Binding CurrentUserRole, Converter={StaticResource RoleToVisibilityConverter}}"/>
+                    <Button Style="{StaticResource SidebarButtonStyle}" Tag="⚙️" Content="Settings" Visibility="{Binding CurrentUserRole, Converter={StaticResource RoleToVisibilityConverter}}"/>
                 </StackPanel>
             </Grid>
         </Border>

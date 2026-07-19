@@ -80,6 +80,9 @@ public partial class DashboardViewModel : ObservableObject
     private void NavigateToUsers() => _navigationService.NavigateTo<DashboardUserStaffViewModel>();
 
     [RelayCommand]
+    private void NavigateToAuditLogs() => _navigationService.NavigateTo<AuditLogViewModel>();
+
+    [RelayCommand]
     private void Logout()
     {
         _sessionContext.CurrentUser = null;
