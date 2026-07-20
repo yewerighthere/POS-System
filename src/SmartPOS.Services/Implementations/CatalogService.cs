@@ -14,20 +14,17 @@ public class CatalogService : ICatalogService
     private readonly ILogger<CatalogService> _logger;
     private readonly ICategoryRepository _categoryRepository;
     private readonly IProductRepository _productRepository;
-    private readonly IAuditService _auditService;
     private readonly IInventorySyncService _inventorySyncService;
 
     public CatalogService(
         ILogger<CatalogService> logger,
         ICategoryRepository categoryRepository,
         IProductRepository productRepository,
-        IAuditService auditService,
         IInventorySyncService inventorySyncService)
     {
         _logger = logger;
         _categoryRepository = categoryRepository;
         _productRepository = productRepository;
-        _auditService = auditService;
         _inventorySyncService = inventorySyncService;
     }
 
@@ -63,14 +60,6 @@ public class CatalogService : ICatalogService
         await _categoryRepository.AddAsync(category);
         _logger.LogInformation("Đã tạo danh mục {Name}", category.Name);
 
-        await _auditService.LogAsync(
-            action: "CREATE_CATEGORY",
-            entity: "Category",
-            entityId: category.Id,
-            oldValue: (object?)null,
-            newValue: new { category.Name, category.Description },
-            userId: userId);
-
         return new CategoryDto { Id = category.Id, Name = category.Name, Description = category.Description };
     }
 
@@ -90,14 +79,6 @@ public class CatalogService : ICatalogService
         category.Name = name.Trim();
         await _categoryRepository.UpdateAsync(category);
         _logger.LogInformation("Đã cập nhật danh mục {Id}: {Old} → {New}", id, oldName, name);
-
-        await _auditService.LogAsync(
-            action: "UPDATE_CATEGORY",
-            entity: "Category",
-            entityId: category.Id,
-            oldValue: new { Name = oldName },
-            newValue: new { Name = name },
-            userId: userId);
 
         return new CategoryDto { Id = category.Id, Name = category.Name, Description = category.Description };
     }
@@ -208,14 +189,6 @@ public class CatalogService : ICatalogService
         _logger.LogInformation("Đã tạo sản phẩm {Name} (SKU: {Sku}, ExternalId: {ExternalId})",
             product.Name, product.Sku, product.ExternalInventoryId ?? "null");
 
-        await _auditService.LogAsync(
-            action: "CREATE_PRODUCT",
-            entity: "Product",
-            entityId: product.Id,
-            oldValue: (object?)null,
-            newValue: new { product.CategoryId, product.Name, product.Sku, product.Barcode, product.UnitPrice, product.ExternalInventoryId },
-            userId: userId);
-
         return MapToDto(product);
     }
 
@@ -279,14 +252,6 @@ public class CatalogService : ICatalogService
         await _productRepository.UpdateAsync(product);
         _logger.LogInformation("Đã cập nhật sản phẩm {ProductId} ({Name})", product.Id, product.Name);
 
-        await _auditService.LogAsync(
-            action: "UPDATE_PRODUCT",
-            entity: "Product",
-            entityId: product.Id,
-            oldValue: oldSnapshot,
-            newValue: new { product.CategoryId, product.Name, product.Sku, product.Barcode, product.QrCode, product.UnitPrice, product.TaxRate },
-            userId: userId);
-
         return MapToDto(product);
     }
 
@@ -308,14 +273,6 @@ public class CatalogService : ICatalogService
         await _productRepository.UpdateAsync(product);
         _logger.LogInformation("Đã cập nhật giá sản phẩm {ProductId}: {OldPrice} → {NewPrice}", dto.ProductId, oldPrice, dto.UnitPrice);
 
-        await _auditService.LogAsync(
-            action: "UPDATE_PRICE",
-            entity: "Product",
-            entityId: product.Id,
-            oldValue: new { UnitPrice = oldPrice },
-            newValue: new { UnitPrice = dto.UnitPrice },
-            userId: userId);
-
         return MapToDto(product);
     }
 
@@ -332,14 +289,6 @@ public class CatalogService : ICatalogService
 
         await _productRepository.UpdateAsync(product);
         _logger.LogInformation("Đã ngừng kinh doanh sản phẩm {ProductId} ({Name})", product.Id, product.Name);
-
-        await _auditService.LogAsync(
-            action: "DEACTIVATE_PRODUCT",
-            entity: "Product",
-            entityId: product.Id,
-            oldValue: new { IsActive = true },
-            newValue: new { IsActive = false },
-            userId: userId);
 
         return MapToDto(product);
     }
@@ -358,14 +307,6 @@ public class CatalogService : ICatalogService
         await _productRepository.UpdateAsync(product);
         _logger.LogInformation("Đã kinh doanh lại sản phẩm {ProductId} ({Name})", product.Id, product.Name);
 
-        await _auditService.LogAsync(
-            action: "REACTIVATE_PRODUCT",
-            entity: "Product",
-            entityId: product.Id,
-            oldValue: new { IsActive = false },
-            newValue: new { IsActive = true },
-            userId: userId);
-
         return MapToDto(product);
     }
 
@@ -380,14 +321,6 @@ public class CatalogService : ICatalogService
 
         await _productRepository.UpdateAsync(product);
         _logger.LogInformation("Đã cập nhật hình ảnh sản phẩm {ProductId} ({Name})", product.Id, product.Name);
-
-        await _auditService.LogAsync(
-            action: "UPDATE_PRODUCT_IMAGE",
-            entity: "Product",
-            entityId: product.Id,
-            oldValue: new { ImagePath = oldImagePath },
-            newValue: new { ImagePath = imagePath },
-            userId: userId);
 
         return MapToDto(product);
     }

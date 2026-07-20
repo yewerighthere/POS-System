@@ -18,15 +18,13 @@ public class PaymentServiceTests
     private static PaymentService CreateService(
         IOrderRepository orderRepo,
         IInventorySyncService? inventorySync = null,
-        IAuditService? auditService = null,
         IInvoiceService? invoiceService = null,
         IConfiguration? configuration = null,
         ICustomerService? customerService = null)
     {
         var syncMock = inventorySync ?? Mock.Of<IInventorySyncService>();
-        var auditMock = auditService ?? Mock.Of<IAuditService>();
         var customerMock = customerService ?? Mock.Of<ICustomerService>();
-        return new PaymentService(orderRepo, syncMock, auditMock, customerMock, NullLogger<PaymentService>.Instance, invoiceService, configuration);
+        return new PaymentService(orderRepo, syncMock, customerMock, NullLogger<PaymentService>.Instance, invoiceService, configuration);
     }
 
     private static IConfiguration BuildVNPayConfiguration() => new ConfigurationBuilder()
@@ -67,11 +65,7 @@ public class PaymentServiceTests
         syncMock.Setup(s => s.SendStockDeductionAsync(It.IsAny<IEnumerable<OrderItemDto>>(), It.IsAny<Guid>()))
                 .ThrowsAsync(new NotImplementedException());
 
-        var auditMock = new Mock<IAuditService>();
-        auditMock.Setup(a => a.LogAsync(It.IsAny<string>(), It.IsAny<string?>(), It.IsAny<Guid?>(), It.IsAny<object?>(), It.IsAny<object?>(), It.IsAny<Guid>()))
-                 .ThrowsAsync(new NotImplementedException());
-
-        var service = CreateService(repoMock.Object, syncMock.Object, auditMock.Object);
+        var service = CreateService(repoMock.Object, syncMock.Object);
 
         // Act
         var result = await service.RecordCashPaymentAsync(orderId, 200_000m, userId);

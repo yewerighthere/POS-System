@@ -44,8 +44,11 @@ public partial class App : Application
             .CreateLogger();
         services.AddLogging(builder => builder.AddSerilog(Log.Logger, dispose: true));
         var connectionString = configuration.GetConnectionString("DefaultConnection");
-        services.AddDbContext<AppDbContext>(options =>
-            options.UseNpgsql(connectionString, b => b.MigrationsAssembly("SmartPOS.Data")));
+        services.AddSingleton<SmartPOS.Shared.Interfaces.ICurrentUserService, SmartPOS.WPF.Session.CurrentUserService>();
+        services.AddDbContext<AppDbContext>((sp, options) =>
+        {
+            options.UseNpgsql(connectionString, b => b.MigrationsAssembly("SmartPOS.Data"));
+        });
         services.AddTransient<IUserRepository, UserRepository>();
         services.AddTransient<IUserSessionRepository, UserSessionRepository>();
         services.AddTransient<IShiftRepository, ShiftRepository>();

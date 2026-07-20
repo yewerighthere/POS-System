@@ -21,7 +21,6 @@ public class PaymentService : IPaymentService
 {
     private readonly IOrderRepository _orderRepository;
     private readonly IInventorySyncService _inventorySyncService;
-    private readonly IAuditService _auditService;
     private readonly ICustomerService _customerService;
     private readonly IInvoiceService? _invoiceService;
     private readonly IConfiguration _configuration;
@@ -30,7 +29,6 @@ public class PaymentService : IPaymentService
     public PaymentService(
         IOrderRepository orderRepository,
         IInventorySyncService inventorySyncService,
-        IAuditService auditService,
         ICustomerService customerService,
         ILogger<PaymentService> logger,
         IInvoiceService? invoiceService = null,
@@ -38,7 +36,6 @@ public class PaymentService : IPaymentService
     {
         _orderRepository = orderRepository;
         _inventorySyncService = inventorySyncService;
-        _auditService = auditService;
         _customerService = customerService;
         _invoiceService = invoiceService;
         _configuration = configuration ?? new ConfigurationBuilder().AddInMemoryCollection().Build();
@@ -221,7 +218,6 @@ public class PaymentService : IPaymentService
             }
             await CreateInvoiceIfNeededAsync(order.Id).ConfigureAwait(false);
             await NotifySideEffectsAsync(order, order.UserId).ConfigureAwait(false);
-            await _auditService.LogAsync("VNPAY_PAYMENT_SUCCESS", "Order", order.Id, null, dto, order.UserId).ConfigureAwait(false);
         }
         else
         {
@@ -300,15 +296,6 @@ public class PaymentService : IPaymentService
         catch (NotImplementedException)
         {
             _logger.LogWarning("InventorySyncService.SendStockDeductionAsync chưa được triển khai, bỏ qua trừ kho cho đơn hàng {OrderId}", order.Id);
-        }
-
-        try
-        {
-            await _auditService.LogAsync("CASH_PAYMENT", "Order", order.Id, null, new { order.Id, order.TotalAmount }, userId).ConfigureAwait(false);
-        }
-        catch (NotImplementedException)
-        {
-            _logger.LogWarning("AuditService.LogAsync chưa được triển khai, bỏ qua ghi audit cho đơn hàng {OrderId}", order.Id);
         }
     }
 

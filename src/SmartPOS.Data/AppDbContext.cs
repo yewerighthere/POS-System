@@ -6,8 +6,15 @@ namespace SmartPOS.Data;
 
 public class AppDbContext : DbContext
 {
+    private readonly SmartPOS.Shared.Interfaces.ICurrentUserService? _currentUserService;
+
     public AppDbContext() { }
     public AppDbContext(DbContextOptions<AppDbContext> options) : base(options) { }
+    
+    public AppDbContext(DbContextOptions<AppDbContext> options, SmartPOS.Shared.Interfaces.ICurrentUserService currentUserService) : base(options) 
+    {
+        _currentUserService = currentUserService;
+    }
 
     public DbSet<AuditLog> AuditLogs => Set<AuditLog>();
     public DbSet<Category> Categorys => Set<Category>();
@@ -68,6 +75,93 @@ public class AppDbContext : DbContext
         {
             property.SetColumnType("numeric(18,2)");
         }
+    }
+
+    public override async Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
+    {
+        if (_currentUserService != null)
+        {
+            ChangeTracker.DetectChanges();
+            var entries = ChangeTracker.Entries().ToList();
+            var auditLogs = new List<AuditLog>();
+            
+            var currentUserId = _currentUserService.GetCurrentUserId();
+            if (currentUserId != null && currentUserId != Guid.Empty)
+            {
+                var userId = currentUserId.Value;
+                var now = DateTime.UtcNow;
+
+                foreach (var entry in entries)
+                {
+                    if (entry.Entity is AuditLog || entry.Entity is DeviceLog || entry.Entity is InventorySyncLog || entry.Entity is UserSession)
+                        continue;
+
+                    if (entry.State == EntityState.Detached || entry.State == EntityState.Unchanged)
+                        continue;
+
+                    var auditLog = new AuditLog
+                    {
+                        Id = Guid.NewGuid(),
+                        UserId = userId,
+                        Entity = entry.Entity.GetType().Name,
+                        CreatedAt = now,
+                        Action = entry.State.ToString()
+                    };
+
+                    var primaryKey = entry.Metadata.FindPrimaryKey();
+                    var idProp = primaryKey?.Properties.FirstOrDefault(p => p.Name == "Id");
+                    if (idProp != null && entry.State != EntityState.Added)
+                    {
+                        var val = entry.Property("Id").CurrentValue;
+                        if (val != null)
+                        {
+                            auditLog.EntityId = Guid.Parse(val.ToString()!);
+                        }
+                    }
+
+                    var oldValues = new Dictionary<string, object?>();
+                    var newValues = new Dictionary<string, object?>();
+
+                    foreach (var property in entry.Properties)
+                    {
+                        string propertyName = property.Metadata.Name;
+                        
+                        if (property.IsTemporary) continue;
+
+                        switch (entry.State)
+                        {
+                            case EntityState.Added:
+                                newValues[propertyName] = property.CurrentValue;
+                                break;
+
+                            case EntityState.Deleted:
+                                oldValues[propertyName] = property.OriginalValue;
+                                break;
+
+                            case EntityState.Modified:
+                                if (property.IsModified)
+                                {
+                                    oldValues[propertyName] = property.OriginalValue;
+                                    newValues[propertyName] = property.CurrentValue;
+                                }
+                                break;
+                        }
+                    }
+
+                    auditLog.OldValue = oldValues.Count == 0 ? null : System.Text.Json.JsonSerializer.Serialize(oldValues);
+                    auditLog.NewValue = newValues.Count == 0 ? null : System.Text.Json.JsonSerializer.Serialize(newValues);
+
+                    auditLogs.Add(auditLog);
+                }
+
+                if (auditLogs.Count > 0)
+                {
+                    AuditLogs.AddRange(auditLogs);
+                }
+            }
+        }
+
+        return await base.SaveChangesAsync(cancellationToken);
     }
 }
 

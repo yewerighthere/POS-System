@@ -73,6 +73,8 @@ public partial class AuditLogViewModel : ObservableObject
         _auditLogRepository = auditLogRepository;
         _navigationService = navigationService;
         _sessionContext = sessionContext;
+
+        _ = LoadAsync();
     }
 
     [RelayCommand]

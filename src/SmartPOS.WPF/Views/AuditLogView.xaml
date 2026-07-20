@@ -15,6 +15,7 @@
     <UserControl.Resources>
         <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter" />
         <converters:RoleToVisibilityConverter x:Key="RoleToVisibilityConverter" />
+        <converters:UtcToVietnamTimeConverter x:Key="UtcToVietnamTimeConverter" />
 
         <Style x:Key="SidebarButtonStyle" TargetType="Button">
             <Setter Property="Background" Value="Transparent"/>
@@ -181,7 +182,8 @@
 
                     <DataGrid Grid.Column="0" ItemsSource="{Binding Logs}" AutoGenerateColumns="False" SelectionMode="Single" SelectedItem="{Binding SelectedLog, Mode=TwoWay}" CanUserAddRows="False" IsReadOnly="True" Background="White" BorderBrush="#E5E7EB" BorderThickness="1">
                         <DataGrid.Columns>
-                            <DataGridTextColumn Header="Thời gian" Binding="{Binding CreatedAt, StringFormat=G}" Width="150"/>
+                            <DataGridTextColumn Header="Ngày" Binding="{Binding CreatedAt, Converter={StaticResource UtcToVietnamTimeConverter}, StringFormat=dd/MM/yyyy}" Width="100"/>
+                            <DataGridTextColumn Header="Giờ" Binding="{Binding CreatedAt, Converter={StaticResource UtcToVietnamTimeConverter}, StringFormat=HH:mm:ss}" Width="100"/>
                             <DataGridTextColumn Header="Người dùng (UserId)" Binding="{Binding UserId}" Width="*"/>
                             <DataGridTextColumn Header="Hành động" Binding="{Binding Action}" Width="180"/>
                             <DataGridTextColumn Header="Đối tượng" Binding="{Binding Entity}" Width="120"/>
