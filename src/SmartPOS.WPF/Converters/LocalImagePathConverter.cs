@@ -27,10 +27,17 @@ public class LocalImagePathConverter : IValueConverter
             var bitmap = new BitmapImage();
             bitmap.BeginInit();
             bitmap.UriSource = new Uri(path, UriKind.Absolute);
-            bitmap.CacheOption = BitmapCacheOption.OnLoad;
+            if (!isUrl)
+            {
+                bitmap.CacheOption = BitmapCacheOption.OnLoad;
+            }
             bitmap.DecodePixelWidth = 200; // Limit memory usage
             bitmap.EndInit();
-            bitmap.Freeze();
+            
+            if (!isUrl)
+            {
+                bitmap.Freeze();
+            }
             return bitmap;
         }
         catch
@@ -65,4 +72,38 @@ public class ImagePathToVisibilityConverter : IValueConverter
 
     public object ConvertBack(object? value, Type targetType, object? parameter, CultureInfo culture)
         => throw new NotImplementedException();
+}
+
+public class StockToBadgeTextConverter : IValueConverter
+{
+    public object Convert(object? value, Type targetType, object? parameter, CultureInfo culture)
+    {
+        if (value is not int qty) return "0 Out of Stock";
+        if (qty == 0) return "0 Out of Stock";
+        if (qty <= 15) return $"{qty} Low Stock";
+        return $"{qty} In Stock";
+    }
+    public object ConvertBack(object? value, Type targetType, object? parameter, CultureInfo culture) => throw new NotImplementedException();
+}
+
+public class StockToBadgeBackgroundConverter : IValueConverter
+{
+    public object Convert(object? value, Type targetType, object? parameter, CultureInfo culture)
+    {
+        if (value is not int qty || qty == 0) return "#FEF2F2";
+        if (qty <= 15) return "#FFFBEB";
+        return "#ECFDF5";
+    }
+    public object ConvertBack(object? value, Type targetType, object? parameter, CultureInfo culture) => throw new NotImplementedException();
+}
+
+public class StockToBadgeForegroundConverter : IValueConverter
+{
+    public object Convert(object? value, Type targetType, object? parameter, CultureInfo culture)
+    {
+        if (value is not int qty || qty == 0) return "#EF4444";
+        if (qty <= 15) return "#D97706";
+        return "#10B981";
+    }
+    public object ConvertBack(object? value, Type targetType, object? parameter, CultureInfo culture) => throw new NotImplementedException();
 }

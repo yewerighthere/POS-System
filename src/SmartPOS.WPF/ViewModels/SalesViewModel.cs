@@ -19,6 +19,7 @@ public partial class SalesViewModel : ObservableObject
     private readonly ICustomerService _customerService;
     private readonly IPromotionService _promotionService;
     private readonly CurrentSessionContext _session;
+    private readonly ICatalogService _catalogService;
 
     [ObservableProperty]
     private bool _isLoading;
@@ -62,6 +63,11 @@ public partial class SalesViewModel : ObservableObject
     [ObservableProperty]
     private string _promoCodeInput = string.Empty;
 
+    [ObservableProperty]
+    private string _selectedCategoryName = "All";
+
+    public ObservableCollection<string> CategoriesList { get; } = new();
+
     public ObservableCollection<PromotionDto> AvailablePromotions { get; } = new();
 
     public ObservableCollection<ProductDto> SearchResults { get; } = new();
@@ -72,7 +78,8 @@ public partial class SalesViewModel : ObservableObject
         NavigationService navigationService,
         ICustomerService customerService,
         IPromotionService promotionService,
-        CurrentSessionContext session)
+        CurrentSessionContext session,
+        ICatalogService catalogService)
     {
         _productService = productService;
         _cartService = cartService;
@@ -80,10 +87,38 @@ public partial class SalesViewModel : ObservableObject
         _customerService = customerService;
         _promotionService = promotionService;
         _session = session;
+        _catalogService = catalogService;
 
         RecalculateCart();
-        _ = SearchProductsAsync();
+        _ = InitializeAsync();
     }
+
+    private async Task InitializeAsync()
+    {
+        await LoadCategoriesAsync();
+        await SearchProductsAsync();
+    }
+
+    private async Task LoadCategoriesAsync()
+    {
+        try
+        {
+            var categories = await _catalogService.GetCategoriesAsync();
+            CategoriesList.Clear();
+            CategoriesList.Add("All");
+            foreach (var cat in categories)
+            {
+                CategoriesList.Add(cat.Name);
+            }
+            SelectedCategoryName = "All";
+        }
+        catch (Exception ex)
+        {
+            ErrorMessage = $"Lỗi tải danh mục: {ex.Message}";
+        }
+    }
+
+    partial void OnSelectedCategoryNameChanged(string value) => _ = SearchProductsAsync();
 
     [RelayCommand]
     private async Task SearchProductsAsync()
@@ -96,7 +131,10 @@ public partial class SalesViewModel : ObservableObject
             SearchResults.Clear();
             foreach (var item in result.Products)
             {
-                SearchResults.Add(item);
+                if (SelectedCategoryName == "All" || item.CategoryName.Equals(SelectedCategoryName, StringComparison.OrdinalIgnoreCase))
+                {
+                    SearchResults.Add(item);
+                }
             }
         }
         catch (Exception ex)
@@ -344,6 +382,12 @@ public partial class SalesViewModel : ObservableObject
     private void NavigateToCustomer()
     {
         _navigationService.NavigateTo<CustomerViewModel>();
+    }
+
+    [RelayCommand]
+    private void NavigateToReturn()
+    {
+        _navigationService.NavigateTo<ReturnViewModel>();
     }
 
     private void UpdateCart(CartSummaryDto newCart)

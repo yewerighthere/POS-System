@@ -164,16 +164,16 @@ Liên quan: F-04, F-12.
 
 Liên quan: F-10.
 
-- [ ] TASK-1001: Implement `IReturnRepository`.
-- [ ] TASK-1002: Implement tạo yêu cầu trả hàng.
-- [ ] TASK-1003: Chỉ cho trả hàng với order đã thanh toán thành công.
-- [ ] TASK-1004: Chặn số lượng trả vượt quá số lượng đã mua trừ số lượng đã trả trước đó.
-- [ ] TASK-1005: Implement duyệt trả hàng.
-- [ ] TASK-1006: Implement từ chối trả hàng.
-- [ ] TASK-1007: Gửi sự kiện nhập lại hàng sang Inventory Manager khi duyệt.
-- [ ] TASK-1008: Cập nhật điểm khách hàng nếu cần.
-- [ ] TASK-1009: Implement `ReturnViewModel`.
-- [ ] TASK-1010: Viết test tạo return, duyệt return, từ chối return, trả quá số lượng.
+- [x] TASK-1001: Implement `IReturnRepository`.
+- [x] TASK-1002: Implement tạo yêu cầu trả hàng.
+- [x] TASK-1003: Chỉ cho trả hàng với order đã thanh toán thành công.
+- [x] TASK-1004: Chặn số lượng trả vượt quá số lượng đã mua trừ số lượng đã trả trước đó.
+- [x] TASK-1005: Implement duyệt trả hàng.
+- [x] TASK-1006: Implement từ chối trả hàng.
+- [x] TASK-1007: Gửi sự kiện nhập lại hàng sang Inventory Manager khi duyệt.
+- [x] TASK-1008: Cập nhật điểm khách hàng nếu cần.
+- [x] TASK-1009: Implement `ReturnViewModel`.
+- [x] TASK-1010: Viết test tạo return, duyệt return, từ chối return, trả quá số lượng.
 
 ## Phase 11 - Inventory Manager Sync
 
@@ -196,11 +196,11 @@ Liên quan: F-15.
 
 - [x] TASK-1201: Implement `IAuditLogRepository`. Đã có `AddAsync`, `GetByEntityAsync`, `GetRecentAsync`.
 - [x] TASK-1202: Implement `AuditService.LogAsync`. Đã tạo `AuditLog` entity, JSON serialize old/new values, gracefully swallow errors.
-- [~] TASK-1203: Ghi audit log cho thanh toán, sửa giá, khuyến mãi, trả hàng. Đã ghi cho: thanh toán tiền mặt (PaymentService), sửa giá/tạo/sửa category/tạo/deactivate/reactivate/image product (CatalogService). Chưa ghi cho: khuyến mãi, trả hàng.
+- [x] TASK-1203: Ghi audit log cho thanh toán, sửa giá, khuyến mãi, trả hàng. Đã ghi đầy đủ cho: thanh toán, sửa giá, tạo/sửa category/product, khuyến mãi (PromotionService), trả hàng (ReturnService).
 - [x] TASK-1204: Implement `IReportService.GetShiftReportAsync`.
 - [x] TASK-1205: Implement IReportService.GetSalesReportAsync.
 - [x] TASK-1206: Implement `ReportViewModel`.
-- [ ] TASK-1207: Implement `AuditLogViewModel`.
+- [x] TASK-1207: Implement `AuditLogViewModel`.
 - [x] TASK-1208: Viết test report ca, report doanh thu, ghi audit log. ✅ ReportServiceTests 7 tests (valid shift, not found, revenue, cash/vnpay split, top products, order log, empty shift).
 
 ## Phase 13 - UI Polish Và Demo Flow

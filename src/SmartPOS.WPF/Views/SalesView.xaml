@@ -448,7 +448,7 @@
                      <!-- Inactive buttons -->
                      <Button Style="{StaticResource SidebarNavButtonStyle}" Tag="📦" Content="Inventory" Command="{Binding NavigateToSyncCommand}"/>
                      <Button Style="{StaticResource SidebarNavButtonStyle}" Tag="👤" Content="Customers" Command="{Binding NavigateToCustomerCommand}"/>
-                     <Button Style="{StaticResource SidebarNavButtonStyle}" Tag="🔄" Content="Returns &amp; Refunds"/>
+                     <Button Style="{StaticResource SidebarNavButtonStyle}" Tag="🔄" Content="Returns &amp; Refunds" Command="{Binding NavigateToReturnCommand}"/>
                      <Button Style="{StaticResource SidebarNavButtonStyle}" Tag="🗂️" Content="Product Catalog" Command="{Binding NavigateToCatalogCommand}"/>
                      <Button Style="{StaticResource SidebarNavButtonStyle}" Tag="📊" Content="Shift Reports" Command="{Binding NavigateToReportCommand}"/>
                  </StackPanel>
@@ -596,13 +596,24 @@
 
                      <!-- Category Filters Row -->
                      <ScrollViewer Grid.Row="1" HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Disabled" Margin="0,0,0,16">
-                         <StackPanel Orientation="Horizontal">
-                             <RadioButton Content="All" IsChecked="True" Style="{StaticResource CategoryFilterButton}"/>
-                             <RadioButton Content="Food &amp; Beverage" Style="{StaticResource CategoryFilterButton}"/>
-                             <RadioButton Content="Electronics" Style="{StaticResource CategoryFilterButton}"/>
-                             <RadioButton Content="Household" Style="{StaticResource CategoryFilterButton}"/>
-                             <RadioButton Content="Personal Care" Style="{StaticResource CategoryFilterButton}"/>
-                         </StackPanel>
+                         <ListBox ItemsSource="{Binding CategoriesList}" SelectedItem="{Binding SelectedCategoryName, Mode=TwoWay}" BorderThickness="0" Background="Transparent" ScrollViewer.HorizontalScrollBarVisibility="Disabled">
+                             <ListBox.ItemsPanel>
+                                 <ItemsPanelTemplate>
+                                     <StackPanel Orientation="Horizontal"/>
+                                 </ItemsPanelTemplate>
+                             </ListBox.ItemsPanel>
+                             <ListBox.ItemContainerStyle>
+                                 <Style TargetType="ListBoxItem">
+                                     <Setter Property="Template">
+                                         <Setter.Value>
+                                             <ControlTemplate TargetType="ListBoxItem">
+                                                 <RadioButton Content="{Binding}" IsChecked="{Binding IsSelected, RelativeSource={RelativeSource TemplatedParent}, Mode=TwoWay}" Style="{StaticResource CategoryFilterButton}"/>
+                                             </ControlTemplate>
+                                         </Setter.Value>
+                                     </Setter>
+                                 </Style>
+                             </ListBox.ItemContainerStyle>
+                         </ListBox>
                      </ScrollViewer>
 
                      <!-- Products Grid -->

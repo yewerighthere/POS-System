@@ -227,7 +227,7 @@
                             <!-- Input with ₫ prefix -->
                             <Grid Margin="0,0,0,12">
                                 <TextBox Style="{StaticResource CashInputStyle}"
-                                         Text="{Binding OpeningCash, Mode=TwoWay,
+                                         Text="{Binding OpeningCashInput, Mode=TwoWay,
                                                 UpdateSourceTrigger=PropertyChanged}"/>
                                 <TextBlock Text="₫" FontFamily="Consolas" FontSize="16"
                                            Foreground="{StaticResource TextMutedBrush}"
@@ -445,9 +445,8 @@
                             <!-- Input with ₫ prefix -->
                             <Grid Margin="0,0,0,24">
                                 <TextBox Style="{StaticResource CashInputStyle}"
-                                         Text="{Binding ClosingCash, Mode=TwoWay,
-                                                UpdateSourceTrigger=PropertyChanged,
-                                                TargetNullValue=''}"/>
+                                         Text="{Binding ClosingCashInput, Mode=TwoWay,
+                                                UpdateSourceTrigger=PropertyChanged}"/>
                                 <TextBlock Text="₫" FontFamily="Consolas" FontSize="16"
                                            Foreground="{StaticResource TextMutedBrush}"
                                            VerticalAlignment="Center" Margin="14,0,0,0"

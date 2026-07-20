@@ -38,8 +38,8 @@ public class CartServiceTests
         // Assert
         Assert.Single(result.Items);
         Assert.Equal(20000, result.Subtotal);
-        Assert.Equal(2000, result.TaxAmount); // 10% of 20000
-        Assert.Equal(22000, result.TotalAmount); // 20000 + 2000
+        Assert.Equal(600, result.TaxAmount); // 3% of 20000
+        Assert.Equal(20600, result.TotalAmount); // 20000 + 600
     }
 
     [Fact]
@@ -124,8 +124,8 @@ public class CartServiceTests
         // Assert
         Assert.Equal(5, result.Items.First().Quantity);
         Assert.Equal(50000, result.Subtotal);
-        Assert.Equal(5000, result.TaxAmount);
-        Assert.Equal(55000, result.TotalAmount);
+        Assert.Equal(1500, result.TaxAmount);
+        Assert.Equal(51500, result.TotalAmount);
     }
 
     [Fact]
@@ -197,7 +197,7 @@ public class CartServiceTests
         // Assert
         Assert.Equal(20000, result.Subtotal);
         Assert.Equal(5000, result.DiscountAmount);
-        Assert.Equal(1500, result.TaxAmount); // (20000 - 5000) * 10%
-        Assert.Equal(16500, result.TotalAmount); // (20000 - 5000) + 1500
+        Assert.Equal(450, result.TaxAmount); // (20000 - 5000) * 3%
+        Assert.Equal(15450, result.TotalAmount); // (20000 - 5000) + 450
     }
 }

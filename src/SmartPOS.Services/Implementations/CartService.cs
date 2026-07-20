@@ -148,7 +148,7 @@ public class CartService : ICartService
         var pointsEarned = (int)Math.Floor(subtotal / 10000m);
         var taxableAmount = Math.Max(0, subtotal - discount);
         
-        var taxAmount = Math.Round(taxableAmount * 0.10m, 2, MidpointRounding.AwayFromZero);
+        var taxAmount = Math.Round(taxableAmount * 0.03m, 2, MidpointRounding.AwayFromZero);
         var totalAmount = taxableAmount + taxAmount;
         return new CartSummaryDto
         {

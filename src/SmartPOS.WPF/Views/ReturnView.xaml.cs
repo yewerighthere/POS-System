@@ -1,12 +1,13 @@
-﻿using System.Windows.Controls;
+using System.Windows.Controls;
 
 namespace SmartPOS.WPF.Views;
 
 public partial class ReturnView : UserControl
 {
-    public ReturnView()
+    public ReturnView(ViewModels.ReturnViewModel viewModel)
     {
         InitializeComponent();
+        DataContext = viewModel;
     }
 }
 

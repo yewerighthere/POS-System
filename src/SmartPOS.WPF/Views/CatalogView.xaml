@@ -1,4 +1,4 @@
-﻿<UserControl x:Class="SmartPOS.WPF.Views.CatalogView"
+<UserControl x:Class="SmartPOS.WPF.Views.CatalogView"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
@@ -120,13 +120,12 @@
 
         <!-- MAIN CONTENT -->
         <Grid Grid.Column="1" Background="#F8FAFC">
-        <!-- ERROR BAR & STATUS BAR -->
-        <Grid.RowDefinitions>
-            <RowDefinition Height="Auto"/>
-            <RowDefinition Height="Auto"/>
-            <RowDefinition Height="Auto"/>
-            <RowDefinition Height="*"/>
-        </Grid.RowDefinitions>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="*"/>
+            </Grid.RowDefinitions>
 
             <!-- Top header bar -->
             <Border Grid.Row="0" Background="White" BorderBrush="{StaticResource BorderMediumBrush}" BorderThickness="0,0,0,1" Padding="24,0">
@@ -169,21 +168,19 @@
                     <ColumnDefinition Width="Auto"/>
                 </Grid.ColumnDefinitions>
                 <StackPanel Grid.Column="0">
-                    <TextBlock Text="Product Catalog" FontSize="22" FontWeight="Bold" Foreground="{StaticResource TextPrimaryBrush}"/>
-                    <TextBlock Text="{Binding LastSyncedText}" Foreground="{StaticResource TextMutedBrush}" FontSize="12" Margin="0,4,0,0"/>
-                    <TextBlock Text="Quản lý sản phẩm &amp; danh mục trong hệ thống"
-                               Foreground="{StaticResource TextMutedBrush}" FontSize="12" Margin="0,4,0,0"/>
+                    <TextBlock Text="Product Catalog" FontSize="24" FontWeight="Bold" Foreground="{StaticResource TextPrimaryBrush}"/>
+                    <TextBlock Text="{Binding LastSyncedText}" Foreground="{StaticResource TextMutedBrush}" FontSize="13" Margin="0,4,0,0"/>
                 </StackPanel>
                 <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Bottom">
                     <Button Command="{Binding SyncFromInventoryCommand}"
                             IsEnabled="{Binding IsSyncing, Converter={StaticResource BoolInverter}}"
-                            Style="{StaticResource OutlineBtn}" Margin="0,0,10,0">
+                            Style="{StaticResource OutlineBtn}" Margin="0,0,10,0" Height="42" Padding="16,0">
                         <StackPanel Orientation="Horizontal">
-                            <TextBlock Text="↻" FontSize="14" Margin="0,0,6,0"/>
-                            <TextBlock>
+                            <TextBlock Text="↻" FontSize="15" Margin="0,0,6,0" VerticalAlignment="Center"/>
+                            <TextBlock VerticalAlignment="Center">
                                 <TextBlock.Style>
                                     <Style TargetType="TextBlock">
-                                        <Setter Property="Text" Value="Sync from Inventory"/>
+                                        <Setter Property="Text" Value="Update from Inventory"/>
                                         <Style.Triggers>
                                             <DataTrigger Binding="{Binding IsSyncing}" Value="True">
                                                 <Setter Property="Text" Value="Đang đồng bộ..."/>
@@ -195,7 +192,7 @@
                         </StackPanel>
                     </Button>
                     <Button Content="＋  Add Product" Command="{Binding ToggleAddProductCommand}"
-                            Style="{StaticResource PrimaryBtn}" Background="#00288E"/>
+                            Style="{StaticResource PrimaryBtn}" Background="#2563EB" Height="42" Padding="20,0" FontSize="14"/>
                 </StackPanel>
             </Grid>
 
@@ -213,7 +210,7 @@
                         CornerRadius="12" Padding="20" Margin="0,0,0,12"
                         Visibility="{Binding IsAddProductVisible, Converter={StaticResource BoolToVis}}">
                     <StackPanel>
-                        <TextBlock Text="Thêm sản phẩm mới" FontWeight="SemiBold" FontSize="14"
+                        <TextBlock Text="Thêm sản phẩm mới" FontWeight="SemiBold" FontSize="16"
                                    Foreground="{StaticResource TextPrimaryBrush}" Margin="0,0,0,14"/>
 
                         <!-- Main layout: image on left, fields on right -->
@@ -223,45 +220,36 @@
                                 <ColumnDefinition Width="*"/>
                             </Grid.ColumnDefinitions>
 
-                            <!-- ── Image Upload Panel ── -->
+                            <!-- Image Upload Panel -->
                             <StackPanel Grid.Column="0" Margin="0,0,16,0" VerticalAlignment="Top">
-                                <!-- Image preview / placeholder -->
-                                <Border Width="110" Height="110" CornerRadius="10"
+                                <Border Width="120" Height="120" CornerRadius="10"
                                         BorderBrush="{StaticResource BorderMediumBrush}" BorderThickness="2"
                                         Background="{StaticResource BackgroundBrush}" ClipToBounds="True">
-                                    <!-- Placeholder (camera icon) when no image -->
                                     <Grid>
                                         <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center"
                                                     Visibility="{Binding NewProductImagePath,
                                                         Converter={StaticResource ImagePathToVis},
                                                         ConverterParameter=inverse}">
-                                            <TextBlock Text="📷" FontSize="32"
-                                                       HorizontalAlignment="Center"/>
-                                            <TextBlock Text="Chọn ảnh" FontSize="10"
+                                            <TextBlock Text="📷" FontSize="36" HorizontalAlignment="Center"/>
+                                            <TextBlock Text="Chọn ảnh" FontSize="12"
                                                        Foreground="{StaticResource SidebarTextBrush}" HorizontalAlignment="Center"
                                                        Margin="0,4,0,0"/>
                                         </StackPanel>
-                                        <!-- Actual image preview -->
-                                        <Image Source="{Binding NewProductImagePath,
-                                                   Converter={StaticResource LocalImagePathConverter}}"
+                                        <Image Source="{Binding NewProductImagePath, Converter={StaticResource LocalImagePathConverter}}"
                                                Stretch="UniformToFill"
-                                               Visibility="{Binding NewProductImagePath,
-                                                   Converter={StaticResource ImagePathToVis}}"/>
+                                               Visibility="{Binding NewProductImagePath, Converter={StaticResource ImagePathToVis}}"/>
                                     </Grid>
                                 </Border>
 
-                                <!-- Browse button -->
                                 <Button Command="{Binding BrowseImageCommand}"
-                                        Margin="0,8,0,0" Padding="8,6" FontSize="12"
+                                        Margin="0,8,0,0" Padding="8,6" FontSize="13"
                                         Background="#2563EB" Foreground="White"
                                         BorderThickness="0" Cursor="Hand">
                                     <Button.Template>
                                         <ControlTemplate TargetType="Button">
-                                            <Border Background="{TemplateBinding Background}"
-                                                    CornerRadius="7" Padding="{TemplateBinding Padding}">
+                                            <Border Background="{TemplateBinding Background}" CornerRadius="7" Padding="{TemplateBinding Padding}">
                                                 <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
-                                                    <TextBlock Text="📂" FontSize="12" Margin="0,0,5,0"
-                                                               VerticalAlignment="Center"/>
+                                                    <TextBlock Text="📂" FontSize="13" Margin="0,0,5,0" VerticalAlignment="Center"/>
                                                     <ContentPresenter VerticalAlignment="Center"/>
                                                 </StackPanel>
                                             </Border>
@@ -275,11 +263,9 @@
                                     Chọn ảnh
                                 </Button>
 
-                                <!-- Clear image button (only visible when image selected) -->
                                 <Button Command="{Binding ClearImageCommand}"
-                                        Visibility="{Binding NewProductImagePath,
-                                            Converter={StaticResource ImagePathToVis}}"
-                                        Margin="0,4,0,0" Padding="8,5" FontSize="11"
+                                        Visibility="{Binding NewProductImagePath, Converter={StaticResource ImagePathToVis}}"
+                                        Margin="0,4,0,0" Padding="8,5" FontSize="12"
                                         Background="Transparent" Foreground="{StaticResource DangerBrush}"
                                         BorderThickness="1" BorderBrush="#FCA5A5" Cursor="Hand">
                                     <Button.Template>
@@ -289,7 +275,7 @@
                                                     BorderThickness="{TemplateBinding BorderThickness}"
                                                     CornerRadius="7" Padding="{TemplateBinding Padding}">
                                                 <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
-                                                    <TextBlock Text="✕" FontSize="10" Margin="0,0,4,0"
+                                                    <TextBlock Text="✕" FontSize="11" Margin="0,0,4,0"
                                                                Foreground="{StaticResource DangerBrush}" VerticalAlignment="Center"/>
                                                     <ContentPresenter VerticalAlignment="Center"/>
                                                 </StackPanel>
@@ -305,53 +291,53 @@
                                 </Button>
                             </StackPanel>
 
-                            <!-- ── Input Fields ── -->
+                            <!-- Input Fields -->
                             <StackPanel Grid.Column="1">
-                                <!-- Row 1: fields -->
+                                <!-- Fields row -->
                                 <Grid>
                                     <Grid.ColumnDefinitions>
                                         <ColumnDefinition Width="*"/>
-                                        <ColumnDefinition Width="160"/>
-                                        <ColumnDefinition Width="120"/>
+                                        <ColumnDefinition Width="180"/>
                                         <ColumnDefinition Width="140"/>
-                                        <ColumnDefinition Width="110"/>
-                                        <ColumnDefinition Width="90"/>
+                                        <ColumnDefinition Width="150"/>
+                                        <ColumnDefinition Width="130"/>
+                                        <ColumnDefinition Width="100"/>
                                     </Grid.ColumnDefinitions>
                                     <ComboBox Grid.Column="0" ItemsSource="{Binding Categories}"
                                               SelectedItem="{Binding SelectedCategory}" DisplayMemberPath="Name"
-                                              Margin="0,0,8,0" Padding="10,8" FontSize="13" BorderBrush="{StaticResource BorderMediumBrush}"/>
+                                              Margin="0,0,8,0" Padding="12,10" FontSize="14" BorderBrush="{StaticResource BorderMediumBrush}"/>
                                     <TextBox Grid.Column="1" Text="{Binding NewProductName, UpdateSourceTrigger=PropertyChanged}"
-                                             Padding="10,8" BorderBrush="{StaticResource BorderMediumBrush}" BorderThickness="1" Margin="0,0,8,0" FontSize="13"/>
+                                             Padding="12,10" BorderBrush="{StaticResource BorderMediumBrush}" BorderThickness="1" Margin="0,0,8,0" FontSize="14"/>
                                     <TextBox Grid.Column="2" Text="{Binding NewProductSku, UpdateSourceTrigger=PropertyChanged}"
-                                             Padding="10,8" BorderBrush="{StaticResource BorderMediumBrush}" BorderThickness="1" Margin="0,0,8,0" FontSize="13"/>
+                                             Padding="12,10" BorderBrush="{StaticResource BorderMediumBrush}" BorderThickness="1" Margin="0,0,8,0" FontSize="14"/>
                                     <TextBox Grid.Column="3" Text="{Binding NewProductBarcode, UpdateSourceTrigger=PropertyChanged}"
-                                             Padding="10,8" BorderBrush="{StaticResource BorderMediumBrush}" BorderThickness="1" Margin="0,0,8,0" FontSize="13"/>
+                                             Padding="12,10" BorderBrush="{StaticResource BorderMediumBrush}" BorderThickness="1" Margin="0,0,8,0" FontSize="14"/>
                                     <TextBox Grid.Column="4" Text="{Binding NewProductPrice, UpdateSourceTrigger=PropertyChanged}"
-                                             Padding="10,8" BorderBrush="{StaticResource BorderMediumBrush}" BorderThickness="1" Margin="0,0,8,0" FontSize="13"/>
+                                             Padding="12,10" BorderBrush="{StaticResource BorderMediumBrush}" BorderThickness="1" Margin="0,0,8,0" FontSize="14"/>
                                     <TextBox Grid.Column="5" Text="{Binding NewProductStock, UpdateSourceTrigger=PropertyChanged}"
-                                             Padding="10,8" BorderBrush="{StaticResource BorderMediumBrush}" BorderThickness="1" FontSize="13"/>
+                                             Padding="12,10" BorderBrush="{StaticResource BorderMediumBrush}" BorderThickness="1" FontSize="14"/>
                                 </Grid>
                                 <!-- Labels row -->
                                 <Grid Margin="0,4,0,12">
                                     <Grid.ColumnDefinitions>
                                         <ColumnDefinition Width="*"/>
-                                        <ColumnDefinition Width="160"/>
-                                        <ColumnDefinition Width="120"/>
+                                        <ColumnDefinition Width="180"/>
                                         <ColumnDefinition Width="140"/>
-                                        <ColumnDefinition Width="110"/>
-                                        <ColumnDefinition Width="90"/>
+                                        <ColumnDefinition Width="150"/>
+                                        <ColumnDefinition Width="130"/>
+                                        <ColumnDefinition Width="100"/>
                                     </Grid.ColumnDefinitions>
-                                    <TextBlock Grid.Column="0" Text="Danh mục *" FontSize="11" Foreground="{StaticResource TextMutedBrush}"/>
-                                    <TextBlock Grid.Column="1" Text="Tên sản phẩm *" FontSize="11" Foreground="{StaticResource TextMutedBrush}" Margin="0,0,8,0"/>
-                                    <TextBlock Grid.Column="2" Text="SKU" FontSize="11" Foreground="{StaticResource TextMutedBrush}" Margin="0,0,8,0"/>
-                                    <TextBlock Grid.Column="3" Text="Barcode" FontSize="11" Foreground="{StaticResource TextMutedBrush}" Margin="0,0,8,0"/>
-                                    <TextBlock Grid.Column="4" Text="Giá (VNĐ) *" FontSize="11" Foreground="{StaticResource TextMutedBrush}" Margin="0,0,8,0"/>
-                                    <TextBlock Grid.Column="5" Text="Tồn kho" FontSize="11" Foreground="{StaticResource TextMutedBrush}"/>
+                                    <TextBlock Grid.Column="0" Text="Danh mục *" FontSize="12" Foreground="{StaticResource TextMutedBrush}"/>
+                                    <TextBlock Grid.Column="1" Text="Tên sản phẩm *" FontSize="12" Foreground="{StaticResource TextMutedBrush}" Margin="0,0,8,0"/>
+                                    <TextBlock Grid.Column="2" Text="SKU" FontSize="12" Foreground="{StaticResource TextMutedBrush}" Margin="0,0,8,0"/>
+                                    <TextBlock Grid.Column="3" Text="Barcode" FontSize="12" Foreground="{StaticResource TextMutedBrush}" Margin="0,0,8,0"/>
+                                    <TextBlock Grid.Column="4" Text="Giá (VNĐ) *" FontSize="12" Foreground="{StaticResource TextMutedBrush}" Margin="0,0,8,0"/>
+                                    <TextBlock Grid.Column="5" Text="Tồn kho" FontSize="12" Foreground="{StaticResource TextMutedBrush}"/>
                                 </Grid>
                                 <!-- Submit button -->
                                 <Button Content="＋  Thêm sản phẩm" Command="{Binding AddProductCommand}"
                                         HorizontalAlignment="Right"
-                                        Style="{StaticResource PrimaryBtn}" Background="#2563EB" Padding="20,10"/>
+                                        Style="{StaticResource PrimaryBtn}" Background="#2563EB" Padding="24,12" FontSize="14"/>
                             </StackPanel>
                         </Grid>
                     </StackPanel>
@@ -370,33 +356,25 @@
                             <ColumnDefinition Width="Auto"/>
                         </Grid.ColumnDefinitions>
                         <StackPanel Grid.Column="0" VerticalAlignment="Center">
-                            <TextBlock FontWeight="SemiBold" Foreground="{StaticResource TextPrimaryBrush}">
+                            <TextBlock FontWeight="SemiBold" FontSize="15" Foreground="{StaticResource TextPrimaryBrush}">
                                 <Run Text="Đang chọn: "/><Run Text="{Binding SelectedProduct.Name}"/>
-                            </TextBlock>
-                            <TextBlock Foreground="{StaticResource TextMutedBrush}" FontSize="12" Margin="0,2,0,0">
-                                <Run Text="Giá hiện tại: "/>
-                                <Run Text="{Binding SelectedProduct.UnitPrice, StringFormat='{}{0:N0} đ', Mode=OneWay}"/>
                             </TextBlock>
                         </StackPanel>
                         <StackPanel Grid.Column="1" Orientation="Horizontal" Margin="12,0" VerticalAlignment="Center">
-                            <TextBlock Text="Giá mới:" VerticalAlignment="Center" Margin="0,0,8,0" Foreground="{StaticResource TextPrimaryBrush}" FontSize="13"/>
+                            <TextBlock Text="Giá mới:" VerticalAlignment="Center" Margin="0,0,8,0" Foreground="{StaticResource TextPrimaryBrush}" FontSize="14"/>
                             <TextBox Text="{Binding UpdatedPrice, UpdateSourceTrigger=PropertyChanged}"
-                                     Width="100" Padding="10,8" BorderBrush="{StaticResource BorderMediumBrush}" BorderThickness="1" FontSize="13"/>
-                                     
-                            <TextBlock Text="Tồn kho:" VerticalAlignment="Center" Margin="12,0,8,0" Foreground="{StaticResource TextPrimaryBrush}" FontSize="13"/>
+                                     Width="120" Padding="10,8" BorderBrush="{StaticResource BorderMediumBrush}" BorderThickness="1" FontSize="14"/>
+                            <TextBlock Text="Tồn kho:" VerticalAlignment="Center" Margin="16,0,8,0" Foreground="{StaticResource TextPrimaryBrush}" FontSize="14"/>
                             <TextBox Text="{Binding UpdatedStock, UpdateSourceTrigger=PropertyChanged}"
-                                     Width="70" Padding="10,8" BorderBrush="{StaticResource BorderMediumBrush}" BorderThickness="1" FontSize="13"/>
+                                     Width="80" Padding="10,8" BorderBrush="{StaticResource BorderMediumBrush}" BorderThickness="1" FontSize="14"/>
                         </StackPanel>
-                        
                         <Button Grid.Column="2" Content="📷 Đổi ảnh" Command="{Binding UpdateImageCommand}"
-                                Style="{StaticResource OutlineBtn}" Margin="0,0,8,0"/>
-                                
+                                Style="{StaticResource OutlineBtn}" Margin="0,0,8,0" Height="40" FontSize="13"/>
                         <Button Grid.Column="3" Content="✏ Cập nhật" Command="{Binding UpdateProductInfoCommand}"
-                                Style="{StaticResource PrimaryBtn}" Background="#2563EB" Margin="0,0,8,0"/>
-                                
+                                Style="{StaticResource PrimaryBtn}" Background="#2563EB" Margin="0,0,8,0" Height="40" FontSize="13"/>
                         <Grid Grid.Column="4">
                             <Button Content="✕ Ngừng KD" Command="{Binding DeactivateProductCommand}"
-                                    Background="#DC2626">
+                                    Background="#DC2626" Height="40" FontSize="13">
                                 <Button.Style>
                                     <Style TargetType="Button" BasedOn="{StaticResource PrimaryBtn}">
                                         <Setter Property="Visibility" Value="Collapsed"/>
@@ -409,7 +387,7 @@
                                 </Button.Style>
                             </Button>
                             <Button Content="✓ Kinh doanh lại" Command="{Binding ReactivateProductCommand}"
-                                    Background="#16A34A">
+                                    Background="#16A34A" Height="40" FontSize="13">
                                 <Button.Style>
                                     <Style TargetType="Button" BasedOn="{StaticResource PrimaryBtn}">
                                         <Setter Property="Visibility" Value="Collapsed"/>
@@ -427,7 +405,7 @@
 
                 <!-- Filter bar -->
                 <Border Grid.Row="2" Background="White" BorderBrush="{StaticResource BorderMediumBrush}" BorderThickness="1"
-                        CornerRadius="12" Padding="16,12" Margin="0,0,0,12">
+                        CornerRadius="20" Padding="16,12" Margin="0,0,0,12" Height="68">
                     <Grid>
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="*"/>
@@ -436,38 +414,54 @@
                             <ColumnDefinition Width="Auto"/>
                         </Grid.ColumnDefinitions>
 
-                        <Border Grid.Column="0" BorderBrush="{StaticResource BorderMediumBrush}" BorderThickness="1" CornerRadius="8"
-                                Padding="10,0" Margin="0,0,12,0">
+                        <!-- Search bar -->
+                        <Border Grid.Column="0" BorderBrush="{StaticResource BorderMediumBrush}" BorderThickness="1" CornerRadius="20"
+                                Padding="14,0" Margin="0,0,16,0" Background="#F8FAFC">
                             <Grid>
                                 <Grid.ColumnDefinitions>
                                     <ColumnDefinition Width="Auto"/>
                                     <ColumnDefinition Width="*"/>
                                 </Grid.ColumnDefinitions>
-                                <TextBlock Grid.Column="0" Text="🔍" FontSize="14" Foreground="{StaticResource TextMutedBrush}"
-                                           VerticalAlignment="Center" Margin="0,0,8,0"/>
+                                <TextBlock Grid.Column="0" Text="🔍" FontSize="16" Foreground="{StaticResource TextMutedBrush}"
+                                           VerticalAlignment="Center" Margin="4,0,8,0"/>
                                 <TextBox Grid.Column="1" Text="{Binding SearchQuery, UpdateSourceTrigger=PropertyChanged}"
-                                         Background="Transparent" BorderThickness="0" FontSize="13"
-                                         Foreground="{StaticResource TextPrimaryBrush}" VerticalAlignment="Center" Padding="0,8"/>
+                                         Background="Transparent" BorderThickness="0" FontSize="14" VerticalContentAlignment="Center"
+                                         Foreground="{StaticResource TextPrimaryBrush}" VerticalAlignment="Center" Padding="0,8"
+                                         Tag="Tìm kiếm sản phẩm, SKU hoặc Barcode"/>
                             </Grid>
                         </Border>
 
-                        <StackPanel Grid.Column="1" Margin="0,0,12,0">
-                            <TextBlock Text="CATEGORY" FontSize="10" FontWeight="Bold" Foreground="{StaticResource TextMutedBrush}" Margin="0,0,0,4"/>
+                        <StackPanel Grid.Column="1" Orientation="Horizontal" Margin="0,0,16,0" VerticalAlignment="Center">
+                            <TextBlock Text="Category:" FontSize="14" FontWeight="SemiBold" Foreground="{StaticResource TextMutedBrush}" VerticalAlignment="Center" Margin="0,0,8,0"/>
                             <ComboBox ItemsSource="{Binding CategoryFilterOptions}"
                                       SelectedItem="{Binding CategoryFilter}"
-                                      FontSize="13" MinWidth="160" Padding="8,6" BorderBrush="{StaticResource BorderMediumBrush}"/>
+                                      FontSize="14" MinWidth="140" Padding="10,8" Height="42" BorderBrush="{StaticResource BorderMediumBrush}">
+                                <ComboBox.Resources>
+                                    <Style TargetType="Border">
+                                        <Setter Property="CornerRadius" Value="8"/>
+                                    </Style>
+                                </ComboBox.Resources>
+                            </ComboBox>
                         </StackPanel>
 
-                        <StackPanel Grid.Column="2" Margin="0,0,16,0">
-                            <TextBlock Text="STATUS" FontSize="10" FontWeight="Bold" Foreground="{StaticResource TextMutedBrush}" Margin="0,0,0,4"/>
+                        <StackPanel Grid.Column="2" Orientation="Horizontal" Margin="0,0,24,0" VerticalAlignment="Center">
+                            <TextBlock Text="Status:" FontSize="14" FontWeight="SemiBold" Foreground="{StaticResource TextMutedBrush}" VerticalAlignment="Center" Margin="0,0,8,0"/>
                             <ComboBox ItemsSource="{Binding StatusOptions}" SelectedItem="{Binding StatusFilter}"
-                                      FontSize="13" MinWidth="140" Padding="8,6" BorderBrush="{StaticResource BorderMediumBrush}"/>
+                                      FontSize="14" MinWidth="130" Padding="10,8" Height="42" BorderBrush="{StaticResource BorderMediumBrush}">
+                                <ComboBox.Resources>
+                                    <Style TargetType="Border">
+                                        <Setter Property="CornerRadius" Value="8"/>
+                                    </Style>
+                                </ComboBox.Resources>
+                            </ComboBox>
                         </StackPanel>
 
-                        <TextBlock Grid.Column="3" VerticalAlignment="Bottom" Margin="0,0,0,6">
-                            <Run Text="Hiển thị " Foreground="{StaticResource TextMutedBrush}" FontSize="13"/>
-                            <Run Text="{Binding FilteredCount, Mode=OneWay}" Foreground="{StaticResource TextPrimaryBrush}" FontWeight="Bold" FontSize="13"/>
-                            <Run Text=" sản phẩm" Foreground="{StaticResource TextMutedBrush}" FontSize="13"/>
+                        <TextBlock Grid.Column="3" VerticalAlignment="Center" FontSize="14" Foreground="{StaticResource TextMutedBrush}">
+                            <Run Text="Hiển thị "/>
+                            <Run Text="{Binding FilteredCount, Mode=OneWay}" Foreground="{StaticResource TextPrimaryBrush}" FontWeight="Bold"/>
+                            <Run Text="/"/>
+                            <Run Text="{Binding AllCount, Mode=OneWay}" Foreground="{StaticResource TextPrimaryBrush}" FontWeight="Bold"/>
+                            <Run Text=" sản phẩm"/>
                         </TextBlock>
                     </Grid>
                 </Border>
@@ -485,23 +479,25 @@
                         <Border Grid.Row="0" Background="#F4F2FC" BorderBrush="{StaticResource BorderMediumBrush}" BorderThickness="0,0,0,1">
                             <Grid Margin="16,12">
                                 <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="52"/>
-                                    <ColumnDefinition Width="2*"/>
+                                    <ColumnDefinition Width="40"/>
+                                    <ColumnDefinition Width="60"/>
+                                    <ColumnDefinition Width="3*"/>
                                     <ColumnDefinition Width="130"/>
                                     <ColumnDefinition Width="140"/>
-                                    <ColumnDefinition Width="90"/>
-                                    <ColumnDefinition Width="120"/>
-                                    <ColumnDefinition Width="90"/>
-                                    <ColumnDefinition Width="90"/>
+                                    <ColumnDefinition Width="110"/>
+                                    <ColumnDefinition Width="150"/>
+                                    <ColumnDefinition Width="140"/>
+                                    <ColumnDefinition Width="110"/>
                                 </Grid.ColumnDefinitions>
-                                <TextBlock Grid.Column="0" Text="IMAGE" FontSize="11" FontWeight="Bold" Foreground="{StaticResource TextMutedBrush}"/>
-                                <TextBlock Grid.Column="1" Text="PRODUCT NAME &amp; SKU" FontSize="11" FontWeight="Bold" Foreground="{StaticResource TextMutedBrush}"/>
-                                <TextBlock Grid.Column="2" Text="CATEGORY" FontSize="11" FontWeight="Bold" Foreground="{StaticResource TextMutedBrush}"/>
-                                <TextBlock Grid.Column="3" Text="BARCODE" FontSize="11" FontWeight="Bold" Foreground="{StaticResource TextMutedBrush}"/>
-                                <TextBlock Grid.Column="4" Text="PRICE (đ)" FontSize="11" FontWeight="Bold" Foreground="{StaticResource TextMutedBrush}" TextAlignment="Right" Margin="0,0,16,0"/>
-                                <TextBlock Grid.Column="5" Text="STOCK" FontSize="11" FontWeight="Bold" Foreground="{StaticResource TextMutedBrush}" Margin="12,0,0,0"/>
-                                <TextBlock Grid.Column="6" Text="STATUS" FontSize="11" FontWeight="Bold" Foreground="{StaticResource TextMutedBrush}"/>
-                                <TextBlock Grid.Column="7" Text="ACTIONS" FontSize="11" FontWeight="Bold" Foreground="{StaticResource TextMutedBrush}" TextAlignment="Center"/>
+                                <CheckBox Grid.Column="0" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                <TextBlock Grid.Column="1" Text="IMAGE"    FontSize="13" FontWeight="Bold" Foreground="{StaticResource TextMutedBrush}"/>
+                                <TextBlock Grid.Column="2" Text="PRODUCT"  FontSize="13" FontWeight="Bold" Foreground="{StaticResource TextMutedBrush}"/>
+                                <TextBlock Grid.Column="3" Text="CATEGORY" FontSize="13" FontWeight="Bold" Foreground="{StaticResource TextMutedBrush}"/>
+                                <TextBlock Grid.Column="4" Text="BARCODE"  FontSize="13" FontWeight="Bold" Foreground="{StaticResource TextMutedBrush}"/>
+                                <TextBlock Grid.Column="5" Text="PRICE (đ)" FontSize="13" FontWeight="Bold" Foreground="{StaticResource TextMutedBrush}" TextAlignment="Right" Margin="0,0,16,0"/>
+                                <TextBlock Grid.Column="6" Text="STOCK"    FontSize="13" FontWeight="Bold" Foreground="{StaticResource TextMutedBrush}"/>
+                                <TextBlock Grid.Column="7" Text="STATUS"   FontSize="13" FontWeight="Bold" Foreground="{StaticResource TextMutedBrush}"/>
+                                <TextBlock Grid.Column="8" Text="ACTIONS"  FontSize="13" FontWeight="Bold" Foreground="{StaticResource TextMutedBrush}" TextAlignment="Center"/>
                             </Grid>
                         </Border>
 
@@ -521,116 +517,91 @@
                                                     </Style.Triggers>
                                                 </Style>
                                             </Border.Style>
-                                            <Grid Margin="16,0" Height="64">
+                                            <Grid Margin="16,0" Height="72">
                                                 <Grid.ColumnDefinitions>
-                                                    <ColumnDefinition Width="52"/>
-                                                    <ColumnDefinition Width="2*"/>
+                                                    <ColumnDefinition Width="40"/>
+                                                    <ColumnDefinition Width="60"/>
+                                                    <ColumnDefinition Width="3*"/>
                                                     <ColumnDefinition Width="130"/>
                                                     <ColumnDefinition Width="140"/>
-                                                    <ColumnDefinition Width="90"/>
-                                                    <ColumnDefinition Width="120"/>
-                                                    <ColumnDefinition Width="90"/>
-                                                    <ColumnDefinition Width="90"/>
+                                                    <ColumnDefinition Width="110"/>
+                                                    <ColumnDefinition Width="150"/>
+                                                    <ColumnDefinition Width="140"/>
+                                                    <ColumnDefinition Width="110"/>
                                                 </Grid.ColumnDefinitions>
 
-                                                <!-- Image (real photo or placeholder) -->
-                                                <Border Grid.Column="0" Width="40" Height="40"
+                                                <!-- Checkbox -->
+                                                <CheckBox Grid.Column="0" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+
+                                                <!-- Image -->
+                                                <Border Grid.Column="1" Width="44" Height="44"
                                                         CornerRadius="8" VerticalAlignment="Center"
-                                                        ClipToBounds="True">
+                                                        ClipToBounds="True" Background="#F1F5F9">
                                                     <Grid>
-                                                        <!-- Placeholder shown when no image -->
                                                         <Border Background="#EEF2FF" CornerRadius="8"
-                                                                Visibility="{Binding ImagePath,
-                                                                    Converter={StaticResource ImagePathToVis},
-                                                                    ConverterParameter=inverse}">
-                                                            <TextBlock Text="📦" FontSize="18"
-                                                                       HorizontalAlignment="Center"
-                                                                       VerticalAlignment="Center"/>
+                                                                Visibility="{Binding ImagePath, Converter={StaticResource ImagePathToVis}, ConverterParameter=inverse}">
+                                                            <TextBlock Text="📦" FontSize="20"
+                                                                       HorizontalAlignment="Center" VerticalAlignment="Center"/>
                                                         </Border>
-                                                        <!-- Actual product image -->
-                                                        <Image Source="{Binding ImagePath,
-                                                                   Converter={StaticResource LocalImagePathConverter}}"
+                                                        <Image Source="{Binding ImagePath, Converter={StaticResource LocalImagePathConverter}}"
                                                                Stretch="UniformToFill"
-                                                               Visibility="{Binding ImagePath,
-                                                                   Converter={StaticResource ImagePathToVis}}"/>
+                                                               Visibility="{Binding ImagePath, Converter={StaticResource ImagePathToVis}}"/>
                                                     </Grid>
                                                 </Border>
 
-                                                <!-- Name + SKU -->
-                                                <StackPanel Grid.Column="1" VerticalAlignment="Center">
-                                                    <TextBlock Text="{Binding Name}" FontWeight="Bold" FontSize="13" Foreground="{StaticResource TextPrimaryBrush}"/>
-                                                    <TextBlock Text="{Binding Sku}" FontSize="11" Foreground="{StaticResource TextMutedBrush}"
+                                                <!-- Product Name & SKU -->
+                                                <StackPanel Grid.Column="2" VerticalAlignment="Center">
+                                                    <TextBlock Text="{Binding Name}" FontWeight="Bold" FontSize="15" Foreground="{StaticResource TextPrimaryBrush}"/>
+                                                    <TextBlock Text="{Binding Sku}" FontSize="12" Foreground="{StaticResource TextMutedBrush}"
                                                                FontFamily="Consolas" Margin="0,2,0,0"/>
                                                 </StackPanel>
 
                                                 <!-- Category -->
-                                                <TextBlock Grid.Column="2" Text="{Binding CategoryName}"
-                                                           FontSize="13" Foreground="{StaticResource TextMutedBrush}" VerticalAlignment="Center"/>
+                                                <TextBlock Grid.Column="3" Text="{Binding CategoryName}"
+                                                           FontSize="14" Foreground="{StaticResource TextMutedBrush}" VerticalAlignment="Center"/>
 
                                                 <!-- Barcode -->
-                                                <TextBlock Grid.Column="3" Text="{Binding Barcode}"
-                                                           FontSize="12" FontFamily="Consolas" Foreground="{StaticResource TextMutedBrush}"
+                                                <TextBlock Grid.Column="4" Text="{Binding Barcode}"
+                                                           FontSize="13" FontFamily="Consolas" Foreground="{StaticResource TextMutedBrush}"
                                                            VerticalAlignment="Center"/>
 
                                                 <!-- Price -->
-                                                <TextBlock Grid.Column="4"
-                                                           Text="{Binding UnitPrice, StringFormat='{}{0:N0}'}"
-                                                           FontWeight="Bold" FontSize="13" Foreground="{StaticResource TextPrimaryBrush}"
-                                                           TextAlignment="Right" VerticalAlignment="Center"
-                                                           Margin="0,0,16,0"/>
+                                                <TextBlock Grid.Column="5"
+                                                           Text="{Binding UnitPrice, StringFormat='{}{0:N0} đ'}"
+                                                           FontWeight="Bold" FontSize="15" Foreground="{StaticResource TextPrimaryBrush}"
+                                                           TextAlignment="Right" VerticalAlignment="Center" Margin="0,0,16,0"/>
 
-                                                <!-- Stock badge -->
-                                                <Border Grid.Column="5" VerticalAlignment="Center"
-                                                        CornerRadius="12" Padding="8,3" HorizontalAlignment="Left"
-                                                        Margin="12,0,0,0">
-                                                    <Border.Style>
-                                                        <Style TargetType="Border">
-                                                            <Setter Property="Background" Value="#DCFCE7"/>
-                                                            <Style.Triggers>
-                                                                <DataTrigger Binding="{Binding LocalStockQuantity}" Value="0">
-                                                                    <Setter Property="Background" Value="#FEE2E2"/>
-                                                                </DataTrigger>
-                                                            </Style.Triggers>
-                                                        </Style>
-                                                    </Border.Style>
-                                                    <TextBlock FontSize="10" FontWeight="Bold">
-                                                        <TextBlock.Style>
-                                                            <Style TargetType="TextBlock">
-                                                                <Setter Property="Foreground" Value="#16A34A"/>
-                                                                <Style.Triggers>
-                                                                    <DataTrigger Binding="{Binding LocalStockQuantity}" Value="0">
-                                                                        <Setter Property="Foreground" Value="#DC2626"/>
-                                                                    </DataTrigger>
-                                                                </Style.Triggers>
-                                                            </Style>
-                                                        </TextBlock.Style>
-                                                        <Run Text="{Binding LocalStockQuantity, Mode=OneWay}"/>
-                                                        <Run Text=" In Stock"/>
-                                                    </TextBlock>
+                                                <!-- Stock pill -->
+                                                <Border Grid.Column="6" VerticalAlignment="Center"
+                                                        Background="{Binding LocalStockQuantity, Converter={StaticResource StockBgConverter}}"
+                                                        CornerRadius="12" Padding="10,4" HorizontalAlignment="Left">
+                                                    <TextBlock Text="{Binding LocalStockQuantity, Converter={StaticResource StockTextConverter}}"
+                                                               Foreground="{Binding LocalStockQuantity, Converter={StaticResource StockFgConverter}}"
+                                                               FontSize="12" FontWeight="Bold"/>
                                                 </Border>
 
-                                                <!-- Status badge -->
-                                                <Border Grid.Column="6" VerticalAlignment="Center"
-                                                        CornerRadius="12" Padding="8,3" HorizontalAlignment="Left">
+                                                <!-- Status tag -->
+                                                <Border Grid.Column="7" VerticalAlignment="Center"
+                                                        CornerRadius="12" Padding="10,4" HorizontalAlignment="Left">
                                                     <Border.Style>
                                                         <Style TargetType="Border">
-                                                            <Setter Property="Background" Value="#DBEAFE"/>
+                                                            <Setter Property="Background" Value="#ECFDF5"/>
                                                             <Style.Triggers>
                                                                 <DataTrigger Binding="{Binding IsActive}" Value="False">
-                                                                    <Setter Property="Background" Value="#F1F0FA"/>
+                                                                    <Setter Property="Background" Value="#F1F5F9"/>
                                                                 </DataTrigger>
                                                             </Style.Triggers>
                                                         </Style>
                                                     </Border.Style>
-                                                    <TextBlock FontSize="10" FontWeight="Bold">
+                                                    <TextBlock FontSize="12" FontWeight="Bold">
                                                         <TextBlock.Style>
                                                             <Style TargetType="TextBlock">
-                                                                <Setter Property="Text" Value="ACTIVE"/>
-                                                                <Setter Property="Foreground" Value="#00288E"/>
+                                                                <Setter Property="Text" Value="Đang bán (Active)"/>
+                                                                <Setter Property="Foreground" Value="#10B981"/>
                                                                 <Style.Triggers>
                                                                     <DataTrigger Binding="{Binding IsActive}" Value="False">
-                                                                        <Setter Property="Text" Value="INACTIVE"/>
-                                                                        <Setter Property="Foreground" Value="#757684"/>
+                                                                        <Setter Property="Text" Value="Ngừng bán (Inactive)"/>
+                                                                        <Setter Property="Foreground" Value="#64748B"/>
                                                                     </DataTrigger>
                                                                 </Style.Triggers>
                                                             </Style>
@@ -639,16 +610,27 @@
                                                 </Border>
 
                                                 <!-- Actions -->
-                                                <StackPanel Grid.Column="7" Orientation="Horizontal"
+                                                <StackPanel Grid.Column="8" Orientation="Horizontal"
                                                             VerticalAlignment="Center" HorizontalAlignment="Center">
+                                                    <Button Content="⋮" ToolTip="Tác vụ khác" FontSize="14" FontWeight="Bold"
+                                                            Style="{StaticResource RowIconBtn}" Margin="0,0,4,0">
+                                                        <Button.ContextMenu>
+                                                            <ContextMenu>
+                                                                <MenuItem Header="View Details"
+                                                                          Command="{Binding DataContext.SelectProductCommand, RelativeSource={RelativeSource AncestorType=ItemsControl}}"
+                                                                          CommandParameter="{Binding}"/>
+                                                                <MenuItem Header="Quick Edit Stock"
+                                                                          Command="{Binding DataContext.SelectProductCommand, RelativeSource={RelativeSource AncestorType=ItemsControl}}"
+                                                                          CommandParameter="{Binding}"/>
+                                                                <MenuItem Header="Deactivate"
+                                                                          Command="{Binding DataContext.DeactivateProductCommand, RelativeSource={RelativeSource AncestorType=ItemsControl}}"
+                                                                          CommandParameter="{Binding}"/>
+                                                            </ContextMenu>
+                                                        </Button.ContextMenu>
+                                                    </Button>
                                                     <Button ToolTip="Chỉnh sửa" Content="✏" FontSize="13"
                                                             Style="{StaticResource RowIconBtn}"
                                                             Command="{Binding DataContext.SelectProductCommand, RelativeSource={RelativeSource AncestorType=ItemsControl}}"
-                                                            CommandParameter="{Binding}"/>
-                                                    <Button ToolTip="Ngừng kinh doanh" Content="✕" FontSize="13"
-                                                            Margin="4,0,0,0" Foreground="{StaticResource TextMutedBrush}"
-                                                            Style="{StaticResource RowIconBtn}"
-                                                            Command="{Binding DataContext.DeactivateProductCommand, RelativeSource={RelativeSource AncestorType=ItemsControl}}"
                                                             CommandParameter="{Binding}"/>
                                                     <Button ToolTip="Xóa" Content="🗑️" FontSize="13"
                                                             Margin="4,0,0,0" Foreground="#EF4444"

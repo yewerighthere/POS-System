@@ -23,11 +23,13 @@ public class PromotionService : IPromotionService
 {
     private readonly ILogger<PromotionService> _logger;
     private readonly IPromotionRepository _promotionRepository;
+    private readonly IAuditService? _auditService;
 
-    public PromotionService(ILogger<PromotionService> logger, IPromotionRepository promotionRepository)
+    public PromotionService(ILogger<PromotionService> logger, IPromotionRepository promotionRepository, IAuditService? auditService = null)
     {
         _logger = logger;
         _promotionRepository = promotionRepository;
+        _auditService = auditService;
     }
 
     public async Task<PromotionValidationResultDto> ValidateCodeAsync(string code, CartSummaryDto cart)
@@ -122,6 +124,17 @@ public class PromotionService : IPromotionService
         };
 
         await _promotionRepository.AddAsync(promotion);
+
+        if (_auditService != null)
+        {
+            await _auditService.LogAsync(
+                "CREATE_PROMOTION",
+                "Promotion",
+                promotion.Id,
+                null,
+                new { promotion.Code, promotion.Name, promotion.DiscountValue, promotion.Type },
+                Guid.Empty).ConfigureAwait(false);
+        }
 
         return MapToDto(promotion);
     }

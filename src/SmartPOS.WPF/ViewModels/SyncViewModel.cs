@@ -47,6 +47,9 @@ public partial class SyncViewModel : ObservableObject
     [RelayCommand]
     private void NavigateToReport() => _navigationService.NavigateTo<ReportViewModel>();
 
+    [RelayCommand]
+    private void NavigateToReturn() => _navigationService.NavigateTo<ReturnViewModel>();
+
     // Khi IsLoading thay đổi → thông báo lại CanExecute cho tất cả command
     partial void OnIsLoadingChanged(bool value)
     {

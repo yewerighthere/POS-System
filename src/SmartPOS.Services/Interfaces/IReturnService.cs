@@ -1,4 +1,4 @@
-﻿using SmartPOS.Shared.DTOs.Auth;
+using SmartPOS.Shared.DTOs.Auth;
 using SmartPOS.Shared.DTOs.Shift;
 using SmartPOS.Shared.DTOs.Product;
 using SmartPOS.Shared.DTOs.Cart;
@@ -17,6 +17,10 @@ namespace SmartPOS.Services.Interfaces;
 
 public interface IReturnService
 {
-    Task<ReturnDto> CreateReturnAsync(ReturnRequestDto dto); Task<ReturnDto> ApproveAsync(Guid returnId, Guid approvedBy); Task<ReturnDto> RejectAsync(Guid returnId, Guid approvedBy);
+    Task<ReturnDto> CreateReturnAsync(ReturnRequestDto dto);
+    Task<ReturnDto> ApproveAsync(Guid returnId, Guid approvedBy);
+    Task<ReturnDto> RejectAsync(Guid returnId, Guid approvedBy);
+    Task<IReadOnlyList<ReturnDto>> GetAllReturnsAsync();
+    Task<ReturnDto?> GetReturnByIdAsync(Guid id);
 }
 

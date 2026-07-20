@@ -1,5 +1,370 @@
-﻿<UserControl x:Class="SmartPOS.WPF.Views.ReturnView" xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+<UserControl x:Class="SmartPOS.WPF.Views.ReturnView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:viewmodels="clr-namespace:SmartPOS.WPF.ViewModels"
+             mc:Ignorable="d" 
+             d:DataContext="{d:DesignInstance Type=viewmodels:ReturnViewModel}"
+             Background="{StaticResource BackgroundBrush}"
+             Foreground="{StaticResource TextPrimaryBrush}"
+             d:DesignHeight="768" d:DesignWidth="1024">
+
+    <UserControl.Resources>
+        <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter"/>
+    </UserControl.Resources>
+
     <Grid>
-        <TextBlock Text="TODO: ReturnView" />
+        <Grid.ColumnDefinitions>
+            <!-- Sidebar Column -->
+            <ColumnDefinition Width="220"/>
+            <!-- Main Content Column -->
+            <ColumnDefinition Width="*"/>
+        </Grid.ColumnDefinitions>
+
+        <!-- 1. LEFT SIDEBAR -->
+        <Border Grid.Column="0" Background="#1A1B22" BorderThickness="0">
+            <Grid Margin="0,24,0,24">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/> <!-- Title/Terminal -->
+                    <RowDefinition Height="*"/>    <!-- Navigation items -->
+                </Grid.RowDefinitions>
+
+                <!-- Brand Header -->
+                <StackPanel Grid.Row="0" Margin="20,0,20,32">
+                    <TextBlock Text="SmartPOS Admin" Foreground="#E2E8F0" FontSize="18" FontWeight="Black"/>
+                    <TextBlock Text="Terminal #01" Foreground="{StaticResource SidebarTextBrush}" FontSize="12" Margin="0,4,0,0" Opacity="0.8"/>
+                </StackPanel>
+
+                <StackPanel Grid.Row="1">
+                    <Button Style="{StaticResource SidebarNavButtonStyle}" Tag="🖥️" Content="Point of Sale" Command="{Binding NavigateToSalesCommand}"/>
+                    <Button Style="{StaticResource SidebarNavButtonStyle}" Tag="📦" Content="Inventory" Command="{Binding NavigateToSyncCommand}"/>
+                    <Button Style="{StaticResource SidebarNavButtonStyle}" Tag="👤" Content="Customers" Command="{Binding NavigateToCustomerCommand}"/>
+                    
+                    <!-- Returns & Refunds (Active button) -->
+                    <Border Background="#00288E" CornerRadius="8" Margin="8,2" Padding="16,10">
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Text="🔄" Margin="0,0,12,0" FontSize="14" VerticalAlignment="Center"/>
+                            <TextBlock Text="Returns &amp; Refunds" Foreground="White" FontSize="13" FontWeight="SemiBold" VerticalAlignment="Center"/>
+                        </StackPanel>
+                    </Border>
+                    
+                    <Button Style="{StaticResource SidebarNavButtonStyle}" Tag="🗂️" Content="Product Catalog" Command="{Binding NavigateToCatalogCommand}"/>
+                    <Button Style="{StaticResource SidebarNavButtonStyle}" Tag="📊" Content="Shift Reports" Command="{Binding NavigateToReportCommand}"/>
+                </StackPanel>
+            </Grid>
+        </Border>
+
+        <!-- 2. MAIN CONTENT -->
+        <Grid Grid.Column="1">
+            <Grid.RowDefinitions>
+                <!-- Header Bar -->
+                <RowDefinition Height="64"/>
+                <!-- Error / Loading bar -->
+                <RowDefinition Height="Auto"/>
+                <!-- Main Content Area -->
+                <RowDefinition Height="*"/>
+            </Grid.RowDefinitions>
+
+            <!-- 1. HEADER BAR -->
+            <Border Grid.Row="0" Background="{StaticResource SurfaceBrush}" BorderBrush="{StaticResource BorderBrush}" BorderThickness="0,0,0,1" Padding="24,0">
+                <Grid VerticalAlignment="Center">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+
+                    <StackPanel Grid.Column="0" Orientation="Horizontal" VerticalAlignment="Center">
+                        <TextBlock Text="🔄" FontSize="20" Margin="0,0,12,0" VerticalAlignment="Center"/>
+                        <TextBlock Text="QUẢN LÝ TRẢ HÀNG &amp; HOÀN TIỀN" Foreground="{StaticResource PrimaryBrush}" FontSize="18" FontWeight="Black" VerticalAlignment="Center"/>
+                    </StackPanel>
+
+                    <Button Grid.Column="1" Content="+ Tạo yêu cầu trả hàng" Command="{Binding OpenCreatePopupCommand}" Style="{StaticResource PrimaryButtonStyle}" Height="40" Padding="16,0"/>
+                </Grid>
+            </Border>
+
+            <!-- 2. STATUS & ERROR BAR -->
+            <StackPanel Grid.Row="1" Margin="24,12,24,0">
+                <ProgressBar IsIndeterminate="True" Height="4" Foreground="{StaticResource PrimaryBrush}" Background="Transparent" Visibility="{Binding IsLoading, Converter={StaticResource BooleanToVisibilityConverter}, FallbackValue=Collapsed}"/>
+                <Border Background="{StaticResource DangerLightBrush}" CornerRadius="{StaticResource RadiusSmall}" Padding="12,8" Margin="0,8,0,0" Visibility="{Binding ErrorMessage, Converter={StaticResource BooleanToVisibilityConverter}, FallbackValue=Collapsed}">
+                    <TextBlock Text="{Binding ErrorMessage}" Foreground="{StaticResource DangerBrush}" FontWeight="SemiBold"/>
+                </Border>
+            </StackPanel>
+
+            <!-- 3. MAIN WORKSPACE -->
+            <Grid Grid.Row="2" Margin="24,16,24,24">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/> <!-- Search & Filters -->
+                    <RowDefinition Height="*"/>    <!-- Split List & Detail -->
+                </Grid.RowDefinitions>
+
+                <!-- Search & Filters -->
+                <Border Grid.Row="0" Background="{StaticResource SurfaceBrush}" CornerRadius="{StaticResource RadiusSmall}" BorderBrush="{StaticResource BorderBrush}" BorderThickness="1" Padding="16" Margin="0,0,0,16">
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="300"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+
+                        <!-- Search Box -->
+                        <TextBox Grid.Column="0" Text="{Binding SearchQuery, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource FormInputStyle}" Height="40" VerticalContentAlignment="Center" Tag="Tìm theo mã đơn, lý do, người tạo..."/>
+
+                        <!-- Status Filter Tabs -->
+                        <StackPanel Grid.Column="1" Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Center">
+                            <TextBlock Text="Trạng thái:" VerticalAlignment="Center" Margin="0,0,12,0" Foreground="{StaticResource TextMutedBrush}" FontWeight="SemiBold"/>
+                            <ComboBox SelectedValue="{Binding StatusFilter, Mode=TwoWay}" Height="40" Width="140" Style="{StaticResource FormComboBoxStyle}">
+                                <ComboBoxItem Content="Tất cả" IsSelected="True"/>
+                                <ComboBoxItem Content="Requested"/>
+                                <ComboBoxItem Content="Approved"/>
+                                <ComboBoxItem Content="Rejected"/>
+                            </ComboBox>
+                        </StackPanel>
+                    </Grid>
+                </Border>
+
+                <!-- Split Panel: Return List (Left) and Detail View (Right) -->
+                <Grid Grid.Row="1">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="420"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+
+                    <!-- Left: Returns List -->
+                    <Border Grid.Column="0" Background="{StaticResource SurfaceBrush}" CornerRadius="{StaticResource RadiusMedium}" BorderBrush="{StaticResource BorderBrush}" BorderThickness="1" Margin="0,0,16,0" Padding="16">
+                        <Grid>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="*"/>
+                            </Grid.RowDefinitions>
+
+                            <TextBlock Grid.Row="0" Text="Danh sách yêu cầu" FontWeight="Bold" FontSize="15" Margin="0,0,0,12"/>
+
+                            <ListBox Grid.Row="1" ItemsSource="{Binding FilteredReturns}" SelectedItem="{Binding SelectedReturn, Mode=TwoWay}" BorderThickness="0" Background="Transparent" ScrollViewer.HorizontalScrollBarVisibility="Disabled">
+                                <ListBox.ItemContainerStyle>
+                                    <Style TargetType="ListBoxItem">
+                                        <Setter Property="Padding" Value="0"/>
+                                        <Setter Property="Margin" Value="0,0,0,8"/>
+                                        <Setter Property="Background" Value="Transparent"/>
+                                        <Setter Property="Template">
+                                            <Setter.Value>
+                                                <ControlTemplate TargetType="ListBoxItem">
+                                                    <ContentPresenter/>
+                                                </ControlTemplate>
+                                            </Setter.Value>
+                                        </Setter>
+                                    </Style>
+                                </ListBox.ItemContainerStyle>
+                                <ListBox.ItemTemplate>
+                                    <DataTemplate>
+                                        <Border Background="{StaticResource BackgroundBrush}" CornerRadius="{StaticResource RadiusSmall}" BorderBrush="{StaticResource BorderBrush}" BorderThickness="1" Padding="14">
+                                            <Grid>
+                                                <Grid.ColumnDefinitions>
+                                                    <ColumnDefinition Width="*"/>
+                                                    <ColumnDefinition Width="Auto"/>
+                                                </Grid.ColumnDefinitions>
+                                                <Grid.RowDefinitions>
+                                                    <RowDefinition Height="Auto"/>
+                                                    <RowDefinition Height="Auto"/>
+                                                    <RowDefinition Height="Auto"/>
+                                                </Grid.RowDefinitions>
+
+                                                <!-- Order code & Date -->
+                                                <StackPanel Grid.Row="0" Grid.Column="0">
+                                                    <TextBlock Text="{Binding OrderCode, StringFormat='Đơn: #{0}'}" FontWeight="Bold" FontSize="14" Foreground="{StaticResource TextPrimaryBrush}"/>
+                                                    <TextBlock Text="{Binding CreatedAt, StringFormat='{}{0:dd/MM/yyyy HH:mm}'}" FontSize="11" Foreground="{StaticResource TextMutedBrush}" Margin="0,2,0,0"/>
+                                                </StackPanel>
+
+                                                <!-- Status Badge -->
+                                                <Border Grid.Row="0" Grid.Column="1" CornerRadius="4" Padding="8,3">
+                                                    <Border.Style>
+                                                        <Style TargetType="Border">
+                                                            <Setter Property="Background" Value="#FEF3C7"/>
+                                                            <Style.Triggers>
+                                                                <DataTrigger Binding="{Binding Status}" Value="Approved">
+                                                                    <Setter Property="Background" Value="#D1FAE5"/>
+                                                                </DataTrigger>
+                                                                <DataTrigger Binding="{Binding Status}" Value="Rejected">
+                                                                    <Setter Property="Background" Value="#FEE2E2"/>
+                                                                </DataTrigger>
+                                                            </Style.Triggers>
+                                                        </Style>
+                                                    </Border.Style>
+                                                    <TextBlock Text="{Binding Status}" FontSize="11" FontWeight="Bold">
+                                                        <TextBlock.Style>
+                                                            <Style TargetType="TextBlock">
+                                                                <Setter Property="Foreground" Value="#D97706"/>
+                                                                <Style.Triggers>
+                                                                    <DataTrigger Binding="{Binding Status}" Value="Approved">
+                                                                        <Setter Property="Foreground" Value="#059669"/>
+                                                                    </DataTrigger>
+                                                                    <DataTrigger Binding="{Binding Status}" Value="Rejected">
+                                                                        <Setter Property="Foreground" Value="#DC2626"/>
+                                                                    </DataTrigger>
+                                                                </Style.Triggers>
+                                                            </Style>
+                                                        </TextBlock.Style>
+                                                    </TextBlock>
+                                                </Border>
+
+                                                <!-- Reason -->
+                                                <TextBlock Grid.Row="1" Grid.ColumnSpan="2" Text="{Binding Reason}" FontSize="12" Foreground="{StaticResource TextMutedBrush}" Margin="0,8,0,0" TextTrimming="CharacterEllipsis"/>
+
+                                                <!-- Refund Amount -->
+                                                <TextBlock Grid.Row="2" Grid.ColumnSpan="2" Text="{Binding RefundAmount, StringFormat='Hoàn tiền: {0:N0} ₫'}" FontWeight="Bold" FontSize="13" Foreground="{StaticResource PrimaryBrush}" Margin="0,6,0,0"/>
+                                            </Grid>
+                                        </Border>
+                                    </DataTemplate>
+                                </ListBox.ItemTemplate>
+                            </ListBox>
+                        </Grid>
+                    </Border>
+
+                    <!-- Right: Selected Return Detail View -->
+                    <Border Grid.Column="1" Background="{StaticResource SurfaceBrush}" CornerRadius="{StaticResource RadiusMedium}" BorderBrush="{StaticResource BorderBrush}" BorderThickness="1" Padding="20">
+                        <Grid DataContext="{Binding SelectedReturn}">
+                            <Grid.Style>
+                                <Style TargetType="Grid">
+                                    <Setter Property="Visibility" Value="Visible"/>
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding}" Value="{x:Null}">
+                                            <Setter Property="Visibility" Value="Collapsed"/>
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </Grid.Style>
+
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto"/> <!-- Header & Amount -->
+                                <RowDefinition Height="Auto"/> <!-- Info & Reason -->
+                                <RowDefinition Height="*"/>    <!-- Items list -->
+                                <RowDefinition Height="Auto"/> <!-- Approve / Reject buttons -->
+                            </Grid.RowDefinitions>
+
+                            <!-- Header info -->
+                            <Border Grid.Row="0" BorderBrush="{StaticResource BorderBrush}" BorderThickness="0,0,0,1" Padding="0,0,0,16">
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="Auto"/>
+                                    </Grid.ColumnDefinitions>
+
+                                    <StackPanel Grid.Column="0">
+                                        <TextBlock Text="{Binding OrderCode, StringFormat='Chi tiết trả hàng #{0}'}" FontWeight="Black" FontSize="18" Foreground="{StaticResource TextPrimaryBrush}"/>
+                                        <TextBlock Text="{Binding CreatedAt, StringFormat='Thời gian yêu cầu: {0:dd/MM/yyyy HH:mm:ss}'}" Foreground="{StaticResource TextMutedBrush}" FontSize="12" Margin="0,4,0,0"/>
+                                    </StackPanel>
+
+                                    <StackPanel Grid.Column="1" HorizontalAlignment="Right">
+                                        <TextBlock Text="Tiền hoàn lại" Foreground="{StaticResource TextMutedBrush}" FontSize="11" HorizontalAlignment="Right"/>
+                                        <TextBlock Text="{Binding RefundAmount, StringFormat='{}{0:N0} ₫'}" Foreground="{StaticResource PrimaryBrush}" FontSize="20" FontWeight="Black" HorizontalAlignment="Right"/>
+                                    </StackPanel>
+                                </Grid>
+                            </Border>
+
+                            <!-- Person & Reason -->
+                            <StackPanel Grid.Row="1" Margin="0,16">
+                                <TextBlock Text="{Binding RequestedByName, StringFormat='Người yêu cầu: {0}'}" FontSize="13" FontWeight="SemiBold"/>
+                                <TextBlock Text="{Binding Reason, StringFormat='Lý do: {0}'}" FontSize="13" Foreground="{StaticResource TextMutedBrush}" Margin="0,4,0,0" TextWrapping="Wrap"/>
+                            </StackPanel>
+
+                            <!-- Items Table -->
+                            <Grid Grid.Row="2" Margin="0,0,0,16">
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="Auto"/>
+                                    <RowDefinition Height="*"/>
+                                </Grid.RowDefinitions>
+
+                                <TextBlock Grid.Row="0" Text="Sản phẩm trả lại:" FontWeight="Bold" FontSize="14" Margin="0,0,0,8"/>
+
+                                <DataGrid Grid.Row="1" ItemsSource="{Binding Items}" AutoGenerateColumns="False" IsReadOnly="True" HeadersVisibility="Column" Background="Transparent" BorderThickness="1" BorderBrush="{StaticResource BorderBrush}">
+                                    <DataGrid.Columns>
+                                        <DataGridTextColumn Header="Tên sản phẩm" Binding="{Binding ProductName}" Width="*"/>
+                                        <DataGridTextColumn Header="Đơn giá" Binding="{Binding UnitPrice, StringFormat='{}{0:N0} ₫'}" Width="120"/>
+                                        <DataGridTextColumn Header="Số lượng trả" Binding="{Binding Quantity}" Width="100"/>
+                                    </DataGrid.Columns>
+                                </DataGrid>
+                            </Grid>
+
+                            <!-- Approve / Reject Actions -->
+                            <StackPanel Grid.Row="3" Orientation="Horizontal" HorizontalAlignment="Right">
+                                <Button Content="Từ chối" Command="{Binding DataContext.RejectReturnCommand, RelativeSource={RelativeSource AncestorType=UserControl}}" Style="{StaticResource OutlineButtonStyle}" Height="40" Padding="20,0" Margin="0,0,12,0"/>
+                                <Button Content="Phê duyệt trả hàng" Command="{Binding DataContext.ApproveReturnCommand, RelativeSource={RelativeSource AncestorType=UserControl}}" Style="{StaticResource PrimaryButtonStyle}" Height="40" Padding="20,0"/>
+                            </StackPanel>
+                        </Grid>
+                    </Border>
+                </Grid>
+            </Grid>
+        </Grid>
+
+        <!-- 4. POPUP MODAL FOR CREATING RETURN REQUEST -->
+        <Grid Grid.ColumnSpan="2" Visibility="{Binding IsCreatePopupOpen, Converter={StaticResource BooleanToVisibilityConverter}, FallbackValue=Collapsed}">
+            <!-- Overlay background -->
+            <Border Background="#80000000"/>
+
+            <!-- Modal Panel -->
+            <Border Background="{StaticResource SurfaceBrush}" CornerRadius="{StaticResource RadiusMedium}" Width="600" VerticalAlignment="Center" HorizontalAlignment="Center" Padding="24" BorderBrush="{StaticResource BorderBrush}" BorderThickness="1">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/> <!-- Title -->
+                        <RowDefinition Height="Auto"/> <!-- Search order -->
+                        <RowDefinition Height="Auto"/> <!-- Items to select -->
+                        <RowDefinition Height="Auto"/> <!-- Reason input -->
+                        <RowDefinition Height="Auto"/> <!-- Buttons -->
+                    </Grid.RowDefinitions>
+
+                    <TextBlock Grid.Row="0" Text="TẠO YÊU CẦU TRẢ HÀNG" FontSize="18" FontWeight="Black" Foreground="{StaticResource PrimaryBrush}" Margin="0,0,0,16"/>
+
+                    <!-- Search order bar -->
+                    <Grid Grid.Row="1" Margin="0,0,0,16">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
+
+                        <TextBox Grid.Column="0" Text="{Binding OrderSearchInput, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource FormInputStyle}" Height="40" VerticalContentAlignment="Center" Tag="Nhập mã đơn hàng hoặc Guid..."/>
+                        <Button Grid.Column="1" Content="Tìm đơn hàng" Command="{Binding SearchOrderForReturnCommand}" Style="{StaticResource PrimaryButtonStyle}" Height="40" Padding="16,0" Margin="8,0,0,0"/>
+                    </Grid>
+
+                    <!-- Selected order items -->
+                    <StackPanel Grid.Row="2" Margin="0,0,0,16" Visibility="{Binding SelectedOrderToReturn, Converter={StaticResource BooleanToVisibilityConverter}, FallbackValue=Collapsed}">
+                        <TextBlock Text="{Binding SelectedOrderToReturn.OrderCode, StringFormat='Đơn hàng: #{0}'}" FontWeight="Bold" Margin="0,0,0,8"/>
+                        <ItemsControl ItemsSource="{Binding OrderItemsForReturn}">
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate>
+                                    <Border BorderBrush="{StaticResource BorderBrush}" BorderThickness="0,0,0,1" Padding="0,8">
+                                        <Grid>
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="*"/>
+                                                <ColumnDefinition Width="120"/>
+                                                <ColumnDefinition Width="100"/>
+                                            </Grid.ColumnDefinitions>
+                                            <TextBlock Grid.Column="0" Text="{Binding ProductName}" VerticalAlignment="Center" FontWeight="SemiBold"/>
+                                            <TextBlock Grid.Column="1" Text="{Binding UnitPrice, StringFormat='{}{0:N0} ₫'}" VerticalAlignment="Center" Foreground="{StaticResource TextMutedBrush}"/>
+
+                                            <!-- Qty input -->
+                                            <StackPanel Grid.Column="2" Orientation="Horizontal" VerticalAlignment="Center">
+                                                <TextBox Text="{Binding ReturnQuantity, UpdateSourceTrigger=PropertyChanged}" Width="50" Height="30" TextAlignment="Center" VerticalContentAlignment="Center"/>
+                                                <TextBlock Text="{Binding MaxQuantity, StringFormat='/{0}'}" VerticalAlignment="Center" Margin="4,0,0,0" Foreground="{StaticResource TextMutedBrush}"/>
+                                            </StackPanel>
+                                        </Grid>
+                                    </Border>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+                    </StackPanel>
+
+                    <!-- Reason Input -->
+                    <StackPanel Grid.Row="3" Margin="0,0,0,20">
+                        <TextBlock Text="Lý do trả hàng:" FontWeight="SemiBold" Margin="0,0,0,6"/>
+                        <TextBox Text="{Binding ReturnReasonInput, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource FormInputStyle}" Height="40" VerticalContentAlignment="Center" Tag="Nhập lý do trả hàng..."/>
+                    </StackPanel>
+
+                    <!-- Modal Actions -->
+                    <StackPanel Grid.Row="4" Orientation="Horizontal" HorizontalAlignment="Right">
+                        <Button Content="Hủy bỏ" Command="{Binding CloseCreatePopupCommand}" Style="{StaticResource OutlineButtonStyle}" Height="40" Padding="16,0" Margin="0,0,12,0"/>
+                        <Button Content="Tạo yêu cầu" Command="{Binding ConfirmCreateReturnCommand}" Style="{StaticResource PrimaryButtonStyle}" Height="40" Padding="16,0"/>
+                    </StackPanel>
+                </Grid>
+            </Border>
+        </Grid>
     </Grid>
 </UserControl>

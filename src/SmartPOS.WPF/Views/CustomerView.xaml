@@ -128,10 +128,8 @@
                     <TextBlock Text="Terminal #01" Foreground="{StaticResource SidebarTextBrush}" FontSize="12" Margin="0,4,0,0" Opacity="0.8"/>
                 </StackPanel>
 
-                <!-- Navigation Links -->
                 <StackPanel Grid.Row="1">
                     <Button Style="{StaticResource SidebarNavButtonStyle}" Tag="🖥️" Content="Point of Sale" Command="{Binding NavigateToSalesCommand}"/>
-                    <Button Style="{StaticResource SidebarNavButtonStyle}" Tag="🧾" Content="Transactions"/>
                     <Button Style="{StaticResource SidebarNavButtonStyle}" Tag="📦" Content="Inventory" Command="{Binding NavigateToSyncCommand}"/>
                     
                     <!-- Customers (Active button) -->
@@ -142,10 +140,9 @@
                         </StackPanel>
                     </Border>
                     
-                    <Button Style="{StaticResource SidebarNavButtonStyle}" Tag="🔄" Content="Returns &amp; Refunds"/>
+                    <Button Style="{StaticResource SidebarNavButtonStyle}" Tag="🔄" Content="Returns &amp; Refunds" Command="{Binding NavigateToReturnCommand}"/>
                     <Button Style="{StaticResource SidebarNavButtonStyle}" Tag="🗂️" Content="Product Catalog" Command="{Binding NavigateToCatalogCommand}"/>
                     <Button Style="{StaticResource SidebarNavButtonStyle}" Tag="📊" Content="Shift Reports" Command="{Binding NavigateToReportCommand}"/>
-                    <Button Style="{StaticResource SidebarNavButtonStyle}" Tag="⚙️" Content="Settings"/>
                 </StackPanel>
             </Grid>
         </Border>

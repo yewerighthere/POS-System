@@ -24,6 +24,18 @@ namespace SmartPOS.Data
 
         public static async Task SeedAsync(AppDbContext context)
         {
+            if (!await context.Customers.AnyAsync())
+            {
+                var customers = new List<Customer>
+                {
+                    new Customer { Id = Guid.NewGuid(), FullName = "Nguyễn Văn A", Phone = "0987654321", Email = "vana@gmail.com", MemberCode = "MEM001", LoyaltyPoints = 120, CreatedAt = DateTime.UtcNow, IsActive = true },
+                    new Customer { Id = Guid.NewGuid(), FullName = "Trần Thị B", Phone = "0912345678", Email = "thib@gmail.com", MemberCode = "MEM002", LoyaltyPoints = 350, CreatedAt = DateTime.UtcNow, IsActive = true },
+                    new Customer { Id = Guid.NewGuid(), FullName = "Lê Văn C", Phone = "0909090909", Email = "vanc@gmail.com", MemberCode = "MEM003", LoyaltyPoints = 50, CreatedAt = DateTime.UtcNow, IsActive = true }
+                };
+                await context.Customers.AddRangeAsync(customers);
+                await context.SaveChangesAsync();
+            }
+
             if (await context.Categorys.AnyAsync()) return;
 
             // Tạo danh mục

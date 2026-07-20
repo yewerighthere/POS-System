@@ -27,6 +27,46 @@ public partial class ShiftViewModel : ObservableObject
     [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(CanCloseShift))]
     private decimal? _closingCash;
+
+    public string OpeningCashInput
+    {
+        get => _openingCash == 0 ? "" : _openingCash.ToString("N0");
+        set
+        {
+            var cleanValue = value.Replace(",", "");
+            if (string.IsNullOrWhiteSpace(cleanValue))
+            {
+                _openingCash = 0;
+            }
+            else if (decimal.TryParse(cleanValue, out var val))
+            {
+                _openingCash = val;
+            }
+            OnPropertyChanged(nameof(OpeningCash));
+            OnPropertyChanged(nameof(OpeningCashInput));
+        }
+    }
+
+    public string ClosingCashInput
+    {
+        get => _closingCash?.ToString("N0") ?? "";
+        set
+        {
+            var cleanValue = value.Replace(",", "");
+            if (string.IsNullOrWhiteSpace(cleanValue))
+            {
+                _closingCash = null;
+            }
+            else if (decimal.TryParse(cleanValue, out var val))
+            {
+                _closingCash = val;
+            }
+            OnPropertyChanged(nameof(ClosingCash));
+            OnPropertyChanged(nameof(ClosingCashInput));
+            OnPropertyChanged(nameof(CanCloseShift));
+        }
+    }
+
     [ObservableProperty] private bool _hasOpenShift;
     [ObservableProperty] private string _statusMessage = string.Empty;
     [ObservableProperty]
@@ -106,7 +146,10 @@ public partial class ShiftViewModel : ObservableObject
     private void SetQuickAmount(string amount)
     {
         if (decimal.TryParse(amount, out var value))
+        {
             OpeningCash = value;
+            OnPropertyChanged(nameof(OpeningCashInput));
+        }
     }
 
     [RelayCommand]

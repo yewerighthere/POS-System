@@ -40,17 +40,20 @@ public class ProductRepository : IProductRepository
 
     public async Task<IReadOnlyList<Product>> SearchAsync(string keyword, bool includeInactive = false)
     {
-        var query = _context.Products.AsQueryable();
+        var query = _context.Products.Include(p => p.Category).AsQueryable();
 
         if (!includeInactive)
             query = query.Where(p => p.IsActive);
 
         if (!string.IsNullOrWhiteSpace(keyword))
+        {
+            var kw = keyword.ToLower();
             query = query.Where(p =>
-                p.Name.Contains(keyword) ||
-                p.Sku.Contains(keyword) ||
-                (p.Barcode != null && p.Barcode.Contains(keyword)) ||
-                (p.QrCode != null && p.QrCode.Contains(keyword)));
+                p.Name.ToLower().Contains(kw) ||
+                p.Sku.ToLower().Contains(kw) ||
+                (p.Barcode != null && p.Barcode.ToLower().Contains(kw)) ||
+                (p.QrCode != null && p.QrCode.ToLower().Contains(kw)));
+        }
 
         return await query.ToListAsync();
     }
@@ -76,6 +79,7 @@ public class ProductRepository : IProductRepository
     public async Task<IReadOnlyList<Product>> GetAllAsync()
     {
         return await _context.Products
+            .Include(p => p.Category)
             .OrderBy(p => p.Name)
             .ToListAsync();
     }

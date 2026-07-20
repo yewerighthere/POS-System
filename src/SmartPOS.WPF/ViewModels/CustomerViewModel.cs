@@ -279,5 +279,11 @@ public partial class CustomerViewModel : ObservableObject
     {
         _navigationService.NavigateTo<ReportViewModel>();
     }
+
+    [RelayCommand]
+    private void NavigateToReturn()
+    {
+        _navigationService.NavigateTo<ReturnViewModel>();
+    }
 }
 
