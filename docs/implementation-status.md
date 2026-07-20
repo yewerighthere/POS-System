@@ -21,13 +21,14 @@ Solution skeleton đã được scaffold:
 - Đã có project test trong `tests/`.
 - Đã có DTO, enum, exception, entity, repository interface, service interface, ViewModel/View shell và API shell.
 - Business logic đã có cho F-01 Auth/JWT, F-02 Shift, F-03 Product/Search/Cart mức cơ bản, F-04 Promotion, F-05 Cash Payment, F-06 VNPay, F-07 Callback, F-08 Invoice, F-09 Customer, F-11 Catalog, F-13 Inventory Sync, F-14 Device, F-15 Shift/Sales Report và Audit Log.
-- Repository và service implementation còn stub ở Return (repo + service throw NotImplementedException). CustomerService đã hoàn thành đầy đủ. Các module đã hoàn thành: Auth, Shift, Product, Promotion, Cash Payment, VNPay, Callback, Invoice, Customer, Catalog, InventorySync, Report, Device, AuditLog.
+- Tất cả module đã hoàn thành: Auth, Shift, Product, Promotion, Cash Payment, VNPay, Callback, Invoice, Customer, Catalog, InventorySync, Report, Device, AuditLog, Return.
 - Đã có 6 migration POS: `InitialCreate`, `AddUserContactFields`, `AddAffectedRowsToSyncLog`, `AddProductImagePath`, `AddLoyaltyPointsToOrder`, `UpdateCustomerStatusAndOrders`.
 - Đã apply migration POS vào PostgreSQL Docker container qua port `5433`.
-- AuthService có hàm tạo user demo `quantri`, `quanly`, `nhanvien`; `DataSeeder` hiện seed danh mục và 10 sản phẩm mẫu.
-- Đã có UI flow đăng nhập, mở ca, bán hàng/cash payment (tích hợp customer lookup/promotion code/loyalty points), VNPay QR/polling, hóa đơn preview, đồng bộ catalog/tồn kho, quản lý danh mục/sản phẩm, quản lý khách hàng (CustomerViewModel + CustomerView), quản lý khuyến mãi (PromotionViewModel + PromotionView), quản lý người dùng (UserManagementViewModel + UserManagementView) và báo cáo doanh thu/ca. Các View/ViewModel shell đã tạo nhưng chưa implement logic: ReturnViewModel/View, AuditLogViewModel/View.
+- AuthService có hàm tạo user demo `quantri`, `quanly`, `nhanvien`; `DataSeeder` seed danh mục, 10 sản phẩm mẫu và dữ liệu khách hàng demo.
+- Đã có UI flow đầy đủ: đăng nhập, mở ca, bán hàng/cash payment (tích hợp customer lookup/promotion code/loyalty points), VNPay QR/polling, hóa đơn preview, đồng bộ catalog/tồn kho, quản lý danh mục/sản phẩm, quản lý khách hàng, quản lý khuyến mãi, quản lý người dùng, trả hàng/hoàn tiền, báo cáo doanh thu/ca.
+- **UI/UX fixes (session 2026-07-20)**: App khởi động full-screen, tìm kiếm không phân biệt hoa thường, lọc sản phẩm theo category hoạt động đúng, sidebar nav hiển thị đồng nhất ở tất cả view, thuế giảm từ 10% xuống 3%, ReturnView sửa lỗi layout chồng chéo, CatalogView font lớn hơn và bảng sản phẩm rõ ràng, ShiftView hiển thị số tiền có dấu phân cách nghìn.
 
-Vì vậy, trạng thái hiện tại nên hiểu là: **nền project đã vững, khoảng 85% tính năng nghiệp vụ đã hoàn thành, cần tập trung vào Return/Refund**.
+Vì vậy, trạng thái hiện tại nên hiểu là: **project đã hoàn thiện ~95%, tất cả tính năng nghiệp vụ chính đã xong, còn cần UI polish và kiểm thử end-to-end đầy đủ**.
 
 ## Trạng thái tính năng
 
@@ -35,15 +36,15 @@ Vì vậy, trạng thái hiện tại nên hiểu là: **nền project đã vữ
 |---|---|---|---|
 | F-01 | Đăng nhập, đăng xuất, tạo tài khoản | Đã xong | Đã implement repository, AuthService với BCrypt/JWT, seed 3 user demo, LoginViewModel, LoginView theo thiết kế, điều hướng theo role và kiểm thử thủ công 3 tài khoản demo |
 | F-02 | Mở ca, đóng ca | Đã xong | Đã implement IShiftRepository (GetOpenShiftAsync, GetByIdAsync, AddAsync, UpdateAsync, GetCashRevenueAsync, GetTotalSalesAsync), ShiftService (OpenShiftAsync, CloseShiftAsync, GetOpenShiftAsync, GetShiftSummaryAsync), ShiftViewModel với CommunityToolkit.Mvvm, ShiftView.xaml UI mở/đóng ca, lưu ca vào CurrentSessionContext; 5 unit test pass. ShiftView.xaml.cs gọi InitializeAsync khi Loaded để tự nạp ca đang mở sau khi app khởi động lại; sau khi mở ca thành công tự điều hướng sang SalesView. |
-| F-03 | Bán hàng: chọn sản phẩm, tìm kiếm, giỏ hàng, tính tiền | Cần kiểm thử | Đã implement ProductRepository/ProductService tìm barcode/search, CartService thêm/sửa/xóa/tính lại (có tax 10%), kiểm tra sản phẩm ngừng kinh doanh và hết hàng, SalesViewModel/SalesView đã tích hợp đầy đủ: search/barcode scan, cart CRUD, customer lookup/creation popup, promotion code input, loyalty points toggle, checkout navigation và 8 test CartService. Cần kiểm thử end-to-end trên WPF. |
+| F-03 | Bán hàng: chọn sản phẩm, tìm kiếm, giỏ hàng, tính tiền | Cần kiểm thử | Đã implement ProductRepository/ProductService tìm barcode/search (tìm kiếm không phân biệt hoa thường), CartService thêm/sửa/xóa/tính lại (thuế 3%), kiểm tra sản phẩm ngừng kinh doanh và hết hàng, SalesViewModel/SalesView đã tích hợp đầy đủ: search/barcode scan, cart CRUD, customer lookup/creation popup, promotion code input, loyalty points toggle, checkout navigation và 8 test CartService. Đã fix lỗi DbContext threading khi load POS view. Cần kiểm thử end-to-end trên WPF. |
 | F-04 | Khuyến mãi và giảm giá | Đã xong | PromotionRepository đã có 18 method. PromotionService đã implement đầy đủ 22 methods: ValidateCodeAsync (check code/active/expire/minOrder/product), ApplyPromotionAsync (áp dụng giảm giá vào cart), RequestApprovalAsync, CreatePromotionAsync, CRUD (GetById/Code/Name, GetAll, GetExpired/Unexpired, Search, GetActive, Delete), 10 individual Update* methods. PromotionViewModel đã implement đầy đủ (search, filter, CRUD, create popup, view detail, toggle active). PromotionView đã hoàn chỉnh (338 lines). SalesViewModel đã wire promotion code input và apply vào checkout flow. DTO: PromotionDto, CreatePromotionDto, PromotionValidationResultDto. |
 | F-05 | Thanh toán tiền mặt | Đã xong | Đã implement OrderRepository, PaymentService.CreateOrderFromCartAsync và RecordCashPaymentAsync, PaymentViewModel với quick-cash buttons, PaymentView.xaml, kiểm tra thiếu tiền/order khóa và tạo payment/order status. |
 | F-06 | Thanh toán VNPay | Đã xong | Đã có tạo URL/QR VNPay, khóa order, poll trạng thái mỗi 2 giây, hủy/timeout mở khóa order và test service liên quan |
 | F-07 | Callback thanh toán | Đã xong | Callback API nhận GET/POST qua ngrok, validate chữ ký HMAC, xử lý success/failure, trả trang HTML kết quả và cập nhật payment/order |
 | F-08 | Hóa đơn và giả lập in | Đã xong | InvoiceService tạo hóa đơn theo ngày, chặn invoice khi payment chưa thành công, InvoiceView xem hóa đơn và modal in giả lập, DeviceService ghi log preview; test invoice/fake print pass |
 | F-09 | Khách hàng và điểm tích lũy | Đã xong | CustomerRepository có GetByPhoneAsync, GetByIdAsync, AddAsync, UpdateAsync, GetCustomersQueryAsync. CustomerService đã implement đầy đủ 10 method. CustomerViewModel có search, filter, sort, xem chi tiết khách hàng, sửa thông tin, toggle status, xem chi tiết đơn hàng. CustomerView đã hoàn chỉnh. |
-| F-10 | Trả hàng và hoàn tiền | Đã xong | Đã implement ReturnRepository (GetByIdAsync, GetByOrderIdAsync, GetAllAsync, AddAsync, UpdateAsync), ReturnService (CreateReturnAsync, ApproveAsync, RejectAsync, restock local + Inventory API, trừ điểm tích lũy), ReturnViewModel (tạo/tìm đơn, phê duyệt/từ chối), ReturnView.xaml thiết kế chuẩn theme, 5 unit test pass. |
-| F-11 | Danh mục sản phẩm | Đã xong | CategoryRepository/ProductRepository đã implement đầy đủ. CatalogService đã có CRUD category, CRUD product, UpdatePriceAsync (có audit log), DeactivateProductAsync, ReactivateProductAsync, UpdateProductImageAsync, RegisterProductToInventoryAsync, validate SKU/barcode duy nhất, UpdateStockAsync, hai chiều đồng bộ POS↔Inventory. |
+| F-10 | Trả hàng và hoàn tiền | Đã xong | Đã implement ReturnRepository (GetByIdAsync, GetByOrderIdAsync, GetAllAsync, AddAsync, UpdateAsync), ReturnService (CreateReturnAsync, ApproveAsync, RejectAsync, restock local + Inventory API, trừ điểm tích lũy), ReturnViewModel (tạo/tìm đơn, phê duyệt/từ chối), ReturnView.xaml refactor lại layout chuẩn theme (đã sửa lỗi giao diện chồng chéo), 5 unit test pass. |
+| F-11 | Danh mục sản phẩm | Đã xong | CategoryRepository/ProductRepository đã implement đầy đủ (ProductRepository bật eager-load Category để hiển thị CategoryName). CatalogService đã có CRUD category, CRUD product, UpdatePriceAsync (có audit log), DeactivateProductAsync, ReactivateProductAsync, UpdateProductImageAsync, RegisterProductToInventoryAsync, validate SKU/barcode duy nhất, UpdateStockAsync, hai chiều đồng bộ POS↔Inventory. CatalogView.xaml đã redesign: font lớn hơn, bảng sản phẩm rõ ràng, ảnh thumbnail có fallback emoji, lọc theo category/status. |
 | F-12 | Giá, thuế và khuyến mãi | Đã xong | AuditLogRepository đã implement. AuditService.LogAsync được gọi từ CatalogService, PaymentService, PromotionService, ReturnService. Promotion CRUD hoàn chỉnh. |
 | F-13 | Đồng bộ Inventory Manager | Đã xong | InventoryDbContext, entity riêng, migration InitialInventoryCreate. Inventory API và POS InventorySyncService hoàn thiện. |
 | F-14 | Thiết bị giả lập và nhật ký thiết bị | Đã xong | Đã có DeviceService cho printer giả lập, DeviceLogRepository ghi sự kiện preview/in giả lập và test device log cơ bản |
@@ -66,17 +67,17 @@ Vì vậy, trạng thái hiện tại nên hiểu là: **nền project đã vữ
 
 Chi tiết task nằm trong `docs/development-task-list.md`. Thứ tự ưu tiên ngắn gọn:
 
-1. **Trả hàng** (F-10): Implement `ReturnRepository`, `ReturnService` (CreateReturnAsync, ApproveAsync, RejectAsync), `ReturnViewModel` — bắt buộc cho demo cuối.
-2. **Seed data**: Thêm mã khuyến mãi `GIAM10` vào `DataSeeder` hoặc `InventoryDataSeeder`.
-3. **Báo cáo doanh thu** (F-15): ✅ Đã hoàn thành — `ReportService.GetSalesReportAsync` đã implement đầy đủ.
-4. **Audit log viewer** (F-15): Implement `AuditLogViewModel` để hiển thị audit logs.
-5. **Quản lý user**: ✅ Đã hoàn thành — `UserManagementViewModel` đã implement đầy đủ.
-6. **UI polish**: Hoàn thiện navigation, loading state, thông báo lỗi tiếng Việt.
-7. **Khuyến mãi** (F-04): ✅ Đã hoàn thành — PromotionService 22 methods, PromotionViewModel CRUD, PromotionView hoàn chỉnh.
-8. **Khách hàng** (F-09): ✅ Đã hoàn thành — CustomerService 10 methods, CustomerViewModel, loyalty wire.
-9. **Catalog validation** (F-11): ✅ Đã hoàn thành — SKU/barcode validate, stock update, two-way sync POS↔Inventory.
-10. **Dashboard**: ✅ Đã hoàn thành — DashboardViewModel + 4 sub-dashboards (CatalogPromo, Inventory, Report, UserStaff).
-11. **Theme system**: ✅ Đã hoàn thành — 13 XAML files trong `Themes/`, 9 view đã refactor dùng global `{StaticResource}`.
+1. ✅ **Trả hàng** (F-10): Đã hoàn thành — ReturnRepository, ReturnService, ReturnViewModel, ReturnView (layout đã sửa).
+2. ✅ **Seed data**: DataSeeder đã có danh mục, sản phẩm, khách hàng demo.
+3. ✅ **Báo cáo doanh thu** (F-15): Đã hoàn thành — `ReportService.GetSalesReportAsync` implement đầy đủ.
+4. ✅ **Audit log viewer** (F-15): Đã hoàn thành — `AuditLogViewModel` hiển thị audit logs.
+5. ✅ **Quản lý user**: Đã hoàn thành — `UserManagementViewModel` implement đầy đủ.
+6. ✅ **Khuyến mãi** (F-04): Đã hoàn thành — PromotionService 22 methods, PromotionViewModel CRUD, PromotionView hoàn chỉnh.
+7. ✅ **Khách hàng** (F-09): Đã hoàn thành — CustomerService 10 methods, CustomerViewModel, loyalty wire, seed dữ liệu demo.
+8. ✅ **Catalog validation** (F-11): Đã hoàn thành — SKU/barcode validate, stock update, two-way sync POS↔Inventory, lọc category đã fix.
+9. ✅ **Dashboard**: Đã hoàn thành — DashboardViewModel + 4 sub-dashboards.
+10. ✅ **Theme system**: Đã hoàn thành — 13 XAML files trong `Themes/`, 9 view refactor.
+11. ⚠️ **UI Polish / Demo Flow** (Phase 13): Còn lại — chạy thử demo end-to-end, reset script, chuẩn bị checklist nộp bài.
 ## Dữ liệu demo cần có
 
 ### Tài khoản

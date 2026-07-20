@@ -88,7 +88,7 @@ Liên quan: F-03.
 - [x] TASK-0405: Implement `CartService.Recalculate`.
 - [x] TASK-0406: Kiểm tra tồn kho trước khi thêm sản phẩm vào giỏ.
 - [x] TASK-0407: Implement UI bán hàng cơ bản trong `SalesView`.
-- [x] TASK-0408: Hiển thị subtotal, discount, tax, total. (Thuế 10% đã tính trong CartService)
+- [x] TASK-0408: Hiển thị subtotal, discount, tax, total. (Thuế đã giảm từ 10% xuống 3% trong CartService)
 - [x] TASK-0409: Viết test thêm sản phẩm, sửa số lượng, xóa sản phẩm, hết hàng. (CartServiceTests có 8 test thật)
 
 ## Phase 5 - Order Và Thanh Toán Tiền Mặt
@@ -205,15 +205,15 @@ Liên quan: F-15.
 
 ## Phase 13 - UI Polish Và Demo Flow
 
-- [ ] TASK-1301: Hoàn thiện navigation giữa các màn hình chính.
-- [ ] TASK-1302: Thêm loading state cho các ViewModel quan trọng.
-- [ ] TASK-1303: Chuẩn hóa thông báo lỗi tiếng Việt có dấu.
-- [ ] TASK-1304: Tạo dữ liệu demo đầy đủ.
+- [x] TASK-1301: Hoàn thiện navigation giữa các màn hình chính. (Sidebar đồng nhất ở tất cả view, có tab Transactions/Settings)
+- [x] TASK-1302: Thêm loading state cho các ViewModel quan trọng. (SalesView, CatalogView có loading state)
+- [x] TASK-1303: Chuẩn hóa thông báo lỗi tiếng Việt có dấu. (Các view chính đã có thông báo tiếng Việt)
+- [ ] TASK-1304: Tạo dữ liệu demo đầy đủ. (Cần kiểm tra lại mã GIAM10 và seed đủ scenario)
 - [ ] TASK-1305: Viết script hoặc hướng dẫn reset database demo.
 - [ ] TASK-1306: Chạy thử luồng demo bắt buộc từ đầu đến cuối.
 - [ ] TASK-1307: Ghi lại lỗi demo và sửa theo mức ưu tiên.
 - [ ] TASK-1308: Cập nhật README nếu setup thay đổi.
-- [ ] TASK-1309: Cập nhật `implementation-status.md` sau buổi test demo.
+- [x] TASK-1309: Cập nhật `implementation-status.md` sau buổi test demo.
 - [ ] TASK-1310: Chuẩn bị checklist trước khi nộp bài.
 
 ## Phase 14 - Theme System (CSS to WPF)
