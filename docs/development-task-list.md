@@ -28,7 +28,7 @@ Trạng thái đề xuất:
 - [x] TASK-0005: Tạo entity riêng cho `inventory_products`, `inventory_categories`, `stock_items`, `stock_transactions`.
 - [x] TASK-0006: Tạo migration đầu tiên cho POS.
 - [x] TASK-0007: Chạy `dotnet ef database update` cho POS.
-- [~] TASK-0008: Tạo seed data tối thiểu cho tài khoản demo, danh mục, sản phẩm, tồn kho và mã khuyến mãi. AuthService có hàm tạo user demo; DataSeeder đã có danh mục và 10 sản phẩm/tồn kho cục bộ; còn cần đảm bảo user demo được gọi trong startup, thêm `external_inventory_id` và mã `GIAM10`.
+- [x] TASK-0008: Tạo seed data tối thiểu cho tài khoản demo, danh mục, sản phẩm, tồn kho và mã khuyến mãi. AuthService có hàm tạo user demo; DataSeeder đã có danh mục và 10 sản phẩm/tồn kho cục bộ; còn cần đảm bảo user demo được gọi trong startup, thêm `external_inventory_id` và mã `GIAM10`. (Đã hoàn thành và map ID chuẩn)
 - [ ] TASK-0009: Kiểm tra WPF khởi động được tới `LoginView`.
 - [ ] TASK-0010: Kiểm tra Callback API và Inventory API start được trên port dự kiến.
 
@@ -69,12 +69,12 @@ Liên quan: F-03, F-11, F-12.
 
 - [x] TASK-0301: Implement `ICategoryRepository`.
 - [x] TASK-0302: Implement `IProductRepository`.
-- [~] TASK-0303: Implement `CatalogService` tạo danh mục, tạo sản phẩm, cập nhật giá. Đã có logic cơ bản; còn thiếu validate SKU/barcode/QR duy nhất, deactivate và audit.
+- [x] TASK-0303: Implement `CatalogService` tạo danh mục, tạo sản phẩm, cập nhật giá. Đã có logic cơ bản, validate SKU/barcode/QR duy nhất, deactivate và audit.
 - [x] TASK-0304: Implement `ProductService.FindByBarcodeAsync`.
 - [x] TASK-0305: Implement `ProductService.SearchAsync`.
 - [x] TASK-0306: Tạo dữ liệu mẫu tối thiểu 10 sản phẩm.
-- [ ] TASK-0307: Implement `CatalogViewModel`.
-- [~] TASK-0308: Implement `SalesViewModel` phần tìm sản phẩm và quét mã giả lập. Đã có mức cơ bản; còn cần hoàn thiện UX, kiểm tra inactive/giá thay đổi và thông báo lỗi.
+- [x] TASK-0307: Implement `CatalogViewModel`. (Bao gồm sửa lỗi Race condition khi load song song)
+- [x] TASK-0308: Implement `SalesViewModel` phần tìm sản phẩm và quét mã giả lập.
 - [ ] TASK-0309: Viết test tìm sản phẩm theo barcode, SKU, tên.
 
 ## Phase 4 - Cart Và Luồng Bán Hàng Cơ Bản
@@ -86,10 +86,10 @@ Liên quan: F-03.
 - [x] TASK-0403: Implement `CartService.UpdateItem`.
 - [x] TASK-0404: Implement `CartService.RemoveItem`.
 - [x] TASK-0405: Implement `CartService.Recalculate`.
-- [~] TASK-0406: Kiểm tra tồn kho trước khi thêm sản phẩm vào giỏ. Đã chặn vượt tồn khi `LocalStockQuantity > 0`; cần làm rõ rule sản phẩm tồn 0 và inactive.
-- [~] TASK-0407: Implement UI bán hàng cơ bản trong `SalesView`.
-- [~] TASK-0408: Hiển thị subtotal, discount, tax, total. Đã có tổng mức cơ bản; thuế hiện chưa tính.
-- [ ] TASK-0409: Viết test thêm sản phẩm, sửa số lượng, xóa sản phẩm, hết hàng. (CartServiceTests hiện chỉ có placeholder `Assert.True(true)`, chưa có test thật.)
+- [x] TASK-0406: Kiểm tra tồn kho trước khi thêm sản phẩm vào giỏ.
+- [x] TASK-0407: Implement UI bán hàng cơ bản trong `SalesView`.
+- [x] TASK-0408: Hiển thị subtotal, discount, tax, total. (Thuế 10% đã tính trong CartService)
+- [x] TASK-0409: Viết test thêm sản phẩm, sửa số lượng, xóa sản phẩm, hết hàng. (CartServiceTests có 8 test thật)
 
 ## Phase 5 - Order Và Thanh Toán Tiền Mặt
 
@@ -138,27 +138,27 @@ Liên quan: F-08.
 
 Liên quan: F-09.
 
-- [ ] TASK-0801: Implement `ICustomerRepository`.
-- [ ] TASK-0802: Implement tìm khách theo số điện thoại.
-- [ ] TASK-0803: Implement tạo khách hàng mới.
-- [ ] TASK-0804: Implement cộng điểm sau thanh toán thành công.
-- [ ] TASK-0805: Implement trừ điểm khi return được duyệt.
-- [ ] TASK-0806: Implement `CustomerViewModel`.
+- [x] TASK-0801: Implement `ICustomerRepository`. ✅ (GetByPhoneAsync, GetByIdAsync, AddAsync, UpdateAsync, GetCustomersQueryAsync)
+- [x] TASK-0802: Implement tìm khách theo số điện thoại. ✅ (FindByPhoneAsync)
+- [x] TASK-0803: Implement tạo khách hàng mới. ✅ (CreateAsync + SalesView popup)
+- [x] TASK-0804: Implement cộng điểm sau thanh toán thành công. ✅ (AddLoyaltyPointsAsync)
+- [x] TASK-0805: Implement trừ điểm khi return được duyệt. ✅ (DeductLoyaltyPointsAsync)
+- [x] TASK-0806: Implement `CustomerViewModel`. ✅ (search/filter/sort/detail/edit/toggle/view orders)
 - [ ] TASK-0807: Viết test tạo khách, tìm khách, cộng/trừ điểm.
 
 ## Phase 9 - Promotion
 
 Liên quan: F-04, F-12.
 
-- [ ] TASK-0901: Implement `IPromotionRepository`.
-- [ ] TASK-0902: Implement kiểm tra mã khuyến mãi.
-- [ ] TASK-0903: Kiểm tra ngày hiệu lực.
-- [ ] TASK-0904: Kiểm tra giá trị đơn hàng tối thiểu.
-- [ ] TASK-0905: Kiểm tra sản phẩm áp dụng nếu có.
-- [ ] TASK-0906: Implement ngưỡng cần Manager/Admin phê duyệt.
-- [ ] TASK-0907: Chỉ cho áp dụng một khuyến mãi trong một đơn.
-- [ ] TASK-0908: Implement `PromotionViewModel`.
-- [ ] TASK-0909: Viết test promotion hợp lệ, hết hạn, không đủ điều kiện, cần phê duyệt.
+- [x] TASK-0901: Implement `IPromotionRepository`. 18 methods.
+- [x] TASK-0902: Implement kiem tra ma khuyen mai. ValidateCodeAsync.
+- [x] TASK-0903: Kiem tra ngay hieu luc.
+- [x] TASK-0904: Kiem tra gia tri don hang toi thieu.
+- [x] TASK-0905: Kiem tra san pham ap dung neu co.
+- [x] TASK-0906: Implement nguong can Manager/Admin phe duyet. RequestApprovalAsync.
+- [x] TASK-0907: Chi cho ap dung mot khuyen mai trong mot don. ApplyPromotionAsync.
+- [x] TASK-0908: Implement `PromotionViewModel`. Full CRUD, PromotionView 338 lines.
+- [x] TASK-0909: Viet test promotion. PromotionServiceTests.
 
 ## Phase 10 - Return Và Refund
 
@@ -201,7 +201,7 @@ Liên quan: F-15.
 - [ ] TASK-1205: Implement `IReportService.GetSalesReportAsync`.
 - [x] TASK-1206: Implement `ReportViewModel`.
 - [ ] TASK-1207: Implement `AuditLogViewModel`.
-- [ ] TASK-1208: Viết test report ca, report doanh thu, ghi audit log.
+- [x] TASK-1208: Viết test report ca, report doanh thu, ghi audit log. ✅ ReportServiceTests 7 tests (valid shift, not found, revenue, cash/vnpay split, top products, order log, empty shift).
 
 ## Phase 13 - UI Polish Và Demo Flow
 
@@ -215,6 +215,24 @@ Liên quan: F-15.
 - [ ] TASK-1308: Cập nhật README nếu setup thay đổi.
 - [ ] TASK-1309: Cập nhật `implementation-status.md` sau buổi test demo.
 - [ ] TASK-1310: Chuẩn bị checklist trước khi nộp bài.
+
+## Phase 14 - Theme System (CSS to WPF)
+
+- [x] TASK-1401 đến TASK-1420: Đã hoàn thành toàn bộ hệ thống theme trung tâm. 13 file XAML trong `Themes/`, đăng ký trong `App.xaml`, refactor 9 view (Login, Shift, Sales, Payment, Catalog, Customer, Report, Sync, Invoice). Màu primary chuyển sang `#0062FF`. Build pass 0 lỗi. Docs đã cập nhật.
+
+## Phase 15 - Dashboard (Admin/Manager)
+
+Liên quan: F-16.
+
+- [x] TASK-1501: Tạo `IDashboardService` và `DashboardService` (GetOverviewAsync trả `DashboardOverviewDto`).
+- [x] TASK-1502: Tạo `DashboardOverviewDto` (TodayRevenue, TotalOrders, NewCustomers, InventoryAlerts, Revenue7Days, TopCategories, RecentTransactions, ActivePromotions).
+- [x] TASK-1503: Tạo `DashboardViewModel` (overview data + navigate to 4 sub-dashboards + logout).
+- [x] TASK-1504: Tạo `DashboardView.xaml` (main dashboard layout).
+- [x] TASK-1505: Tạo `DashboardCatalogPromoViewModel` + `DashboardCatalogPromoView.xaml`.
+- [x] TASK-1506: Tạo `DashboardInventoryViewModel` + `DashboardInventoryView.xaml`.
+- [x] TASK-1507: Tạo `DashboardReportViewModel` + `DashboardReportView.xaml`.
+- [x] TASK-1508: Tạo `DashboardUserStaffViewModel` + `DashboardUserStaffView.xaml`.
+- [x] TASK-1509: Đăng ký DI trong `App.xaml.cs` (IDashboardService, DashboardViewModel, 4 sub-ViewModels, 5 Views).
 
 ## Definition Of Done
 

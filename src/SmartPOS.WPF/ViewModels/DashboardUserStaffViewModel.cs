@@ -10,19 +10,21 @@ public partial class DashboardUserStaffViewModel : ObservableObject
     private readonly NavigationService _navigationService;
     private readonly CurrentSessionContext _sessionContext;
 
+    [ObservableProperty]
+    private UserManagementViewModel _userManagementVM;
+
     public string CurrentUserName => _sessionContext.CurrentUser?.Username ?? "Unknown";
     public string CurrentUserRole => _sessionContext.CurrentUser?.Role ?? "Unknown";
 
     public DashboardUserStaffViewModel(
         NavigationService navigationService,
-        CurrentSessionContext sessionContext)
+        CurrentSessionContext sessionContext,
+        UserManagementViewModel userManagementVM)
     {
         _navigationService = navigationService;
         _sessionContext = sessionContext;
+        _userManagementVM = userManagementVM;
     }
-
-    [RelayCommand]
-    private void SwitchToPos() => _navigationService.NavigateTo<SalesViewModel>();
 
     [RelayCommand]
     private void NavigateToOverview() => _navigationService.NavigateTo<DashboardViewModel>();
@@ -31,7 +33,7 @@ public partial class DashboardUserStaffViewModel : ObservableObject
     private void NavigateToCatalogPromo() => _navigationService.NavigateTo<DashboardCatalogPromoViewModel>();
 
     [RelayCommand]
-    private void NavigateToInventory() => _navigationService.NavigateTo<SyncViewModel>();
+    private void NavigateToInventory() => _navigationService.NavigateTo<DashboardInventoryViewModel>();
 
     [RelayCommand]
     private void NavigateToReports() => _navigationService.NavigateTo<DashboardReportViewModel>();

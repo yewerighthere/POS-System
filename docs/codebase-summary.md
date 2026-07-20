@@ -72,19 +72,19 @@ Thư mục: `SmartPOS.Shared/Constants`
 
 Thư mục: `SmartPOS.Shared/DTOs`
 
-- Auth: `LoginRequestDto`, `LoginResponseDto`, `UserSessionDto`, `CreateUserDto`, `UserDto`.
+- Auth: `LoginRequestDto`, `LoginResponseDto`, `UserSessionDto`, `CreateUserDto`, `UserDto`, `UpdateUserDto`.
 - Shift: `OpenShiftDto`, `CloseShiftDto`, `ShiftDto`, `ShiftSummaryDto`.
 - Product: `ProductDto`, `ProductSearchResultDto`, `SyncProductDto`.
 - Cart: `CartItemDto`, `CartSummaryDto`.
 - Order: `CreateOrderDto`, `OrderDto`, `OrderItemDto`, `OrderItemInputDto`.
 - Payment: `CashPaymentDto`, `VNPayRequestDto`, `VNPayCallbackDto`, `PaymentResultDto`.
 - Invoice: `InvoiceDto`.
-- Customer: `CustomerDto`, `CreateCustomerDto`.
+- Customer: `CustomerDto`, `CreateCustomerDto`, `CustomerListDto`, `CustomerDetailDto`, `CustomerOrderDto`, `CustomerOrderItemDto`, `CustomerOrderDetailDto`, `UpdateCustomerDto`.
 - Return: `ReturnRequestDto`, `ReturnItemInputDto`, `ReturnDto`.
 - Catalog: `CategoryDto`, `CreateCategoryDto`, `CreateProductDto`, `UpdatePriceDto`.
 - Promotion: `PromotionDto`, `PromotionValidationResultDto`.
 - Inventory: `StockDeductionEventDto`, `RestockEventDto`, `SyncResultDto`.
-- Report: `ShiftReportDto`, `SalesReportDto`.
+- Report: `ShiftReportDto`, `SalesReportDto`, `OrderLogDto`, `TopProductDto`, `RecentShiftDto`.
 
 ## SmartPOS.Data
 
@@ -127,7 +127,7 @@ Nhiệm vụ:
 
 Thư mục: `SmartPOS.Data/Repositories/Interfaces`
 
-- `IUserRepository`: tìm theo username, tìm theo id, thêm, cập nhật.
+- `IUserRepository`: tìm theo username, tìm theo id, thêm, cập nhật, lấy tất cả (GetAllAsync).
 - `IUserSessionRepository`: thêm phiên, cập nhật đăng xuất.
 - `IShiftRepository`: lấy ca đang mở, tìm theo id, thêm, cập nhật.
 - `IProductRepository`: tìm theo id, mã vạch, external id, tìm kiếm, thêm, cập nhật.
@@ -146,7 +146,7 @@ Thư mục: `SmartPOS.Data/Repositories/Interfaces`
 
 Thư mục interface: `SmartPOS.Services/Interfaces`
 
-- `IAuthService`: đăng nhập, đăng xuất, kiểm tra JWT, tạo tài khoản demo khi cần.
+- `IAuthService`: đăng nhập, đăng xuất, kiểm tra JWT, tạo tài khoản demo khi cần, tạo/cập nhật/khóa/reset mật khẩu nhân viên (User Management).
 - `IShiftService`: mở ca, đóng ca, lấy ca đang mở, tóm tắt ca.
 - `IProductService`: tìm sản phẩm theo mã, tìm kiếm sản phẩm.
 - `ICartService`: thêm, sửa, xóa, tính lại giỏ hàng.
@@ -195,17 +195,17 @@ Thư mục: `SmartPOS.WPF/ViewModels`
 
 - `LoginViewModel`: đăng nhập, lưu `CurrentSessionContext` và điều hướng theo role.
 - `ShiftViewModel`: mở ca, đóng ca, có `InitializeAsync` để tìm ca đang mở của user khi quay lại màn hình ca.
-- `SalesViewModel`: màn hình bán hàng, giả lập máy quét, giỏ hàng.
+- `SalesViewModel`: màn hình bán hàng, giả lập máy quét, giỏ hàng (tích hợp customer lookup/creation popup, promotion code input, loyalty points toggle, checkout navigation).
 - `PaymentViewModel`: tiền mặt và VNPay QR/polling.
 - `InvoiceViewModel`: xem hóa đơn và in giả lập.
-- `CustomerViewModel`: hiện còn TODO.
+- `CustomerViewModel`: quản lý khách hàng (search/filter/sort/detail/edit/toggle status/view orders).
 - `ReturnViewModel`: hiện còn TODO.
-- `CatalogViewModel`: danh mục, sản phẩm, giá.
-- `PromotionViewModel`: hiện còn TODO.
+- `CatalogViewModel`: quản lý danh mục, sản phẩm, giá (CRUD + filter/search + deactivate/reactivate + image + inline sync).
+- `PromotionViewModel`: quản lý khuyến mãi (CRUD, tìm kiếm, lọc, kích hoạt/khóa).
 - `ReportViewModel`: báo cáo ca với shift report, recent shifts, top products, order log.
 - `AuditLogViewModel`: hiện còn TODO.
 - `SyncViewModel`: đồng bộ catalog và tồn kho với Inventory Manager (SyncCatalog, SyncStock, SyncAll commands).
-- `UserManagementViewModel`: hiện còn TODO.
+- `UserManagementViewModel`: quản lý nhân viên (tìm kiếm, lọc vai trò/trạng thái, tạo mới, sửa thông tin, đặt lại mật khẩu, khóa/mở khóa tài khoản).
 
 ### View
 
@@ -214,9 +214,14 @@ Thư mục: `SmartPOS.WPF/Views`
 Mỗi ViewModel nên có View tương ứng.
 
 - `LoginView`: giao diện split-screen theo thiết kế, có password toggle và binding về `LoginViewModel`.
-- `ShiftView`, `SalesView`, `PaymentView`, `InvoiceView`, `CatalogView`: đã có UI mức cơ bản.
+- `ShiftView`, `PaymentView`, `InvoiceView`: đã có UI mức cơ bản.
+- `SalesView`: đã có UI hoàn chỉnh (tích hợp customer lookup/creation popup, promotion code, loyalty points, checkout).
+- `CatalogView`: đã có UI hoàn chỉnh (CRUD + filter/search + deactivate/reactivate + image + inline sync).
 - `ReportView`, `SyncView`: đã có UI hoàn chỉnh.
-- `CustomerView`, `ReturnView`, `PromotionView`, `AuditLogView`, `UserManagementView`: hiện vẫn là placeholder TODO.
+- `CustomerView`: giao diện quản lý khách hàng đầy đủ thông tin, lịch sử mua hàng, sửa thông tin và khóa/mở khóa.
+- `PromotionView`: giao diện quản lý khuyến mãi với danh sách và popup tạo mới/sửa.
+- `UserManagementView`: giao diện quản lý nhân viên trực quan với bảng dữ liệu và 3 popup overlay (thêm, sửa, reset mật khẩu), tích hợp trong Dashboard.
+- `ReturnView`, `AuditLogView`: hiện vẫn là placeholder TODO.
 
 ### Control Dự Kiến
 
@@ -245,6 +250,13 @@ Thư mục: `SmartPOS.WPF/Converters`
 - `LocalImagePathConverter`
 - `PercentToGridLengthConverter`
 - `ProductImageConverter`
+- `ImagePathToVisibilityConverter`
+
+### Theme System
+
+Thư mục: `SmartPOS.WPF/Themes`
+
+Hệ thống theme trung tâm chuyển đổi từ `style.css` (glassmorphism) sang WPF ResourceDictionary. Đăng ký trong `App.xaml` qua `Themes/Generic.xaml`. 13 file XAML: Colors, Fonts, Spacing, Shadows, ButtonStyles, TextBoxStyles, BorderStyles, BadgeStyles, ModalStyles, ScrollBarStyles, SidebarStyles, TableStyles, Generic. Màu primary: `#0062FF`. Font: Inter/Segoe UI. 9 view đã refactor: Login, Shift, Sales, Payment, Catalog, Customer, Report, Sync, Invoice.
 
 ## SmartPOS.CallbackApi
 
@@ -313,7 +325,7 @@ Tập trung kiểm thử Service:
 
 - `AuthServiceTests` — 7 test login/logout/JWT
 - `ShiftServiceTests` — 5 test mở/đóng ca
-- `CartServiceTests` — placeholder, chưa có test thật
+- `CartServiceTests` — 8 test thật (add/inactive/stock/update/remove/tax/recalculate)
 - `PaymentServiceTests` — 11 test cash/VNPay/callback/cancel
 - `InvoiceServiceTests` — 4 test tạo/xem hóa đơn
 - `DeviceServiceTests` — 3 test log/print giả lập
@@ -323,7 +335,7 @@ Tập trung kiểm thử Service:
 
 Dùng xUnit, Moq và FluentAssertions.
 
-Hiện test suite có 36 test thật + 3 placeholder (Cart, Promotion, Return chỉ `Assert.True(true)`). Chạy:
+Hiện test suite có **51 test thật** + 1 placeholder (ReturnServiceTests). Chạy:
 `dotnet test tests/SmartPOS.Tests/SmartPOS.Tests.csproj --no-build`.
 
 ## Cấu hình chính

@@ -81,6 +81,10 @@ public partial class App : Application
         {
             client.BaseAddress = new Uri(configuration["InventoryManager:BaseUrl"] ?? "http://localhost:5145");
             client.Timeout = TimeSpan.FromSeconds(10);
+        })
+        .ConfigurePrimaryHttpMessageHandler(() => new System.Net.Http.HttpClientHandler
+        {
+            ServerCertificateCustomValidationCallback = System.Net.Http.HttpClientHandler.DangerousAcceptAnyServerCertificateValidator
         });
         services.AddSingleton<CurrentSessionContext>();
         services.AddSingleton<NavigationService>();
@@ -103,6 +107,8 @@ public partial class App : Application
         services.AddTransient<DashboardCatalogPromoView>();
         services.AddTransient<DashboardUserStaffViewModel>();
         services.AddTransient<DashboardUserStaffView>();
+        services.AddTransient<DashboardInventoryViewModel>();
+        services.AddTransient<DashboardInventoryView>();
         services.AddTransient<DashboardReportViewModel>();
         services.AddTransient<DashboardReportView>();
         services.AddTransient<ShiftView>();

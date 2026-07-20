@@ -131,6 +131,70 @@ public class ProductsController : ControllerBase
             .ToListAsync();
         return Ok(categories);
     }
+    /// <summary>
+    /// Xóa sản phẩm khỏi Inventory Manager
+    /// </summary>
+    [HttpDelete("{id}")]
+    public async Task<IActionResult> DeleteProduct(Guid id)
+    {
+        var product = await _context.InventoryProducts
+            .Include(p => p.StockItem)
+            .FirstOrDefaultAsync(p => p.Id == id);
+
+        if (product == null)
+            return NotFound(new { message = "Không tìm thấy sản phẩm." });
+
+        if (product.StockItem != null)
+        {
+            _context.StockItems.Remove(product.StockItem);
+        }
+
+        _context.InventoryProducts.Remove(product);
+        await _context.SaveChangesAsync();
+
+        return Ok(new { message = "Đã xóa sản phẩm thành công khỏi Inventory Manager." });
+    }
+
+    /// <summary>
+    /// Cập nhật thông tin sản phẩm trong Inventory Manager
+    /// </summary>
+    [HttpPut("{id}")]
+    public async Task<IActionResult> UpdateProduct(Guid id, [FromBody] SmartPOS.Shared.DTOs.Inventory.UpdateInventoryProductDto request)
+    {
+        var product = await _context.InventoryProducts.FindAsync(id);
+        if (product == null)
+            return NotFound(new { message = "Không tìm thấy sản phẩm." });
+
+        if (string.IsNullOrWhiteSpace(request.Name))
+            return BadRequest(new { message = "Tên sản phẩm không được để trống." });
+
+        if (string.IsNullOrWhiteSpace(request.Sku))
+            return BadRequest(new { message = "SKU không được để trống." });
+
+        // Kiểm tra SKU trùng
+        if (await _context.InventoryProducts.AnyAsync(p => p.Sku == request.Sku && p.Id != id))
+            return Conflict(new { message = $"SKU '{request.Sku}' đã được sử dụng bởi sản phẩm khác." });
+
+        // Kiểm tra Barcode trùng
+        if (!string.IsNullOrWhiteSpace(request.Barcode) &&
+            await _context.InventoryProducts.AnyAsync(p => p.Barcode == request.Barcode && p.Id != id))
+            return Conflict(new { message = $"Barcode '{request.Barcode}' đã được sử dụng." });
+
+        product.Name = request.Name.Trim();
+        product.Sku = request.Sku.Trim();
+        product.Barcode = request.Barcode;
+        product.QrCode = request.QrCode;
+        product.Description = request.Description;
+        product.UnitPrice = request.UnitPrice;
+        product.TaxRate = request.TaxRate;
+        // product.CategoryId = request.CategoryId; // Lỗi khoá ngoại vì CategoryId của POS khác Inventory
+        product.UpdatedAt = DateTime.UtcNow;
+
+        _context.InventoryProducts.Update(product);
+        await _context.SaveChangesAsync();
+
+        return Ok(new { message = "Đã cập nhật sản phẩm thành công trên Inventory Manager." });
+    }
 }
 
 /// <summary>Request body để tạo sản phẩm mới trong Inventory Manager</summary>

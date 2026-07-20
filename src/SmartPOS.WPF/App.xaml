@@ -1,8 +1,15 @@
-﻿<Application x:Class="SmartPOS.WPF.App"
+<Application x:Class="SmartPOS.WPF.App"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:converters="clr-namespace:SmartPOS.WPF.Converters">
     <Application.Resources>
-        <converters:BoolToVisibilityConverter x:Key="BooleanToVisibilityConverter" />
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <!-- Theme System - All design tokens and component styles -->
+                <ResourceDictionary Source="Themes/Generic.xaml"/>
+            </ResourceDictionary.MergedDictionaries>
+            
+            <converters:BoolToVisibilityConverter x:Key="BooleanToVisibilityConverter" />
+        </ResourceDictionary>
     </Application.Resources>
 </Application>

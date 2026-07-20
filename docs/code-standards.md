@@ -388,3 +388,43 @@ Nội dung nhật ký phải là tiếng Việt có dấu.
 - Không dùng static state để chia sẻ session.
 - Không dùng MessageBox trực tiếp trong ViewModel.
 - Không thêm package mới nếu chưa cập nhật docs và thống nhất với nhóm.
+
+## Theme System
+
+Hệ thống theme trung tâm nằm trong `src/SmartPOS.WPF/Themes/` và được đăng ký toàn cục trong `App.xaml` qua `Themes/Generic.xaml`.
+
+### Quy tắc dùng theme
+
+- **Dùng `{StaticResource}` từ theme** cho màu, font, spacing, shadow. Ví dụ: `Foreground="{StaticResource TextPrimaryBrush}"`, `Background="{StaticResource BackgroundBrush}"`.
+- **Không định nghĩa lại** `Color` hoặc `SolidColorBrush` trùng key với theme (`PrimaryBrush`, `BackgroundBrush`, `SurfaceBrush`, `TextPrimaryBrush`, `TextMutedBrush`, `BorderBrush`, `SuccessBrush`, `DangerBrush`, etc.) trong `<UserControl.Resources>` của từng View.
+- **Dùng style từ theme** cho button (`PrimaryButtonStyle`, `OutlineButtonStyle`, `DangerButtonStyle`, etc.), input (`FormInputStyle`, `FormPasswordStyle`), border (`GlassPanelStyle`, `CardStyle`).
+- **Chỉ khai báo style view-specific** trong `<UserControl.Resources>` khi style đó là duy nhất cho view đó.
+- **Converter** vẫn khai báo riêng trong từng View vì mỗi View dùng converter khác nhau.
+
+### Màu chủ đạo
+
+```text
+Primary:        #0062FF (bright blue)
+Primary Hover:  #0050d0
+Background:     #f4f6f8
+Surface:        #FFFFFF
+Text Primary:   #1d1d1f
+Text Muted:     #86868b
+Success:        #00B050
+Danger:         #ff3b30
+Warning:        #D97706
+Info:           #0F766E
+Border:         #e5e5ea
+Sidebar BG:     #1E1F28
+```
+
+### Thêm resource mới vào theme
+
+1. Thêm `Color` vào `Colors.xaml` nếu là màu mới.
+2. Thêm `SolidColorBrush` tương ứng vào `Colors.xaml`.
+3. Nếu là style component mới (button variant, badge variant, etc.), tạo file XAML riêng trong `Themes/` và thêm `<ResourceDictionary Source="..."/>` vào `Generic.xaml`.
+4. Cập nhật `codebase-summary.md` phần Theme System.
+
+### Thêm màu view-specific
+
+Nếu một view cần màu không thuộc theme chính (ví dụ `SurfaceContainerLowBrush` trong ShiftView), thêm vào `Colors.xaml` thay vì định nghĩa trong View để tái sử dụng được.

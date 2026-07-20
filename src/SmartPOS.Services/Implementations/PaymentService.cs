@@ -22,7 +22,7 @@ public class PaymentService : IPaymentService
     private readonly IOrderRepository _orderRepository;
     private readonly IInventorySyncService _inventorySyncService;
     private readonly ICustomerService _customerService;
-    private readonly IInvoiceService? _invoiceService;
+    private readonly IInvoiceService _invoiceService;
     private readonly IConfiguration _configuration;
     private readonly ILogger<PaymentService> _logger;
 
@@ -30,8 +30,8 @@ public class PaymentService : IPaymentService
         IOrderRepository orderRepository,
         IInventorySyncService inventorySyncService,
         ICustomerService customerService,
+        IInvoiceService invoiceService,
         ILogger<PaymentService> logger,
-        IInvoiceService? invoiceService = null,
         IConfiguration? configuration = null)
     {
         _orderRepository = orderRepository;
@@ -83,6 +83,9 @@ public class PaymentService : IPaymentService
     {
         var order = await _orderRepository.GetByIdWithItemsAsync(orderId).ConfigureAwait(false)
             ?? throw new BusinessException("Không tìm thấy đơn hàng");
+
+        if (!order.Items.Any())
+            throw new BusinessException("Không thể thanh toán đơn hàng trống");
 
         if (order.IsLocked)
             throw new BusinessException("Đơn hàng đang bị khóa bởi phiên thanh toán khác");
@@ -265,9 +268,6 @@ public class PaymentService : IPaymentService
 
     private async Task CreateInvoiceIfNeededAsync(Guid orderId)
     {
-        if (_invoiceService is null)
-            return;
-
         try
         {
             await _invoiceService.CreateInvoiceAsync(orderId).ConfigureAwait(false);

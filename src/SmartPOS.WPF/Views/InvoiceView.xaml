@@ -7,7 +7,7 @@
              xmlns:converters="clr-namespace:SmartPOS.WPF.Converters"
              mc:Ignorable="d"
              d:DataContext="{d:DesignInstance Type=viewmodels:InvoiceViewModel}"
-             Background="#F8FAFC"
+             Background="{StaticResource BackgroundBrush}"
              d:DesignHeight="720" d:DesignWidth="960">
 
     <UserControl.Resources>
@@ -30,28 +30,28 @@
                 </Grid.RowDefinitions>
 
                 <StackPanel Grid.Row="0">
-                    <TextBlock Text="Hóa đơn" FontSize="22" FontWeight="Bold" Foreground="#0F172A"/>
-                    <TextBlock Text="{Binding InvoiceStatus}" FontSize="13" Foreground="#64748B" Margin="0,4,0,0"/>
+                    <TextBlock Text="Hóa đơn" FontSize="22" FontWeight="Bold" Foreground="{StaticResource TextPrimaryBrush}"/>
+                    <TextBlock Text="{Binding InvoiceStatus}" FontSize="13" Foreground="{StaticResource TextMutedBrush}" Margin="0,4,0,0"/>
                 </StackPanel>
 
-                <Border Grid.Row="1" Margin="0,16,0,16" Background="#F8FAFC" BorderBrush="#E2E8F0" BorderThickness="1" CornerRadius="10" Padding="16">
+                <Border Grid.Row="1" Margin="0,16,0,16" Background="{StaticResource BackgroundBrush}" BorderBrush="{StaticResource BorderMediumBrush}" BorderThickness="1" CornerRadius="10" Padding="16">
                     <Grid>
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="*"/>
                             <ColumnDefinition Width="Auto"/>
                         </Grid.ColumnDefinitions>
                         <StackPanel Margin="0,0,16,0">
-                            <TextBlock Text="Số hóa đơn" Foreground="#64748B" FontSize="12"/>
+                            <TextBlock Text="Số hóa đơn" Foreground="{StaticResource TextMutedBrush}" FontSize="12"/>
                             <TextBlock Text="{Binding Invoice.InvoiceNumber}"
-                                       Foreground="#0F172A"
+                                       Foreground="{StaticResource TextPrimaryBrush}"
                                        FontSize="15"
                                        FontWeight="SemiBold"
                                        TextWrapping="NoWrap"
                                        TextTrimming="CharacterEllipsis"/>
                         </StackPanel>
                         <StackPanel Grid.Column="1" HorizontalAlignment="Right">
-                            <TextBlock Text="Tổng tiền" Foreground="#64748B" FontSize="12" HorizontalAlignment="Right"/>
-                            <TextBlock Foreground="#0F172A" FontSize="16" FontWeight="SemiBold" HorizontalAlignment="Right">
+                            <TextBlock Text="Tổng tiền" Foreground="{StaticResource TextMutedBrush}" FontSize="12" HorizontalAlignment="Right"/>
+                            <TextBlock Foreground="{StaticResource TextPrimaryBrush}" FontSize="16" FontWeight="SemiBold" HorizontalAlignment="Right">
                                 <Run Text="{Binding Invoice.TotalAmount, StringFormat={}{0:N0}}"/>
                                 <Run Text=" đ"/>
                             </TextBlock>
@@ -59,7 +59,7 @@
                     </Grid>
                 </Border>
 
-                <Border Grid.Row="2" Background="#F8FAFC" BorderBrush="#E2E8F0" BorderThickness="1" CornerRadius="10" Padding="16">
+                <Border Grid.Row="2" Background="{StaticResource BackgroundBrush}" BorderBrush="{StaticResource BorderMediumBrush}" BorderThickness="1" CornerRadius="10" Padding="16">
                     <StackPanel>
                         <TextBlock Text="Thông tin hóa đơn" FontSize="13" FontWeight="SemiBold" Foreground="#334155"/>
                         <TextBlock Margin="0,10,0,0" Foreground="#475569">
@@ -92,7 +92,7 @@
                             Height="42"
                             MinWidth="160"
                             Padding="16,0"
-                            Background="#0F766E"
+                            Background="{StaticResource InfoBrush}"
                             Foreground="White"
                             BorderThickness="0"
                             Margin="0,0,10,0"/>
@@ -100,15 +100,15 @@
                             Height="42"
                             MinWidth="96"
                             Padding="16,0"
-                            Background="#E2E8F0"
-                            Foreground="#0F172A"
+                            Background="{StaticResource BorderMediumBrush}"
+                            Foreground="{StaticResource TextPrimaryBrush}"
                             BorderThickness="0"
                             Command="{Binding CloseCommand}"/>
                 </StackPanel>
             </Grid>
         </Border>
 
-        <Border Background="#80000000" Visibility="{Binding IsPreviewVisible, Converter={StaticResource BoolToVis}}">
+        <Border Background="{StaticResource OverlayBrush}" Visibility="{Binding IsPreviewVisible, Converter={StaticResource BoolToVis}}">
             <Border Width="420"
                     Background="White"
                     CornerRadius="14"
@@ -128,15 +128,15 @@
                         <TextBlock Text="Xem trước hóa đơn"
                                    FontSize="20"
                                    FontWeight="Bold"
-                                   Foreground="#0F172A"/>
+                                   Foreground="{StaticResource TextPrimaryBrush}"/>
                         <TextBlock Text="In giả lập thành công"
                                    FontSize="13"
-                                   Foreground="#0F766E"
+                                   Foreground="{StaticResource InfoBrush}"
                                    Margin="0,4,0,14"/>
                     </StackPanel>
                     <Border Grid.Row="1"
-                            Background="#F8FAFC"
-                            BorderBrush="#CBD5E1"
+                            Background="{StaticResource BackgroundBrush}"
+                            BorderBrush="{StaticResource BorderMediumBrush}"
                             BorderThickness="1"
                             CornerRadius="10"
                             Padding="16">
@@ -144,7 +144,7 @@
                             <TextBlock Text="{Binding ReceiptPreview}"
                                        FontFamily="Consolas"
                                        FontSize="13"
-                                       Foreground="#0F172A"
+                                       Foreground="{StaticResource TextPrimaryBrush}"
                                        TextWrapping="Wrap"/>
                         </ScrollViewer>
                     </Border>
@@ -155,13 +155,13 @@
                             MinWidth="140"
                             HorizontalAlignment="Right"
                             Margin="0,16,0,0"
-                            Background="#0F766E"
+                            Background="{StaticResource InfoBrush}"
                             Foreground="White"
                             BorderThickness="0"/>
                 </Grid>
             </Border>
         </Border>
 
-        <Border Background="#80000000" Visibility="{Binding IsLoading, Converter={StaticResource BoolToVis}}" />
+        <Border Background="{StaticResource OverlayBrush}" Visibility="{Binding IsLoading, Converter={StaticResource BoolToVis}}" />
     </Grid>
 </UserControl>

@@ -8,40 +8,13 @@
              mc:Ignorable="d" 
              d:DataContext="{d:DesignInstance Type=viewmodels:CustomerViewModel}"
              d:DesignHeight="768" d:DesignWidth="1024"
-             Background="#F8FAFC"
-             Foreground="#0F172A">
+             Background="{StaticResource BackgroundBrush}"
+             Foreground="{StaticResource TextPrimaryBrush}">
 
     <UserControl.Resources>
         <BooleanToVisibilityConverter x:Key="BoolToVis"/>
         
-        <!-- Sidebar Inactive Button Style -->
-        <Style x:Key="SidebarInactiveButton" TargetType="Button">
-            <Setter Property="Background" Value="Transparent"/>
-            <Setter Property="Foreground" Value="#94A3B8"/>
-            <Setter Property="BorderThickness" Value="0"/>
-            <Setter Property="Padding" Value="16,10"/>
-            <Setter Property="Margin" Value="8,2"/>
-            <Setter Property="Cursor" Value="Hand"/>
-            <Setter Property="HorizontalContentAlignment" Value="Left"/>
-            <Setter Property="Template">
-                <Setter.Value>
-                    <ControlTemplate TargetType="Button">
-                        <Border Name="Border" CornerRadius="8" Background="{TemplateBinding Background}" Padding="{TemplateBinding Padding}">
-                            <StackPanel Orientation="Horizontal">
-                                <TextBlock Text="{TemplateBinding Tag}" Margin="0,0,12,0" FontSize="14" VerticalAlignment="Center"/>
-                                <ContentPresenter VerticalAlignment="Center"/>
-                            </StackPanel>
-                        </Border>
-                        <ControlTemplate.Triggers>
-                            <Trigger Property="IsMouseOver" Value="True">
-                                <Setter TargetName="Border" Property="Background" Value="#2A2B35"/>
-                                <Setter Property="Foreground" Value="White"/>
-                            </Trigger>
-                        </ControlTemplate.Triggers>
-                    </ControlTemplate>
-                </Setter.Value>
-            </Setter>
-        </Style>
+        
 
         <!-- End Shift Button Style -->
         <Style x:Key="EndShiftButton" TargetType="Button">
@@ -133,7 +106,7 @@
         </Style>
     </UserControl.Resources>
 
-    <Grid Background="#F8FAFC">
+    <Grid Background="{StaticResource BackgroundBrush}">
         <Grid.ColumnDefinitions>
             <!-- Sidebar Column -->
             <ColumnDefinition Width="220"/>
@@ -152,14 +125,14 @@
                 <!-- Brand Header -->
                 <StackPanel Grid.Row="0" Margin="20,0,20,32">
                     <TextBlock Text="SmartPOS Admin" Foreground="#E2E8F0" FontSize="18" FontWeight="Black"/>
-                    <TextBlock Text="Terminal #01" Foreground="#94A3B8" FontSize="12" Margin="0,4,0,0" Opacity="0.8"/>
+                    <TextBlock Text="Terminal #01" Foreground="{StaticResource SidebarTextBrush}" FontSize="12" Margin="0,4,0,0" Opacity="0.8"/>
                 </StackPanel>
 
                 <!-- Navigation Links -->
                 <StackPanel Grid.Row="1">
-                    <Button Style="{StaticResource SidebarInactiveButton}" Tag="🖥️" Content="Point of Sale" Command="{Binding NavigateToSalesCommand}"/>
-                    <Button Style="{StaticResource SidebarInactiveButton}" Tag="🧾" Content="Transactions"/>
-                    <Button Style="{StaticResource SidebarInactiveButton}" Tag="📦" Content="Inventory" Command="{Binding NavigateToSyncCommand}"/>
+                    <Button Style="{StaticResource SidebarNavButtonStyle}" Tag="🖥️" Content="Point of Sale" Command="{Binding NavigateToSalesCommand}"/>
+                    <Button Style="{StaticResource SidebarNavButtonStyle}" Tag="🧾" Content="Transactions"/>
+                    <Button Style="{StaticResource SidebarNavButtonStyle}" Tag="📦" Content="Inventory" Command="{Binding NavigateToSyncCommand}"/>
                     
                     <!-- Customers (Active button) -->
                     <Border Background="#00288E" CornerRadius="8" Margin="8,2" Padding="16,10">
@@ -169,10 +142,10 @@
                         </StackPanel>
                     </Border>
                     
-                    <Button Style="{StaticResource SidebarInactiveButton}" Tag="🔄" Content="Returns &amp; Refunds"/>
-                    <Button Style="{StaticResource SidebarInactiveButton}" Tag="🗂️" Content="Product Catalog" Command="{Binding NavigateToCatalogCommand}"/>
-                    <Button Style="{StaticResource SidebarInactiveButton}" Tag="📊" Content="Shift Reports" Command="{Binding NavigateToReportCommand}"/>
-                    <Button Style="{StaticResource SidebarInactiveButton}" Tag="⚙️" Content="Settings"/>
+                    <Button Style="{StaticResource SidebarNavButtonStyle}" Tag="🔄" Content="Returns &amp; Refunds"/>
+                    <Button Style="{StaticResource SidebarNavButtonStyle}" Tag="🗂️" Content="Product Catalog" Command="{Binding NavigateToCatalogCommand}"/>
+                    <Button Style="{StaticResource SidebarNavButtonStyle}" Tag="📊" Content="Shift Reports" Command="{Binding NavigateToReportCommand}"/>
+                    <Button Style="{StaticResource SidebarNavButtonStyle}" Tag="⚙️" Content="Settings"/>
                 </StackPanel>
             </Grid>
         </Border>
@@ -185,7 +158,7 @@
             </Grid.RowDefinitions>
 
             <!-- Top Header Bar -->
-            <Border Grid.Row="0" Background="White" BorderBrush="#E2E8F0" BorderThickness="0,0,0,1" Padding="20,0">
+            <Border Grid.Row="0" Background="White" BorderBrush="{StaticResource BorderMediumBrush}" BorderThickness="0,0,0,1" Padding="20,0">
                 <Grid VerticalAlignment="Center">
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="*"/>
@@ -198,20 +171,20 @@
                         <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
                             <!-- Shift info -->
                             <StackPanel Margin="0,0,16,0">
-                                <TextBlock Text="SHIFT INFO" Foreground="#64748B" FontSize="10" FontWeight="Bold"/>
-                                <TextBlock Text="Shift #0042" Foreground="#0F172A" FontSize="13" FontWeight="SemiBold" Margin="0,2,0,0"/>
+                                <TextBlock Text="SHIFT INFO" Foreground="{StaticResource TextMutedBrush}" FontSize="10" FontWeight="Bold"/>
+                                <TextBlock Text="Shift #0042" Foreground="{StaticResource TextPrimaryBrush}" FontSize="13" FontWeight="SemiBold" Margin="0,2,0,0"/>
                             </StackPanel>
                             <Border Width="1" Height="24" Background="#E2E8F0" Margin="0,0,16,0"/>
                             <!-- Staff info -->
                             <StackPanel Margin="0,0,16,0">
-                                <TextBlock Text="STAFF" Foreground="#64748B" FontSize="10" FontWeight="Bold"/>
-                                <TextBlock Text="Nguyen Van A" Foreground="#0F172A" FontSize="13" FontWeight="SemiBold" Margin="0,2,0,0"/>
+                                <TextBlock Text="STAFF" Foreground="{StaticResource TextMutedBrush}" FontSize="10" FontWeight="Bold"/>
+                                <TextBlock Text="Nguyen Van A" Foreground="{StaticResource TextPrimaryBrush}" FontSize="13" FontWeight="SemiBold" Margin="0,2,0,0"/>
                             </StackPanel>
                             <Border Width="1" Height="24" Background="#E2E8F0" Margin="0,0,16,0"/>
                             <!-- Current Time -->
                             <StackPanel>
-                                <TextBlock Text="CURRENT TIME" Foreground="#64748B" FontSize="10" FontWeight="Bold"/>
-                                <TextBlock Text="Jun 7 - 2026, 12:22 AM" Foreground="#0F172A" FontSize="13" FontFamily="Segoe UI" Margin="0,2,0,0"/>
+                                <TextBlock Text="CURRENT TIME" Foreground="{StaticResource TextMutedBrush}" FontSize="10" FontWeight="Bold"/>
+                                <TextBlock Text="Jun 7 - 2026, 12:22 AM" Foreground="{StaticResource TextPrimaryBrush}" FontSize="13" FontFamily="Segoe UI" Margin="0,2,0,0"/>
                             </StackPanel>
                         </StackPanel>
                     </StackPanel>
@@ -233,7 +206,7 @@
                 </Grid.RowDefinitions>
 
                 <!-- Header -->
-                <TextBlock Text="Customer Management" FontWeight="SemiBold" FontSize="24" Foreground="#0F172A" Margin="0,0,0,20" Grid.Row="0"/>
+                <TextBlock Text="Customer Management" FontWeight="SemiBold" FontSize="24" Foreground="{StaticResource TextPrimaryBrush}" Margin="0,0,0,20" Grid.Row="0"/>
 
                 <!-- Top Bar: Filters & Search -->
                 <Border Grid.Row="1" Style="{StaticResource CardStyle}" Margin="0,0,0,24">
@@ -338,7 +311,7 @@
                                                 <Button Content="View Detail"
                                                         Command="{Binding DataContext.ViewDetailCommand, RelativeSource={RelativeSource AncestorType=DataGrid}}"
                                                         CommandParameter="{Binding Id}"
-                                                        Padding="12,6" Background="#F1F5F9" Foreground="#0F172A" BorderThickness="0" Margin="0,0,8,0">
+                                                        Padding="12,6" Background="#F1F5F9" Foreground="{StaticResource TextPrimaryBrush}" BorderThickness="0" Margin="0,0,8,0">
                                                     <Button.Resources>
                                                         <Style TargetType="Border">
                                                             <Setter Property="CornerRadius" Value="6"/>
@@ -406,7 +379,7 @@
                     </Grid.RowDefinitions>
                     
                     <!-- Header -->
-                    <Border BorderBrush="#E2E8F0" BorderThickness="0,0,0,1" Padding="24,0">
+                    <Border BorderBrush="{StaticResource BorderMediumBrush}" BorderThickness="0,0,0,1" Padding="24,0">
                         <Grid>
                             <TextBlock Text="Thông tin khách hàng" FontWeight="Bold" FontSize="18" VerticalAlignment="Center"/>
                             <Button HorizontalAlignment="Right" Content="✕" Width="32" Height="32" 
@@ -464,7 +437,7 @@
                             
                             <DataGrid Grid.Row="1" ItemsSource="{Binding SelectedCustomerDetail.Orders}" 
                                       AutoGenerateColumns="False" CanUserAddRows="False" IsReadOnly="True"
-                                      HeadersVisibility="Column" Background="Transparent" BorderBrush="#E2E8F0" BorderThickness="1"
+                                      HeadersVisibility="Column" Background="Transparent" BorderBrush="{StaticResource BorderMediumBrush}" BorderThickness="1"
                                       RowHeight="40" VerticalScrollBarVisibility="Auto">
                                 <DataGrid.Columns>
                                     <DataGridTextColumn Header="Ngày tạo" Binding="{Binding CreatedAt, StringFormat=\{0:dd/MM/yyyy HH:mm\}}" Width="130"/>
@@ -476,7 +449,7 @@
                                                 <Button Content="View Detail" 
                                                         Command="{Binding DataContext.ViewOrderDetailCommand, RelativeSource={RelativeSource AncestorType=DataGrid}}"
                                                         CommandParameter="{Binding Id}"
-                                                        Background="#F1F5F9" Foreground="#0F172A" BorderThickness="0" Padding="8,4">
+                                                        Background="#F1F5F9" Foreground="{StaticResource TextPrimaryBrush}" BorderThickness="0" Padding="8,4">
                                                     <Button.Resources>
                                                         <Style TargetType="Border">
                                                             <Setter Property="CornerRadius" Value="4"/>
@@ -508,7 +481,7 @@
                     </Grid.RowDefinitions>
                     
                     <!-- Header -->
-                    <Border BorderBrush="#E2E8F0" BorderThickness="0,0,0,1" Padding="24,0">
+                    <Border BorderBrush="{StaticResource BorderMediumBrush}" BorderThickness="0,0,0,1" Padding="24,0">
                         <Grid>
                             <TextBlock Text="Chi tiết đơn hàng" FontWeight="Bold" FontSize="18" VerticalAlignment="Center"/>
                             <Button HorizontalAlignment="Right" Content="✕" Width="32" Height="32" 
@@ -528,7 +501,7 @@
                         <!-- Items Grid -->
                         <DataGrid Grid.Row="0" ItemsSource="{Binding SelectedOrderDetail.Items}" 
                                   AutoGenerateColumns="False" CanUserAddRows="False" IsReadOnly="True"
-                                  HeadersVisibility="Column" Background="Transparent" BorderBrush="#E2E8F0" BorderThickness="1"
+                                  HeadersVisibility="Column" Background="Transparent" BorderBrush="{StaticResource BorderMediumBrush}" BorderThickness="1"
                                   RowHeight="40" Margin="0,0,0,16">
                             <DataGrid.Columns>
                                 <DataGridTextColumn Header="Sản phẩm" Binding="{Binding ProductName}" Width="*"/>
@@ -581,10 +554,10 @@
                     </Grid>
                     
                     <!-- Footer Buttons -->
-                    <Border Grid.Row="2" Background="#F8FAFC" BorderBrush="#E2E8F0" BorderThickness="0,1,0,0" Padding="24,16" CornerRadius="0,0,12,12">
+                    <Border Grid.Row="2" Background="{StaticResource BackgroundBrush}" BorderBrush="{StaticResource BorderMediumBrush}" BorderThickness="0,1,0,0" Padding="24,16" CornerRadius="0,0,12,12">
                         <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
                             <Button Content="Trở về" Command="{Binding CloseOrderDetailPopupCommand}"
-                                    Background="White" BorderBrush="#E2E8F0" BorderThickness="1" Foreground="#0F172A" Padding="16,8" Margin="0,0,12,0">
+                                    Background="White" BorderBrush="{StaticResource BorderMediumBrush}" BorderThickness="1" Foreground="{StaticResource TextPrimaryBrush}" Padding="16,8" Margin="0,0,12,0">
                                 <Button.Resources>
                                     <Style TargetType="Border">
                                         <Setter Property="CornerRadius" Value="6"/>

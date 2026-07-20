@@ -122,14 +122,6 @@
                     <TextBlock Grid.Column="0" Text="SMART STORE | BACKOFFICE" Foreground="#111827" FontSize="18" FontWeight="Black" VerticalAlignment="Center"/>
 
                     <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center">
-                        <Button Content="Switch to POS" Command="{Binding SwitchToPosCommand}" Background="#F3F4F6" Foreground="#4F46E5" FontWeight="Bold" BorderThickness="0" Padding="16,8" Cursor="Hand" Margin="0,0,20,0">
-                            <Button.Resources>
-                                <Style TargetType="Border">
-                                    <Setter Property="CornerRadius" Value="6"/>
-                                </Style>
-                            </Button.Resources>
-                        </Button>
-                        
                         <Border Background="#F9FAFB" BorderBrush="#E5E7EB" BorderThickness="1" CornerRadius="20" Padding="12,4" Margin="0,0,16,0">
                             <StackPanel Orientation="Horizontal">
                                 <TextBlock Text="{Binding CurrentUserName}" FontWeight="SemiBold" VerticalAlignment="Center" Margin="0,0,8,0"/>

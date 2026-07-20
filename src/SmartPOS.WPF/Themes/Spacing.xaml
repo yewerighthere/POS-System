@@ -1,0 +1,31 @@
+﻿<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:sys="clr-namespace:System;assembly=mscorlib">
+
+    <!-- Spacing & Border Radius — translated from style.css :root variables -->
+
+    <!-- Border Radius (CornerRadius) -->
+    <CornerRadius x:Key="RadiusLarge">24</CornerRadius>
+    <CornerRadius x:Key="RadiusMedium">16</CornerRadius>
+    <CornerRadius x:Key="RadiusSmall">8</CornerRadius>
+    <CornerRadius x:Key="RadiusXSmall">6</CornerRadius>
+    <CornerRadius x:Key="RadiusCircle">999</CornerRadius>
+
+    <!-- Common Thickness (Padding/Margin) -->
+    <Thickness x:Key="PaddingSmall">8</Thickness>
+    <Thickness x:Key="PaddingMedium">16</Thickness>
+    <Thickness x:Key="PaddingLarge">24</Thickness>
+    <Thickness x:Key="PaddingXLarge">32</Thickness>
+
+    <!-- Common Margins -->
+    <Thickness x:Key="MarginXSmall">4</Thickness>
+    <Thickness x:Key="MarginSmall">8</Thickness>
+    <Thickness x:Key="MarginMedium">16</Thickness>
+    <Thickness x:Key="MarginLarge">24</Thickness>
+
+    <!-- Common Heights -->
+    <sys:Double x:Key="InputHeight">40</sys:Double>
+    <sys:Double x:Key="ButtonHeight">36</sys:Double>
+    <sys:Double x:Key="ButtonLargeHeight">48</sys:Double>
+
+</ResourceDictionary>

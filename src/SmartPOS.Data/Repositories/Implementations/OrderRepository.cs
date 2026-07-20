@@ -83,4 +83,41 @@ public class OrderRepository : IOrderRepository
             .Take(count)
             .ToListAsync()
             .ConfigureAwait(false);
+
+    public async Task<IReadOnlyList<Order>> GetOrdersByDateRangeAsync(DateTime fromDate, DateTime toDate, Guid? staffId = null, Guid? shiftId = null, PaymentMethod? paymentMethod = null)
+    {
+        var start = DateTime.SpecifyKind(fromDate.Date, DateTimeKind.Utc);
+        var end   = DateTime.SpecifyKind(toDate.Date.AddDays(1), DateTimeKind.Utc);
+        var query = _context.Orders.Where(o => o.CreatedAt >= start && o.CreatedAt < end);
+        if (staffId.HasValue)       query = query.Where(o => o.UserId == staffId.Value);
+        if (shiftId.HasValue)       query = query.Where(o => o.ShiftId == shiftId.Value);
+        if (paymentMethod.HasValue) query = query.Where(o => o.PaymentMethod == paymentMethod.Value);
+        return await query
+            .Include(o => o.Items)
+            .Include(o => o.User)
+            .OrderBy(o => o.CreatedAt)
+            .AsNoTracking()
+            .ToListAsync()
+            .ConfigureAwait(false);
+    }
+
+    public async Task<IReadOnlyList<TopProductDto>> GetTopProductsByDateRangeAsync(DateTime fromDate, DateTime toDate, int count = 10, Guid? staffId = null, Guid? shiftId = null, PaymentMethod? paymentMethod = null)
+    {
+        var start = DateTime.SpecifyKind(fromDate.Date, DateTimeKind.Utc);
+        var end   = DateTime.SpecifyKind(toDate.Date.AddDays(1), DateTimeKind.Utc);
+        var query = _context.OrderItems
+            .Where(oi => oi.Order.CreatedAt >= start && oi.Order.CreatedAt < end
+                      && oi.Order.Status == OrderStatus.Confirmed);
+        if (staffId.HasValue)       query = query.Where(oi => oi.Order.UserId == staffId.Value);
+        if (shiftId.HasValue)       query = query.Where(oi => oi.Order.ShiftId == shiftId.Value);
+        if (paymentMethod.HasValue) query = query.Where(oi => oi.Order.PaymentMethod == paymentMethod.Value);
+        return await query
+            .GroupBy(oi => oi.ProductName)
+            .Select(g => new TopProductDto { ProductName = g.Key, TotalSold = g.Sum(oi => oi.Quantity) })
+            .OrderByDescending(x => x.TotalSold)
+            .Take(count)
+            .AsNoTracking()
+            .ToListAsync()
+            .ConfigureAwait(false);
+    }
 }

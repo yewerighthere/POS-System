@@ -46,6 +46,7 @@ public partial class PromotionViewModel : ObservableObject
     [RelayCommand]
     public async Task LoadAsync()
     {
+        if (IsLoading) return;
         IsLoading = true;
         ErrorMessage = string.Empty;
         try

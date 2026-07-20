@@ -152,6 +152,8 @@ public class AuthService : IAuthService
             Username = username,
             PasswordHash = BCrypt.Net.BCrypt.HashPassword(request.Password),
             FullName = request.FullName,
+            Email = request.Email?.Trim() ?? string.Empty,
+            PhoneNumber = request.PhoneNumber?.Trim(),
             Role = role,
             Status = UserStatus.Active,
             CreatedAt = DateTime.UtcNow
@@ -258,6 +260,87 @@ public class AuthService : IAuthService
         };
     }
 
+    public async Task<System.Collections.Generic.IReadOnlyList<UserDto>> GetAllUsersAsync(Guid requestingUserId)
+    {
+        var requester = await _userRepository.GetByIdAsync(requestingUserId).ConfigureAwait(false)
+            ?? throw new BusinessException(ForbiddenMessage);
+
+        if (requester.Role != UserRole.Manager && requester.Role != UserRole.Admin)
+            throw new BusinessException(ForbiddenMessage);
+
+        var users = await _userRepository.GetAllAsync().ConfigureAwait(false);
+        return users.Select(ToUserDto).ToList();
+    }
+
+    public async Task<UserDto> UpdateUserAsync(UpdateUserDto request, Guid requestingUserId)
+    {
+        var requester = await _userRepository.GetByIdAsync(requestingUserId).ConfigureAwait(false)
+            ?? throw new BusinessException(ForbiddenMessage);
+
+        if (requester.Role != UserRole.Manager && requester.Role != UserRole.Admin)
+            throw new BusinessException(ForbiddenMessage);
+
+        var user = await _userRepository.GetByIdAsync(request.Id).ConfigureAwait(false)
+            ?? throw new BusinessException("Không tìm thấy người dùng");
+
+        if (!Enum.TryParse<UserRole>(request.Role, ignoreCase: true, out var role))
+            throw new BusinessException("Vai trò không hợp lệ");
+
+        user.FullName = request.FullName?.Trim();
+        user.Email = request.Email?.Trim() ?? string.Empty;
+        user.PhoneNumber = request.PhoneNumber?.Trim();
+        user.Role = role;
+
+        await _userRepository.UpdateAsync(user).ConfigureAwait(false);
+        _logger.LogInformation("Người dùng {RequestingUser} đã cập nhật thông tin cho {Username}", requester.Username, user.Username);
+
+        return ToUserDto(user);
+    }
+
+    public async Task<UserDto> ToggleUserStatusAsync(Guid userId, Guid requestingUserId)
+    {
+        var requester = await _userRepository.GetByIdAsync(requestingUserId).ConfigureAwait(false)
+            ?? throw new BusinessException(ForbiddenMessage);
+
+        if (requester.Role != UserRole.Manager && requester.Role != UserRole.Admin)
+            throw new BusinessException(ForbiddenMessage);
+
+        var user = await _userRepository.GetByIdAsync(userId).ConfigureAwait(false)
+            ?? throw new BusinessException("Không tìm thấy người dùng");
+
+        if (user.Id == requestingUserId)
+            throw new BusinessException("Bạn không thể tự khóa/mở tài khoản của chính mình");
+
+        user.Status = user.Status == UserStatus.Active ? UserStatus.Locked : UserStatus.Active;
+
+        await _userRepository.UpdateAsync(user).ConfigureAwait(false);
+        _logger.LogInformation("Người dùng {RequestingUser} đã thay đổi trạng thái của {Username} thành {Status}", requester.Username, user.Username, user.Status);
+
+        return ToUserDto(user);
+    }
+
+    public async Task<UserDto> ResetPasswordAsync(Guid userId, string newPassword, Guid requestingUserId)
+    {
+        var requester = await _userRepository.GetByIdAsync(requestingUserId).ConfigureAwait(false)
+            ?? throw new BusinessException(ForbiddenMessage);
+
+        if (requester.Role != UserRole.Manager && requester.Role != UserRole.Admin)
+            throw new BusinessException(ForbiddenMessage);
+
+        var user = await _userRepository.GetByIdAsync(userId).ConfigureAwait(false)
+            ?? throw new BusinessException("Không tìm thấy người dùng");
+
+        if (string.IsNullOrWhiteSpace(newPassword))
+            throw new BusinessException("Mật khẩu mới không được để trống");
+
+        user.PasswordHash = BCrypt.Net.BCrypt.HashPassword(newPassword);
+
+        await _userRepository.UpdateAsync(user).ConfigureAwait(false);
+        _logger.LogInformation("Người dùng {RequestingUser} đã đặt lại mật khẩu cho {Username}", requester.Username, user.Username);
+
+        return ToUserDto(user);
+    }
+
     private static UserDto ToUserDto(User user)
     {
         return new UserDto
@@ -265,6 +348,8 @@ public class AuthService : IAuthService
             Id = user.Id,
             Username = user.Username,
             FullName = user.FullName ?? string.Empty,
+            Email = user.Email ?? string.Empty,
+            PhoneNumber = user.PhoneNumber,
             Role = user.Role.ToString(),
             Status = user.Status.ToString()
         };

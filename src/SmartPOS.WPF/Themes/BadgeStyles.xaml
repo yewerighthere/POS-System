@@ -1,0 +1,65 @@
+﻿<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+
+    <ResourceDictionary.MergedDictionaries>
+        <ResourceDictionary Source="Colors.xaml"/>
+        <ResourceDictionary Source="Fonts.xaml"/>
+    </ResourceDictionary.MergedDictionaries>
+
+    <!-- Badge Styles — translated from style.css badge classes -->
+
+    <!-- Base Badge Style -->
+    <Style x:Key="BaseBadgeStyle" TargetType="Border">
+        <Setter Property="Padding" Value="8,4"/>
+        <Setter Property="CornerRadius" Value="{StaticResource RadiusSmall}"/>
+    </Style>
+
+    <!-- Success Badge (.badge-success) -->
+    <Style x:Key="SuccessBadgeStyle" TargetType="Border" BasedOn="{StaticResource BaseBadgeStyle}">
+        <Setter Property="Background" Value="{StaticResource SuccessLightBrush}"/>
+    </Style>
+
+    <Style x:Key="SuccessBadgeTextStyle" TargetType="TextBlock">
+        <Setter Property="Foreground" Value="{StaticResource SuccessBrush}"/>
+        <Setter Property="FontSize" Value="{StaticResource FontSizeSM}"/>
+        <Setter Property="FontWeight" Value="SemiBold"/>
+        <Setter Property="FontFamily" Value="{StaticResource MainFontFamily}"/>
+    </Style>
+
+    <!-- Danger Badge (.badge-danger) -->
+    <Style x:Key="DangerBadgeStyle" TargetType="Border" BasedOn="{StaticResource BaseBadgeStyle}">
+        <Setter Property="Background" Value="{StaticResource DangerLightBrush}"/>
+    </Style>
+
+    <Style x:Key="DangerBadgeTextStyle" TargetType="TextBlock">
+        <Setter Property="Foreground" Value="{StaticResource DangerBrush}"/>
+        <Setter Property="FontSize" Value="{StaticResource FontSizeSM}"/>
+        <Setter Property="FontWeight" Value="SemiBold"/>
+        <Setter Property="FontFamily" Value="{StaticResource MainFontFamily}"/>
+    </Style>
+
+    <!-- Warning Badge (.badge-warning) -->
+    <Style x:Key="WarningBadgeStyle" TargetType="Border" BasedOn="{StaticResource BaseBadgeStyle}">
+        <Setter Property="Background" Value="{StaticResource WarningLightBrush}"/>
+    </Style>
+
+    <Style x:Key="WarningBadgeTextStyle" TargetType="TextBlock">
+        <Setter Property="Foreground" Value="{StaticResource WarningBrush}"/>
+        <Setter Property="FontSize" Value="{StaticResource FontSizeSM}"/>
+        <Setter Property="FontWeight" Value="SemiBold"/>
+        <Setter Property="FontFamily" Value="{StaticResource MainFontFamily}"/>
+    </Style>
+
+    <!-- Info Badge -->
+    <Style x:Key="InfoBadgeStyle" TargetType="Border" BasedOn="{StaticResource BaseBadgeStyle}">
+        <Setter Property="Background" Value="{StaticResource PrimaryLightBrush}"/>
+    </Style>
+
+    <Style x:Key="InfoBadgeTextStyle" TargetType="TextBlock">
+        <Setter Property="Foreground" Value="{StaticResource PrimaryBrush}"/>
+        <Setter Property="FontSize" Value="{StaticResource FontSizeSM}"/>
+        <Setter Property="FontWeight" Value="SemiBold"/>
+        <Setter Property="FontFamily" Value="{StaticResource MainFontFamily}"/>
+    </Style>
+
+</ResourceDictionary>

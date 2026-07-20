@@ -159,8 +159,8 @@ public class CartService : ICartService
             PointsDiscountAmount = pointsDiscount,
             PointsUsed = cart.PointsUsed,
             PointsEarned = pointsEarned,
-            TaxAmount = 0,
-            TotalAmount = Math.Max(0, subtotal - discount - pointsDiscount),
+            TaxAmount = taxAmount,
+            TotalAmount = Math.Max(0, subtotal - discount - pointsDiscount + taxAmount),
             AppliedPromotion = cart.AppliedPromotion
         };
     }

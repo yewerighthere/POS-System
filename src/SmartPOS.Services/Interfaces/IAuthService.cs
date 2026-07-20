@@ -9,4 +9,8 @@ public interface IAuthService
     Task<UserSessionDto?> ValidateTokenAsync(string token);
     Task CreateDemoUserIfNeededAsync();
     Task<UserDto> CreateUserAsync(CreateUserDto request, Guid createdByUserId);
+    Task<System.Collections.Generic.IReadOnlyList<UserDto>> GetAllUsersAsync(Guid requestingUserId);
+    Task<UserDto> UpdateUserAsync(UpdateUserDto request, Guid requestingUserId);
+    Task<UserDto> ToggleUserStatusAsync(Guid userId, Guid requestingUserId);
+    Task<UserDto> ResetPasswordAsync(Guid userId, string newPassword, Guid requestingUserId);
 }

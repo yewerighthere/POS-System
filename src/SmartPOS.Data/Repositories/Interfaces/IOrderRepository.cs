@@ -15,4 +15,6 @@ public interface IOrderRepository
     Task<int> GetOrderCountByShiftAsync(Guid shiftId);
     Task<IReadOnlyList<Order>> GetOrdersByShiftAsync(Guid shiftId);
     Task<IReadOnlyList<TopProductDto>> GetTopProductsByShiftAsync(Guid shiftId, int count);
+    Task<IReadOnlyList<Order>> GetOrdersByDateRangeAsync(DateTime fromDate, DateTime toDate, Guid? staffId, Guid? shiftId, PaymentMethod? paymentMethod);
+    Task<IReadOnlyList<TopProductDto>> GetTopProductsByDateRangeAsync(DateTime fromDate, DateTime toDate, int count, Guid? staffId, Guid? shiftId, PaymentMethod? paymentMethod);
 }
