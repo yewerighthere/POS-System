@@ -30,6 +30,7 @@ public class AuditLogRepository : IAuditLogRepository
     public async Task<IReadOnlyList<AuditLog>> GetRecentAsync(int count)
     {
         return await _context.AuditLogs
+            .Include(a => a.User)
             .OrderByDescending(a => a.CreatedAt)
             .Take(count)
             .ToListAsync();
