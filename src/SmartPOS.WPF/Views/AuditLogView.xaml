@@ -205,11 +205,20 @@
                             <TextBlock Text="ID Đối tượng:" FontWeight="SemiBold" Foreground="#4B5563"/>
                             <TextBlock Text="{Binding SelectedLog.EntityId}" TextWrapping="Wrap" Margin="0,4,0,12" Foreground="#111827"/>
 
-                            <TextBlock Text="Giá trị Cũ (Old Value):" FontWeight="SemiBold" Foreground="#4B5563"/>
-                            <TextBox Text="{Binding SelectedLog.OldValue}" TextWrapping="Wrap" AcceptsReturn="True" Height="100" IsReadOnly="True" VerticalScrollBarVisibility="Auto" Margin="0,4,0,12" Background="#F9FAFB"/>
-
-                            <TextBlock Text="Giá trị Mới (New Value):" FontWeight="SemiBold" Foreground="#4B5563"/>
-                            <TextBox Text="{Binding SelectedLog.NewValue}" TextWrapping="Wrap" AcceptsReturn="True" Height="100" IsReadOnly="True" VerticalScrollBarVisibility="Auto" Background="#F9FAFB"/>
+                            <TextBlock Text="Chi tiết dữ liệu thay đổi:" FontWeight="SemiBold" Foreground="#4B5563"/>
+                            
+                            <!-- We can use a ListView or DataGrid to show attributes -->
+                            <DataGrid ItemsSource="{Binding SelectedLogDetails}" AutoGenerateColumns="False" CanUserAddRows="False" IsReadOnly="True" Background="White" BorderBrush="#E5E7EB" BorderThickness="1" Margin="0,4,0,12" MaxHeight="250">
+                                <DataGrid.Columns>
+                                    <DataGridTextColumn Header="Thuộc tính" Binding="{Binding Attribute}" Width="150" FontWeight="SemiBold"/>
+                                    
+                                    <!-- Old Value Column - only shows if it's not purely an 'Added' log (we could bind Visibility but leaving blank is fine for WPF built-in simplicity, or we can use DataGridTemplateColumn for better control, but leaving it always visible and just having null/empty values works perfectly for 'Add') -->
+                                    <DataGridTextColumn Header="Giá trị cũ (Old Value)" Binding="{Binding OldValue}" Width="*" />
+                                    
+                                    <!-- New Value Column -->
+                                    <DataGridTextColumn Header="Giá trị mới (New Value)" Binding="{Binding NewValue}" Width="*" />
+                                </DataGrid.Columns>
+                            </DataGrid>
                         </StackPanel>
                     </Border>
                 </Grid>
