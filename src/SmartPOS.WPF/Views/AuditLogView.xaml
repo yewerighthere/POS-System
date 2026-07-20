@@ -184,7 +184,7 @@
                         <DataGrid.Columns>
                             <DataGridTextColumn Header="Ngày" Binding="{Binding CreatedAt, Converter={StaticResource UtcToVietnamTimeConverter}, StringFormat=dd/MM/yyyy}" Width="100"/>
                             <DataGridTextColumn Header="Giờ" Binding="{Binding CreatedAt, Converter={StaticResource UtcToVietnamTimeConverter}, StringFormat=HH:mm:ss}" Width="100"/>
-                            <DataGridTextColumn Header="Người dùng (UserId)" Binding="{Binding UserId}" Width="*"/>
+                            <DataGridTextColumn Header="Người dùng" Binding="{Binding User.Username}" Width="*"/>
                             <DataGridTextColumn Header="Hành động" Binding="{Binding Action}" Width="180"/>
                             <DataGridTextColumn Header="Đối tượng" Binding="{Binding Entity}" Width="120"/>
                             <DataGridTextColumn Header="ID Đối tượng" Binding="{Binding EntityId}" Width="120"/>

@@ -142,6 +142,7 @@ public partial class AuditLogViewModel : ObservableObject
             (l.Entity ?? string.Empty).ToLower().Contains(q) ||
             (l.OldValue ?? string.Empty).ToLower().Contains(q) ||
             (l.NewValue ?? string.Empty).ToLower().Contains(q) ||
+            (l.User?.Username ?? string.Empty).ToLower().Contains(q) ||
             l.UserId.ToString().ToLower().Contains(q)
         ).ToList();
 
