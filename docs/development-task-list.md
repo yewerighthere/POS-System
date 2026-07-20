@@ -22,15 +22,15 @@ Trạng thái đề xuất:
 ## Phase 0 - Dọn Nền Tảng Sau Scaffold
 
 - [x] TASK-0001: Chạy `dotnet build SmartPOS.sln` và ghi lại warning/error còn lại.
-- [ ] TASK-0002: Kiểm tra lại toàn bộ package trong `.csproj`, đảm bảo không có package ngoài danh sách đã thống nhất.
+- [x] TASK-0002: Kiểm tra lại toàn bộ package trong `.csproj`, đảm bảo không có package ngoài danh sách đã thống nhất.
 - [x] TASK-0003: Cập nhật `docker-compose.yml` để PostgreSQL có user, password và database khớp với `appsettings.json`.
 - [x] TASK-0004: Tách Inventory Manager sang `InventoryDbContext` riêng.
 - [x] TASK-0005: Tạo entity riêng cho `inventory_products`, `inventory_categories`, `stock_items`, `stock_transactions`.
 - [x] TASK-0006: Tạo migration đầu tiên cho POS.
 - [x] TASK-0007: Chạy `dotnet ef database update` cho POS.
 - [x] TASK-0008: Tạo seed data tối thiểu cho tài khoản demo, danh mục, sản phẩm, tồn kho và mã khuyến mãi. AuthService có hàm tạo user demo; DataSeeder đã có danh mục và 10 sản phẩm/tồn kho cục bộ; còn cần đảm bảo user demo được gọi trong startup, thêm `external_inventory_id` và mã `GIAM10`. (Đã hoàn thành và map ID chuẩn)
-- [ ] TASK-0009: Kiểm tra WPF khởi động được tới `LoginView`.
-- [ ] TASK-0010: Kiểm tra Callback API và Inventory API start được trên port dự kiến.
+- [x] TASK-0009: Kiểm tra WPF khởi động được tới `LoginView`.
+- [x] TASK-0010: Kiểm tra Callback API và Inventory API start được trên port dự kiến.
 
 ## Phase 1 - Auth, Session Và Phân Quyền
 
@@ -75,7 +75,7 @@ Liên quan: F-03, F-11, F-12.
 - [x] TASK-0306: Tạo dữ liệu mẫu tối thiểu 10 sản phẩm.
 - [x] TASK-0307: Implement `CatalogViewModel`. (Bao gồm sửa lỗi Race condition khi load song song)
 - [x] TASK-0308: Implement `SalesViewModel` phần tìm sản phẩm và quét mã giả lập.
-- [ ] TASK-0309: Viết test tìm sản phẩm theo barcode, SKU, tên.
+- [x] TASK-0309: Viết test tìm sản phẩm theo barcode, SKU, tên. (Bỏ qua theo yêu cầu)
 
 ## Phase 4 - Cart Và Luồng Bán Hàng Cơ Bản
 
@@ -144,7 +144,7 @@ Liên quan: F-09.
 - [x] TASK-0804: Implement cộng điểm sau thanh toán thành công. ✅ (AddLoyaltyPointsAsync)
 - [x] TASK-0805: Implement trừ điểm khi return được duyệt. ✅ (DeductLoyaltyPointsAsync)
 - [x] TASK-0806: Implement `CustomerViewModel`. ✅ (search/filter/sort/detail/edit/toggle/view orders)
-- [ ] TASK-0807: Viết test tạo khách, tìm khách, cộng/trừ điểm.
+- [x] TASK-0807: Viết test tạo khách, tìm khách, cộng/trừ điểm. (Bỏ qua theo yêu cầu)
 
 ## Phase 9 - Promotion
 
@@ -198,7 +198,7 @@ Liên quan: F-15.
 - [x] TASK-1202: Implement `AuditService.LogAsync`. Đã tạo `AuditLog` entity, JSON serialize old/new values, gracefully swallow errors.
 - [~] TASK-1203: Ghi audit log cho thanh toán, sửa giá, khuyến mãi, trả hàng. Đã ghi cho: thanh toán tiền mặt (PaymentService), sửa giá/tạo/sửa category/tạo/deactivate/reactivate/image product (CatalogService). Chưa ghi cho: khuyến mãi, trả hàng.
 - [x] TASK-1204: Implement `IReportService.GetShiftReportAsync`.
-- [ ] TASK-1205: Implement `IReportService.GetSalesReportAsync`.
+- [x] TASK-1205: Implement IReportService.GetSalesReportAsync.
 - [x] TASK-1206: Implement `ReportViewModel`.
 - [ ] TASK-1207: Implement `AuditLogViewModel`.
 - [x] TASK-1208: Viết test report ca, report doanh thu, ghi audit log. ✅ ReportServiceTests 7 tests (valid shift, not found, revenue, cash/vnpay split, top products, order log, empty shift).

@@ -82,6 +82,7 @@ public partial class SalesViewModel : ObservableObject
         _session = session;
 
         RecalculateCart();
+        _ = SearchProductsAsync();
     }
 
     [RelayCommand]

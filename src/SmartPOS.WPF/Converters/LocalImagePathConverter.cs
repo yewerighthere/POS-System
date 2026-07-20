@@ -18,7 +18,10 @@ public class LocalImagePathConverter : IValueConverter
 
         try
         {
-            if (!File.Exists(path))
+            bool isUrl = path.StartsWith("http://", StringComparison.OrdinalIgnoreCase) || 
+                         path.StartsWith("https://", StringComparison.OrdinalIgnoreCase);
+
+            if (!isUrl && !File.Exists(path))
                 return null;
 
             var bitmap = new BitmapImage();
@@ -48,7 +51,10 @@ public class ImagePathToVisibilityConverter : IValueConverter
 {
     public object Convert(object? value, Type targetType, object? parameter, CultureInfo culture)
     {
-        var hasImage = value is string s && !string.IsNullOrWhiteSpace(s) && File.Exists(s);
+        var hasImage = value is string s && !string.IsNullOrWhiteSpace(s) && 
+                       (s.StartsWith("http://", StringComparison.OrdinalIgnoreCase) || 
+                        s.StartsWith("https://", StringComparison.OrdinalIgnoreCase) || 
+                        File.Exists(s));
         // If parameter == "inverse", invert the result (used for the placeholder)
         var invert = parameter is string p && p == "inverse";
         var visible = hasImage ^ invert;

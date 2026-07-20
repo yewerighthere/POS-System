@@ -7,8 +7,8 @@
              xmlns:viewmodels="clr-namespace:SmartPOS.WPF.ViewModels"
              mc:Ignorable="d" 
              d:DataContext="{d:DesignInstance Type=viewmodels:DashboardViewModel}"
-             Background="#F3F4F6"
-             Foreground="#111827"
+             Background="{StaticResource BackgroundBrush}"
+             Foreground="{StaticResource TextPrimaryBrush}"
              d:DesignHeight="768" d:DesignWidth="1024">
 
     <UserControl.Resources>
@@ -43,7 +43,7 @@
         </Style>
         
         <Style x:Key="SidebarActiveButtonStyle" TargetType="Button" BasedOn="{StaticResource SidebarButtonStyle}">
-            <Setter Property="Background" Value="#6366F1"/>
+            <Setter Property="Background" Value="{StaticResource PrimaryBrush}"/>
             <Setter Property="Foreground" Value="White"/>
             <Setter Property="Template">
                 <Setter.Value>
@@ -60,11 +60,11 @@
         </Style>
 
         <Style x:Key="KpiCardStyle" TargetType="Border">
-            <Setter Property="Background" Value="White"/>
-            <Setter Property="CornerRadius" Value="12"/>
+            <Setter Property="Background" Value="{StaticResource SurfaceBrush}"/>
+            <Setter Property="CornerRadius" Value="{StaticResource RadiusMedium}"/>
             <Setter Property="Padding" Value="20"/>
             <Setter Property="Margin" Value="0,0,16,0"/>
-            <Setter Property="BorderBrush" Value="#E5E7EB"/>
+            <Setter Property="BorderBrush" Value="{StaticResource BorderBrush}"/>
             <Setter Property="BorderThickness" Value="1"/>
         </Style>
     </UserControl.Resources>
@@ -87,7 +87,7 @@
 
                 <StackPanel Grid.Row="0" Margin="20,0,20,32">
                     <TextBlock Text="SmartPOS" Foreground="White" FontSize="20" FontWeight="Black"/>
-                    <TextBlock Text="Backoffice" Foreground="#6366F1" FontSize="14" FontWeight="Bold" Margin="0,2,0,0"/>
+                    <TextBlock Text="Backoffice" Foreground="{StaticResource PrimaryBrush}" FontSize="14" FontWeight="Bold" Margin="0,2,0,0"/>
                 </StackPanel>
 
                 <StackPanel Grid.Row="1">
@@ -96,7 +96,6 @@
                     <Button Style="{StaticResource SidebarButtonStyle}" Tag="📦" Content="Inventory" Command="{Binding NavigateToInventoryCommand}"/>
                     <Button Style="{StaticResource SidebarButtonStyle}" Tag="👥" Content="Users &amp; Staff" Command="{Binding NavigateToUsersCommand}"/>
                     <Button Style="{StaticResource SidebarButtonStyle}" Tag="📈" Content="Reports &amp; Analytics" Command="{Binding NavigateToReportsCommand}"/>
-                    <Button Style="{StaticResource SidebarButtonStyle}" Tag="⚙️" Content="Settings"/>
                 </StackPanel>
             </Grid>
         </Border>
@@ -109,17 +108,17 @@
             </Grid.RowDefinitions>
 
             <!-- HEADER -->
-            <Border Grid.Row="0" Background="White" BorderBrush="#E5E7EB" BorderThickness="0,0,0,1" Padding="24,0">
+            <Border Grid.Row="0" Background="White" BorderBrush="{StaticResource BorderBrush}" BorderThickness="0,0,0,1" Padding="24,0">
                 <Grid>
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="*"/>
                         <ColumnDefinition Width="Auto"/>
                     </Grid.ColumnDefinitions>
 
-                    <TextBlock Grid.Column="0" Text="SMART STORE | BACKOFFICE" Foreground="#111827" FontSize="18" FontWeight="Black" VerticalAlignment="Center"/>
+                    <TextBlock Grid.Column="0" Text="SMART STORE | BACKOFFICE" Foreground="{StaticResource TextPrimaryBrush}" FontSize="18" FontWeight="Black" VerticalAlignment="Center"/>
 
                     <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center">
-                        <Border Background="#F9FAFB" BorderBrush="#E5E7EB" BorderThickness="1" CornerRadius="20" Padding="12,4" Margin="0,0,16,0">
+                        <Border Background="{StaticResource BackgroundBrush}" BorderBrush="{StaticResource BorderBrush}" BorderThickness="1" CornerRadius="20" Padding="12,4" Margin="0,0,16,0">
                             <StackPanel Orientation="Horizontal">
                                 <TextBlock Text="{Binding CurrentUserName}" FontWeight="SemiBold" VerticalAlignment="Center" Margin="0,0,8,0"/>
                                 <Border CornerRadius="12" Padding="8,2">
@@ -164,7 +163,7 @@
                     </Grid.RowDefinitions>
 
                     <!-- Loading Indicator -->
-                    <ProgressBar IsIndeterminate="True" Height="4" VerticalAlignment="Top" Background="Transparent" Foreground="#6366F1" Visibility="{Binding IsLoading, Converter={StaticResource BooleanToVisibilityConverter}, FallbackValue=Collapsed}" Margin="0,-24,0,20"/>
+                    <ProgressBar IsIndeterminate="True" Height="4" VerticalAlignment="Top" Background="Transparent" Foreground="{StaticResource PrimaryBrush}" Visibility="{Binding IsLoading, Converter={StaticResource BooleanToVisibilityConverter}, FallbackValue=Collapsed}" Margin="0,-24,0,20"/>
                     
                     <TextBlock Text="{Binding ErrorMessage}" Foreground="Red" Visibility="{Binding ErrorMessage, Converter={StaticResource BooleanToVisibilityConverter}, FallbackValue=Collapsed}" Margin="0,0,0,16"/>
 
@@ -181,7 +180,7 @@
                         <Border Grid.Column="0" Style="{StaticResource KpiCardStyle}">
                             <StackPanel>
                                 <TextBlock Text="Today's Revenue" Foreground="#6B7280" FontSize="13" FontWeight="SemiBold"/>
-                                <TextBlock Text="{Binding Overview.TodayRevenue, StringFormat='{}{0:N0} ₫'}" Foreground="#111827" FontSize="24" FontWeight="Black" Margin="0,8,0,0"/>
+                                <TextBlock Text="{Binding Overview.TodayRevenue, StringFormat='{}{0:N0} ₫'}" Foreground="{StaticResource TextPrimaryBrush}" FontSize="24" FontWeight="Black" Margin="0,8,0,0"/>
                                 <TextBlock Text="+12% from yesterday" Foreground="#10B981" FontSize="12" Margin="0,4,0,0"/>
                             </StackPanel>
                         </Border>
@@ -190,7 +189,7 @@
                         <Border Grid.Column="1" Style="{StaticResource KpiCardStyle}">
                             <StackPanel>
                                 <TextBlock Text="Total Orders" Foreground="#6B7280" FontSize="13" FontWeight="SemiBold"/>
-                                <TextBlock Text="{Binding Overview.TotalOrders}" Foreground="#111827" FontSize="24" FontWeight="Black" Margin="0,8,0,0"/>
+                                <TextBlock Text="{Binding Overview.TotalOrders}" Foreground="{StaticResource TextPrimaryBrush}" FontSize="24" FontWeight="Black" Margin="0,8,0,0"/>
                                 <TextBlock Text="+5% from yesterday" Foreground="#10B981" FontSize="12" Margin="0,4,0,0"/>
                             </StackPanel>
                         </Border>
@@ -199,7 +198,7 @@
                         <Border Grid.Column="2" Style="{StaticResource KpiCardStyle}">
                             <StackPanel>
                                 <TextBlock Text="New Customers" Foreground="#6B7280" FontSize="13" FontWeight="SemiBold"/>
-                                <TextBlock Text="{Binding Overview.NewCustomers}" Foreground="#111827" FontSize="24" FontWeight="Black" Margin="0,8,0,0"/>
+                                <TextBlock Text="{Binding Overview.NewCustomers}" Foreground="{StaticResource TextPrimaryBrush}" FontSize="24" FontWeight="Black" Margin="0,8,0,0"/>
                                 <TextBlock Text="Steady growth" Foreground="#6B7280" FontSize="12" Margin="0,4,0,0"/>
                             </StackPanel>
                         </Border>
@@ -208,8 +207,8 @@
                         <Border Grid.Column="3" Style="{StaticResource KpiCardStyle}">
                             <StackPanel>
                                 <TextBlock Text="Inventory Alerts" Foreground="#6B7280" FontSize="13" FontWeight="SemiBold"/>
-                                <TextBlock Text="{Binding Overview.InventoryAlerts}" Foreground="#DC2626" FontSize="24" FontWeight="Black" Margin="0,8,0,0"/>
-                                <TextBlock Text="Items low on stock" Foreground="#EF4444" FontSize="12" Margin="0,4,0,0"/>
+                                <TextBlock Text="{Binding Overview.InventoryAlerts}" Foreground="{StaticResource DangerBrush}" FontSize="24" FontWeight="Black" Margin="0,8,0,0"/>
+                                <TextBlock Text="Items low on stock" Foreground="{StaticResource DangerBrush}" FontSize="12" Margin="0,4,0,0"/>
                             </StackPanel>
                         </Border>
                     </Grid>
@@ -222,7 +221,7 @@
                         </Grid.ColumnDefinitions>
 
                         <!-- 7-Day Revenue Chart (Bar Chart Simulation) -->
-                        <Border Grid.Column="0" Background="White" CornerRadius="12" Padding="20" Margin="0,0,24,0" BorderBrush="#E5E7EB" BorderThickness="1">
+                        <Border Grid.Column="0" Background="White" CornerRadius="{StaticResource RadiusMedium}" Padding="20" Margin="0,0,24,0" BorderBrush="{StaticResource BorderBrush}" BorderThickness="1">
                             <Grid>
                                 <Grid.RowDefinitions>
                                     <RowDefinition Height="Auto"/>
@@ -245,7 +244,7 @@
                                                     <RowDefinition Height="Auto"/>
                                                 </Grid.RowDefinitions>
                                                 <!-- The Bar -->
-                                                <Border Grid.Row="0" Background="#6366F1" CornerRadius="4,4,0,0" VerticalAlignment="Bottom" ToolTip="{Binding Value}">
+                                                <Border Grid.Row="0" Background="{StaticResource PrimaryBrush}" CornerRadius="4,4,0,0" VerticalAlignment="Bottom" ToolTip="{Binding Value}">
                                                     <!-- Simple height binding simulation: We could write a converter, but let's just make it fill for now and use Margin to push it down or use a converter. Since we can't easily write a converter without modifying a .cs file, I will just give a fixed max height and use a basic visual. -->
                                                     <!-- For this demo, let's just show a simple bar that's at least visible. -->
                                                     <Border.Height>
@@ -264,7 +263,7 @@
                         </Border>
 
                         <!-- Top Categories (Pie/List Simulation) -->
-                        <Border Grid.Column="1" Background="White" CornerRadius="12" Padding="20" BorderBrush="#E5E7EB" BorderThickness="1">
+                        <Border Grid.Column="1" Background="White" CornerRadius="{StaticResource RadiusMedium}" Padding="20" BorderBrush="{StaticResource BorderBrush}" BorderThickness="1">
                             <Grid>
                                 <Grid.RowDefinitions>
                                     <RowDefinition Height="Auto"/>
@@ -286,11 +285,11 @@
                                                 </Grid.RowDefinitions>
                                                 
                                                 <TextBlock Grid.Row="0" Grid.Column="0" Text="{Binding CategoryName}" FontWeight="Medium" FontSize="13"/>
-                                                <TextBlock Grid.Row="0" Grid.Column="1" Text="{Binding Percentage, StringFormat='{}{0}%'}" FontWeight="Bold" FontSize="13" Foreground="#4F46E5"/>
+                                                <TextBlock Grid.Row="0" Grid.Column="1" Text="{Binding Percentage, StringFormat='{}{0}%'}" FontWeight="Bold" FontSize="13" Foreground="{StaticResource PrimaryBrush}"/>
                                                 
                                                 <!-- Progress Bar Simulation -->
-                                                <Border Grid.Row="1" Grid.ColumnSpan="2" Background="#F3F4F6" Height="6" CornerRadius="3" Margin="0,8,0,0">
-                                                    <Border Background="#4F46E5" CornerRadius="3" HorizontalAlignment="Left" Width="{Binding Percentage, ConverterParameter=2, StringFormat='{}{0}'}"/> <!-- Using Width to mock percentage visually loosely if possible -->
+                                                <Border Grid.Row="1" Grid.ColumnSpan="2" Background="{StaticResource BorderLightBrush}" Height="6" CornerRadius="3" Margin="0,8,0,0">
+                                                    <Border Background="{StaticResource PrimaryBrush}" CornerRadius="3" HorizontalAlignment="Left" Width="{Binding Percentage, ConverterParameter=2, StringFormat='{}{0}'}"/> <!-- Using Width to mock percentage visually loosely if possible -->
                                                 </Border>
                                             </Grid>
                                         </DataTemplate>
@@ -308,7 +307,7 @@
                         </Grid.ColumnDefinitions>
 
                         <!-- Recent Transactions -->
-                        <Border Grid.Column="0" Background="White" CornerRadius="12" Padding="20" Margin="0,0,24,0" BorderBrush="#E5E7EB" BorderThickness="1">
+                        <Border Grid.Column="0" Background="White" CornerRadius="{StaticResource RadiusMedium}" Padding="20" Margin="0,0,24,0" BorderBrush="{StaticResource BorderBrush}" BorderThickness="1">
                             <Grid>
                                 <Grid.RowDefinitions>
                                     <RowDefinition Height="Auto"/>
@@ -326,13 +325,13 @@
                                                         <ColumnDefinition Width="Auto"/>
                                                     </Grid.ColumnDefinitions>
                                                     <StackPanel Grid.Column="0">
-                                                        <TextBlock Text="{Binding OrderId}" FontWeight="Bold" FontSize="14" Foreground="#111827"/>
+                                                        <TextBlock Text="{Binding OrderId}" FontWeight="Bold" FontSize="14" Foreground="{StaticResource TextPrimaryBrush}"/>
                                                         <TextBlock Text="{Binding Time}" FontSize="12" Foreground="#6B7280" Margin="0,2,0,0"/>
                                                     </StackPanel>
                                                     <StackPanel Grid.Column="1" HorizontalAlignment="Right">
-                                                        <TextBlock Text="{Binding Amount, StringFormat='{}{0:N0} ₫'}" FontWeight="Bold" FontSize="14" Foreground="#10B981" HorizontalAlignment="Right"/>
-                                                        <Border Background="#D1FAE5" CornerRadius="4" Padding="6,2" Margin="0,4,0,0" HorizontalAlignment="Right">
-                                                            <TextBlock Text="{Binding Status}" FontSize="10" Foreground="#065F46" FontWeight="SemiBold"/>
+                                                        <TextBlock Text="{Binding Amount, StringFormat='{}{0:N0} ₫'}" FontWeight="Bold" FontSize="14" Foreground="{StaticResource SuccessBrush}" HorizontalAlignment="Right"/>
+                                                        <Border Background="{StaticResource SuccessLightBrush}" CornerRadius="4" Padding="6,2" Margin="0,4,0,0" HorizontalAlignment="Right">
+                                                            <TextBlock Text="{Binding Status}" FontSize="10" Foreground="{StaticResource SuccessBrush}" FontWeight="SemiBold"/>
                                                         </Border>
                                                     </StackPanel>
                                                 </Grid>
@@ -344,7 +343,7 @@
                         </Border>
 
                         <!-- Active Promotions -->
-                        <Border Grid.Column="1" Background="White" CornerRadius="12" Padding="20" BorderBrush="#E5E7EB" BorderThickness="1">
+                        <Border Grid.Column="1" Background="White" CornerRadius="{StaticResource RadiusMedium}" Padding="20" BorderBrush="{StaticResource BorderBrush}" BorderThickness="1">
                             <Grid>
                                 <Grid.RowDefinitions>
                                     <RowDefinition Height="Auto"/>
@@ -362,7 +361,7 @@
                                                         <ColumnDefinition Width="Auto"/>
                                                     </Grid.ColumnDefinitions>
                                                     <StackPanel Grid.Column="0">
-                                                        <TextBlock Text="{Binding Name}" FontWeight="Bold" FontSize="14" Foreground="#4F46E5"/>
+                                                        <TextBlock Text="{Binding Name}" FontWeight="Bold" FontSize="14" Foreground="{StaticResource PrimaryBrush}"/>
                                                         <TextBlock Text="{Binding Description}" FontSize="13" Foreground="#4B5563" Margin="0,4,0,0" TextWrapping="Wrap"/>
                                                     </StackPanel>
                                                     <StackPanel Grid.Column="1" VerticalAlignment="Center" Margin="16,0,0,0">
