@@ -27,8 +27,9 @@ Solution skeleton đã được scaffold:
 - AuthService có hàm tạo user demo `quantri`, `quanly`, `nhanvien`; `DataSeeder` seed danh mục, 10 sản phẩm mẫu và dữ liệu khách hàng demo.
 - Đã có UI flow đầy đủ: đăng nhập, mở ca, bán hàng/cash payment (tích hợp customer lookup/promotion code/loyalty points), VNPay QR/polling, hóa đơn preview, đồng bộ catalog/tồn kho, quản lý danh mục/sản phẩm, quản lý khách hàng, quản lý khuyến mãi, quản lý người dùng, trả hàng/hoàn tiền, báo cáo doanh thu/ca.
 - **UI/UX fixes (session 2026-07-20)**: App khởi động full-screen, tìm kiếm không phân biệt hoa thường, lọc sản phẩm theo category hoạt động đúng, sidebar nav hiển thị đồng nhất ở tất cả view, thuế giảm từ 10% xuống 3%, ReturnView sửa lỗi layout chồng chéo, CatalogView font lớn hơn và bảng sản phẩm rõ ràng, ShiftView hiển thị số tiền có dấu phân cách nghìn.
+- **UI/UX Sidebar Redesign (session 2026-07-21)**: Tái thiết kế toàn bộ Left Sidebar trên 6 view (`SalesView`, `SyncView`, `CustomerView`, `ReturnView`, `CatalogView`, `ReportView`): thay `Grid Height="*"` bằng `ScrollViewer + StackPanel`, thêm Section Headers phân nhóm (`OPERATIONS`, `MANAGEMENT`, `ANALYTICS`), đồng bộ chiều cao nút 40px, thêm khối Sidebar Footer xếp chồng (Shift Info / Staff / Current Time) ở đáy sidebar tất cả view, xóa nút `+ New Transaction`, dọn dẹp thông tin trùng lặp ở Top Header. Build 0 error, 60/60 test pass.
 
-Vì vậy, trạng thái hiện tại nên hiểu là: **project đã hoàn thiện ~95%, tất cả tính năng nghiệp vụ chính đã xong, còn cần UI polish và kiểm thử end-to-end đầy đủ**.
+Vì vậy, trạng thái hiện tại nên hiểu là: **project đã hoàn thiện ~98%, tất cả tính năng nghiệp vụ chính đã xong, giao diện đã đồng bộ và hoàn chỉnh, còn cần kiểm thử end-to-end đầy đủ**.
 
 ## Trạng thái tính năng
 
@@ -77,7 +78,9 @@ Chi tiết task nằm trong `docs/development-task-list.md`. Thứ tự ưu tiê
 8. ✅ **Catalog validation** (F-11): Đã hoàn thành — SKU/barcode validate, stock update, two-way sync POS↔Inventory, lọc category đã fix.
 9. ✅ **Dashboard**: Đã hoàn thành — DashboardViewModel + 4 sub-dashboards.
 10. ✅ **Theme system**: Đã hoàn thành — 13 XAML files trong `Themes/`, 9 view refactor.
-11. ⚠️ **UI Polish / Demo Flow** (Phase 13): Còn lại — chạy thử demo end-to-end, reset script, chuẩn bị checklist nộp bài.
+11. ✅ **Sidebar Redesign & Unified Footer** (session 2026-07-21): Đã hoàn thành — ScrollViewer + StackPanel, 3 section headers, 40px buttons, stacked Info Footer card trên tất cả 6 view.
+12. ⚠️ **UI Polish / Demo Flow** (Phase 13): Còn lại — chạy thử demo end-to-end, reset script, chuẩn bị checklist nộp bài.
+
 ## Dữ liệu demo cần có
 
 ### Tài khoản

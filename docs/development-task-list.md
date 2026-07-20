@@ -234,6 +234,19 @@ Liên quan: F-16.
 - [x] TASK-1508: Tạo `DashboardUserStaffViewModel` + `DashboardUserStaffView.xaml`.
 - [x] TASK-1509: Đăng ký DI trong `App.xaml.cs` (IDashboardService, DashboardViewModel, 4 sub-ViewModels, 5 Views).
 
+## Phase 16 - Sidebar Redesign & UI Sync
+
+- [x] TASK-1601: Tái cấu trúc sidebar `SalesView.xaml` — thay `Grid Height="*"` bằng `ScrollViewer + StackPanel`, thêm Section Headers OPERATIONS / MANAGEMENT / ANALYTICS, đồng bộ `Height="40"` cho tất cả nút.
+- [x] TASK-1602: Tái cấu trúc sidebar `SyncView.xaml` — cùng cấu trúc ScrollViewer, section headers, footer card.
+- [x] TASK-1603: Tái cấu trúc sidebar `CustomerView.xaml` — cùng cấu trúc, dọn redundant Top Header info.
+- [x] TASK-1604: Tái cấu trúc sidebar `ReturnView.xaml` — cùng cấu trúc, footer card.
+- [x] TASK-1605: Tái cấu trúc sidebar `CatalogView.xaml` — cùng cấu trúc, footer card.
+- [x] TASK-1606: Tái cấu trúc sidebar `ReportView.xaml` — cùng cấu trúc, footer card đồng nhất.
+- [x] TASK-1607: Thêm Sidebar Footer card (Background `#1E293B`) xếp chồng: Shift Info, Staff/Cashier, Current Time trên tất cả 6 view.
+- [x] TASK-1608: Xóa nút `+ New Transaction` khỏi sidebar tất cả view (không còn nằm riêng ở cuối).
+- [x] TASK-1609: Cập nhật `SidebarStyles.xaml` — `SidebarNavButtonStyle` padding `14,0`, section header style muted `#64748B`.
+- [x] TASK-1610: Kiểm tra build (0 lỗi) và 60/60 unit test pass sau khi refactor.
+
 ## Definition Of Done
 
 Một task chỉ nên đánh dấu `[x]` khi:

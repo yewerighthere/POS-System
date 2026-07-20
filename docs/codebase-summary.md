@@ -221,7 +221,8 @@ Mỗi ViewModel nên có View tương ứng.
 - `CustomerView`: giao diện quản lý khách hàng đầy đủ thông tin, lịch sử mua hàng, sửa thông tin và khóa/mở khóa.
 - `PromotionView`: giao diện quản lý khuyến mãi với danh sách và popup tạo mới/sửa.
 - `UserManagementView`: giao diện quản lý nhân viên trực quan với bảng dữ liệu và 3 popup overlay (thêm, sửa, reset mật khẩu), tích hợp trong Dashboard.
-- `ReturnView`, `AuditLogView`: hiện vẫn là placeholder TODO.
+- `ReturnView`: đã hoàn chỉnh (layout đã sửa).
+- `AuditLogView`: hiện vẫn là placeholder TODO.
 
 ### Control Dự Kiến
 
@@ -257,6 +258,21 @@ Thư mục: `SmartPOS.WPF/Converters`
 Thư mục: `SmartPOS.WPF/Themes`
 
 Hệ thống theme trung tâm chuyển đổi từ `style.css` (glassmorphism) sang WPF ResourceDictionary. Đăng ký trong `App.xaml` qua `Themes/Generic.xaml`. 13 file XAML: Colors, Fonts, Spacing, Shadows, ButtonStyles, TextBoxStyles, BorderStyles, BadgeStyles, ModalStyles, ScrollBarStyles, SidebarStyles, TableStyles, Generic. Màu primary: `#0062FF`. Font: Inter/Segoe UI. 9 view đã refactor: Login, Shift, Sales, Payment, Catalog, Customer, Report, Sync, Invoice.
+
+### Sidebar Design System
+
+Cấu trúc sidebar đã được tái thiết kế đồng bộ trên 6 view chính (`SalesView`, `SyncView`, `CustomerView`, `ReturnView`, `CatalogView`, `ReportView`):
+
+- **Layout**: `Border > Grid (3 rows: Header | ScrollViewer | Footer)`.
+- **Brand Header**: `SmartPOS` + `Terminal #01` ở đầu sidebar.
+- **Navigation**: `ScrollViewer > StackPanel` với 3 Section Headers phân nhóm:
+  - `OPERATIONS`: Point of Sale, Returns & Refunds.
+  - `MANAGEMENT`: Inventory, Product Catalog, Customers.
+  - `ANALYTICS`: Shift Reports.
+- **Active State**: `Border Background="#2563EB"` (Royal Blue) thay cho nút bấm thường.
+- **Button Height**: `Height="40"` đồng bộ cho tất cả nút và Active Border.
+- **Sidebar Footer** (`Grid.Row="2"`): Card `Background="#1E293B"` xếp chồng 3 thông tin: Shift Info, Staff/Cashier, Current Time.
+- **Màu nền Sidebar**: Slate 900 `#0F172A`.
 
 ## SmartPOS.CallbackApi
 
