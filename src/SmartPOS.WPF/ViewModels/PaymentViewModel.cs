@@ -47,6 +47,7 @@ public partial class PaymentViewModel : ObservableObject
     [NotifyPropertyChangedFor(nameof(ChangeHint))]
     [NotifyPropertyChangedFor(nameof(IsAmountSufficient))]
     [NotifyPropertyChangedFor(nameof(CanConfirmPayment))]
+    [NotifyPropertyChangedFor(nameof(AmountReceivedInput))]
     private decimal _amountReceived;
 
     [ObservableProperty]
@@ -86,6 +87,29 @@ public partial class PaymentViewModel : ObservableObject
     public bool CanConfirmPayment => IsAmountSufficient && !IsLoading && !IsVNPayPending;
 
     public bool HasPaymentUrl => !string.IsNullOrWhiteSpace(PaymentUrl);
+
+    public string AmountReceivedInput
+    {
+        get => _amountReceived == 0 ? "" : _amountReceived.ToString("N0");
+        set
+        {
+            var cleanValue = value.Replace(",", "");
+            if (string.IsNullOrWhiteSpace(cleanValue))
+            {
+                _amountReceived = 0;
+            }
+            else if (decimal.TryParse(cleanValue, out var val))
+            {
+                _amountReceived = val;
+            }
+            OnPropertyChanged(nameof(AmountReceived));
+            OnPropertyChanged(nameof(AmountReceivedInput));
+            OnPropertyChanged(nameof(ChangeAmount));
+            OnPropertyChanged(nameof(ChangeHint));
+            OnPropertyChanged(nameof(IsAmountSufficient));
+            OnPropertyChanged(nameof(CanConfirmPayment));
+        }
+    }
 
     public string ChangeHint
     {

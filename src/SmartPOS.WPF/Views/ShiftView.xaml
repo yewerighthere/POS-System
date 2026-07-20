@@ -422,7 +422,7 @@
                                                    Foreground="{StaticResource TextPrimaryBrush}"
                                                    Text="{Binding ShiftOpenedAtDisplay}"/>
                                     </Grid>
-                                    <Grid>
+                                    <Grid Margin="0,0,0,6">
                                         <Grid.ColumnDefinitions>
                                             <ColumnDefinition Width="*"/>
                                             <ColumnDefinition Width="Auto"/>
@@ -433,6 +433,34 @@
                                                    Foreground="{StaticResource TextPrimaryBrush}"
                                                    Text="{Binding CurrentShift.OpeningCash,
                                                           StringFormat={}{0:N0} ₫}"/>
+                                    </Grid>
+                                    <Grid Margin="0,0,0,6">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="*"/>
+                                            <ColumnDefinition Width="Auto"/>
+                                        </Grid.ColumnDefinitions>
+                                        <TextBlock Text="Tổng doanh thu trong ca:" FontSize="13"
+                                                   Foreground="{StaticResource TextMutedBrush}"/>
+                                        <TextBlock Grid.Column="1" FontSize="13" FontWeight="Medium"
+                                                   Foreground="{StaticResource TextPrimaryBrush}"
+                                                   Text="{Binding CurrentShiftSummary.TotalSales,
+                                                          StringFormat={}{0:N0} ₫}"/>
+                                    </Grid>
+                                    <Grid>
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="*"/>
+                                            <ColumnDefinition Width="Auto"/>
+                                        </Grid.ColumnDefinitions>
+                                        <TextBlock Text="Tiền mặt kỳ vọng (đối chiếu):" FontSize="13" FontWeight="SemiBold"
+                                                   Foreground="{StaticResource TextPrimaryBrush}"/>
+                                        <TextBlock Grid.Column="1" FontSize="13" FontWeight="Bold"
+                                                   Foreground="#16A34A" Cursor="Hand" ToolTip="Click để tự động điền số tiền này"
+                                                   Text="{Binding CurrentShiftSummary.ExpectedCash,
+                                                          StringFormat={}{0:N0} ₫}">
+                                            <TextBlock.InputBindings>
+                                                <MouseBinding MouseAction="LeftClick" Command="{Binding FillExpectedCashCommand}"/>
+                                            </TextBlock.InputBindings>
+                                        </TextBlock>
                                     </Grid>
                                 </StackPanel>
                             </Border>

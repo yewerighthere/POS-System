@@ -220,6 +220,7 @@ public partial class SalesViewModel : ObservableObject
         try
         {
             UpdateCart(_cartService.AddItem(product, 1, Cart));
+            OnPropertyChanged(nameof(Cart));
         }
         catch (StockInsufficientException ex)
         {
@@ -232,6 +233,54 @@ public partial class SalesViewModel : ObservableObject
         catch (Exception ex)
         {
             ErrorMessage = $"Lỗi: {ex.Message}";
+        }
+    }
+
+    [RelayCommand]
+    private void IncreaseProductQuantity(ProductDto product)
+    {
+        if (product == null) return;
+        var existing = Cart.Items.FirstOrDefault(i => i.ProductId == product.Id);
+        if (existing == null)
+        {
+            AddToCart(product);
+        }
+        else
+        {
+            try
+            {
+                UpdateCart(_cartService.UpdateItem(product, existing.Quantity + 1, Cart));
+                OnPropertyChanged(nameof(Cart));
+            }
+            catch (Exception ex)
+            {
+                ErrorMessage = ex.Message;
+            }
+        }
+    }
+
+    [RelayCommand]
+    private void DecreaseProductQuantity(ProductDto product)
+    {
+        if (product == null) return;
+        var existing = Cart.Items.FirstOrDefault(i => i.ProductId == product.Id);
+        if (existing == null) return;
+
+        try
+        {
+            if (existing.Quantity > 1)
+            {
+                UpdateCart(_cartService.UpdateItem(product, existing.Quantity - 1, Cart));
+            }
+            else
+            {
+                UpdateCart(_cartService.RemoveItem(product.Id, Cart));
+            }
+            OnPropertyChanged(nameof(Cart));
+        }
+        catch (Exception ex)
+        {
+            ErrorMessage = ex.Message;
         }
     }
 

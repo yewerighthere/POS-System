@@ -24,6 +24,8 @@ namespace SmartPOS.Data
 
         public static async Task SeedAsync(AppDbContext context)
         {
+            await ForceUpdateProductImagesAsync(context);
+
             if (!await context.Customers.AnyAsync())
             {
                 var customers = new List<Customer>
@@ -36,7 +38,12 @@ namespace SmartPOS.Data
                 await context.SaveChangesAsync();
             }
 
-            if (await context.Categorys.AnyAsync()) return;
+            if (await context.Categorys.AnyAsync()) 
+            {
+                // Vẫn seed promotions nếu chưa có
+                await SeedPromotionsAsync(context);
+                return;
+            }
 
             // Tạo danh mục
             var drinks = new Category { Id = Guid.NewGuid(), Name = "Đồ uống", Description = "Các loại đồ uống", IsActive = true };
@@ -48,20 +55,98 @@ namespace SmartPOS.Data
 
             var products = new List<Product>
             {
-                new Product { Id = Guid.NewGuid(), ExternalInventoryId = InvId_CaPheSua.ToString(),  Name = "Cà phê sữa",              CategoryId = drinks.Id, Sku = "CF001", Barcode = "8934563140016", UnitPrice = 35000, TaxRate = 0, IsActive = true, LocalStockQuantity = 100, ImagePath = "https://images.unsplash.com/photo-1541167760496-1628856ab772?w=200" },
-                new Product { Id = Guid.NewGuid(), ExternalInventoryId = InvId_TraSua.ToString(),    Name = "Trà sữa trân châu",        CategoryId = drinks.Id, Sku = "TS001", Barcode = "8934563140017", UnitPrice = 45000, TaxRate = 0, IsActive = true, LocalStockQuantity = 80,  ImagePath = "https://images.unsplash.com/photo-1576092768241-dec231879fc3?w=200" },
-                new Product { Id = Guid.NewGuid(), ExternalInventoryId = InvId_NuocSuoi.ToString(),  Name = "Nước suối",                CategoryId = drinks.Id, Sku = "NS001", Barcode = "8934563140018", UnitPrice = 10000, TaxRate = 0, IsActive = true, LocalStockQuantity = 200, ImagePath = "https://images.unsplash.com/photo-1608885898957-a599fb1b4a41?w=200" },
-                new Product { Id = Guid.NewGuid(), ExternalInventoryId = InvId_Coca.ToString(),      Name = "Nước ngọt Coca",           CategoryId = drinks.Id, Sku = "CC001", Barcode = "8934563140019", UnitPrice = 15000, TaxRate = 0, IsActive = true, LocalStockQuantity = 150, ImagePath = "https://images.unsplash.com/photo-1622483767028-3f66f32aef97?w=200" },
-                new Product { Id = Guid.NewGuid(), ExternalInventoryId = InvId_ComGa.ToString(),     Name = "Cơm gà xối mỡ",           CategoryId = food.Id,   Sku = "CG001", Barcode = "8934563140020", UnitPrice = 55000, TaxRate = 0, IsActive = true, LocalStockQuantity = 50,  ImagePath = "https://images.unsplash.com/photo-1569058242253-92a9c755a0ec?w=200" },
-                new Product { Id = Guid.NewGuid(), ExternalInventoryId = InvId_BanhMi.ToString(),    Name = "Bánh mì thịt",             CategoryId = food.Id,   Sku = "BM001", Barcode = "8934563140021", UnitPrice = 25000, TaxRate = 0, IsActive = true, LocalStockQuantity = 60,  ImagePath = "https://images.unsplash.com/photo-1509722747041-616f39b57569?w=200" },
-                new Product { Id = Guid.NewGuid(), ExternalInventoryId = InvId_PhoBO.ToString(),     Name = "Phở bò",                   CategoryId = food.Id,   Sku = "PB001", Barcode = "8934563140022", UnitPrice = 65000, TaxRate = 0, IsActive = true, LocalStockQuantity = 40,  ImagePath = "https://images.unsplash.com/photo-1582878826629-29b7ad1cdc43?w=200" },
-                new Product { Id = Guid.NewGuid(), ExternalInventoryId = InvId_BunBo.ToString(),     Name = "Bún bò Huế",               CategoryId = food.Id,   Sku = "BB001", Barcode = "8934563140023", UnitPrice = 60000, TaxRate = 0, IsActive = true, LocalStockQuantity = 40,  ImagePath = "https://images.unsplash.com/photo-1625398407796-82650a8c135f?w=200" },
-                new Product { Id = Guid.NewGuid(), ExternalInventoryId = InvId_Oreo.ToString(),      Name = "Bánh Oreo",                CategoryId = snacks.Id, Sku = "BO001", Barcode = "8934563140024", UnitPrice = 20000, TaxRate = 0, IsActive = true, LocalStockQuantity = 120, ImagePath = "https://images.unsplash.com/photo-1558961309-dbdf71799f54?w=200" },
-                new Product { Id = Guid.NewGuid(), ExternalInventoryId = InvId_Pringles.ToString(),  Name = "Khoai tây chiên Pringles", CategoryId = snacks.Id, Sku = "KT001", Barcode = "8934563140025", UnitPrice = 55000, TaxRate = 0, IsActive = true, LocalStockQuantity = 90,  ImagePath = "https://images.unsplash.com/photo-1518047601542-79f18c655718?w=200" },
+                new Product { Id = Guid.NewGuid(), ExternalInventoryId = InvId_CaPheSua.ToString(),  Name = "Cà phê sữa",              CategoryId = drinks.Id, Sku = "CF001", Barcode = "8934563140016", UnitPrice = 35000, TaxRate = 0, IsActive = true, LocalStockQuantity = 100, ImagePath = "Assets/Images/caphesua.jpg" },
+                new Product { Id = Guid.NewGuid(), ExternalInventoryId = InvId_TraSua.ToString(),    Name = "Trà sữa trân châu",        CategoryId = drinks.Id, Sku = "TS001", Barcode = "8934563140017", UnitPrice = 45000, TaxRate = 0, IsActive = true, LocalStockQuantity = 80,  ImagePath = "Assets/Images/trasua.jpg" },
+                new Product { Id = Guid.NewGuid(), ExternalInventoryId = InvId_NuocSuoi.ToString(),  Name = "Nước suối",                CategoryId = drinks.Id, Sku = "NS001", Barcode = "8934563140018", UnitPrice = 10000, TaxRate = 0, IsActive = true, LocalStockQuantity = 200, ImagePath = "Assets/Images/nuocsuoi.jpg" },
+                new Product { Id = Guid.NewGuid(), ExternalInventoryId = InvId_Coca.ToString(),      Name = "Nước ngọt Coca",           CategoryId = drinks.Id, Sku = "CC001", Barcode = "8934563140019", UnitPrice = 15000, TaxRate = 0, IsActive = true, LocalStockQuantity = 150, ImagePath = "Assets/Images/coca.jpg" },
+                new Product { Id = Guid.NewGuid(), ExternalInventoryId = InvId_ComGa.ToString(),     Name = "Cơm gà xối mỡ",           CategoryId = food.Id,   Sku = "CG001", Barcode = "8934563140020", UnitPrice = 55000, TaxRate = 0, IsActive = true, LocalStockQuantity = 50,  ImagePath = "Assets/Images/comga.jpg" },
+                new Product { Id = Guid.NewGuid(), ExternalInventoryId = InvId_BanhMi.ToString(),    Name = "Bánh mì thịt",             CategoryId = food.Id,   Sku = "BM001", Barcode = "8934563140021", UnitPrice = 25000, TaxRate = 0, IsActive = true, LocalStockQuantity = 60,  ImagePath = "Assets/Images/banhmi.jpg" },
+                new Product { Id = Guid.NewGuid(), ExternalInventoryId = InvId_PhoBO.ToString(),     Name = "Phở bò",                   CategoryId = food.Id,   Sku = "PB001", Barcode = "8934563140022", UnitPrice = 65000, TaxRate = 0, IsActive = true, LocalStockQuantity = 40,  ImagePath = "Assets/Images/phobo.jpg" },
+                new Product { Id = Guid.NewGuid(), ExternalInventoryId = InvId_BunBo.ToString(),     Name = "Bún bò Huế",               CategoryId = food.Id,   Sku = "BB001", Barcode = "8934563140023", UnitPrice = 60000, TaxRate = 0, IsActive = true, LocalStockQuantity = 40,  ImagePath = "Assets/Images/bunbo.jpg" },
+                new Product { Id = Guid.NewGuid(), ExternalInventoryId = InvId_Oreo.ToString(),      Name = "Bánh Oreo",                CategoryId = snacks.Id, Sku = "BO001", Barcode = "8934563140024", UnitPrice = 20000, TaxRate = 0, IsActive = true, LocalStockQuantity = 120, ImagePath = "Assets/Images/oreo.jpg" },
+                new Product { Id = Guid.NewGuid(), ExternalInventoryId = InvId_Pringles.ToString(),  Name = "Khoai tây chiên Pringles", CategoryId = snacks.Id, Sku = "KT001", Barcode = "8934563140025", UnitPrice = 55000, TaxRate = 0, IsActive = true, LocalStockQuantity = 90,  ImagePath = "Assets/Images/pringles.jpg" },
             };
 
             await context.Products.AddRangeAsync(products);
             await context.SaveChangesAsync();
+
+            await SeedPromotionsAsync(context);
+        }
+
+        private static async Task SeedPromotionsAsync(AppDbContext context)
+        {
+            if (!await context.Promotions.AnyAsync(p => p.Code == "GIAM10"))
+            {
+                await context.Promotions.AddAsync(new Promotion
+                {
+                    Id = Guid.NewGuid(),
+                    Code = "GIAM10",
+                    Name = "Giảm giá 10% đơn hàng",
+                    Description = "Áp dụng cho đơn hàng từ 50k trở lên",
+                    Type = "PERCENTAGE",
+                    DiscountValue = 10,
+                    MinOrderAmount = 50000,
+                    StartDate = DateOnly.FromDateTime(DateTime.Today),
+                    EndDate = new DateOnly(2026, 12, 31),
+                    IsActive = true
+                });
+            }
+
+            if (!await context.Promotions.AnyAsync(p => p.Code == "SALE20K"))
+            {
+                await context.Promotions.AddAsync(new Promotion
+                {
+                    Id = Guid.NewGuid(),
+                    Code = "SALE20K",
+                    Name = "Giảm giá 20,000đ",
+                    Description = "Áp dụng cho đơn hàng từ 100k trở lên",
+                    Type = "FLAT",
+                    DiscountValue = 20000,
+                    MinOrderAmount = 100000,
+                    StartDate = DateOnly.FromDateTime(DateTime.Today),
+                    EndDate = new DateOnly(2026, 12, 31),
+                    IsActive = true
+                });
+            }
+
+            await context.SaveChangesAsync();
+        }
+
+        private static async Task ForceUpdateProductImagesAsync(AppDbContext context)
+        {
+            var skuImageMapping = new Dictionary<string, string>
+            {
+                { "CF001", "Assets/Images/caphesua.jpg" },
+                { "TS001", "Assets/Images/trasua.jpg" },
+                { "NS001", "Assets/Images/nuocsuoi.jpg" },
+                { "CC001", "Assets/Images/coca.jpg" },
+                { "CG001", "Assets/Images/comga.jpg" },
+                { "BM001", "Assets/Images/banhmi.jpg" },
+                { "PB001", "Assets/Images/phobo.jpg" },
+                { "BB001", "Assets/Images/bunbo.jpg" },
+                { "BO001", "Assets/Images/oreo.jpg" },
+                { "KT001", "Assets/Images/pringles.jpg" }
+            };
+
+            var dbProducts = await context.Products.ToListAsync();
+            bool changed = false;
+
+            foreach (var p in dbProducts)
+            {
+                if (skuImageMapping.TryGetValue(p.Sku, out var localPath))
+                {
+                    if (p.ImagePath != localPath)
+                    {
+                        p.ImagePath = localPath;
+                        changed = true;
+                    }
+                }
+            }
+
+            if (changed)
+            {
+                await context.SaveChangesAsync();
+            }
         }
     }
 }

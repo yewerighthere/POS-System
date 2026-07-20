@@ -223,9 +223,9 @@
                                    Margin="0,0,0,8"/>
 
                         <Grid>
-                            <TextBox Style="{StaticResource AmountTextBox}"
-                                     Text="{Binding AmountReceived, UpdateSourceTrigger=PropertyChanged}"
-                                     IsEnabled="{Binding IsPaymentInputEnabled}"/>
+                             <TextBox Style="{StaticResource AmountTextBox}"
+                                      Text="{Binding AmountReceivedInput, UpdateSourceTrigger=PropertyChanged}"
+                                      IsEnabled="{Binding IsPaymentInputEnabled}"/>
                             <TextBlock Text="đ"
                                        FontSize="16" FontWeight="SemiBold"
                                        Foreground="{StaticResource TextMutedBrush}"

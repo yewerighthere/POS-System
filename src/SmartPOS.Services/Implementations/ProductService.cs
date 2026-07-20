@@ -48,7 +48,7 @@ public class ProductService : IProductService
             : await _productRepository.SearchAsync(keyword).ConfigureAwait(false);
         return new ProductSearchResultDto
         {
-            Products = products.Select(MapToDto).ToList()
+            Products = products.Where(p => p.IsActive).Select(p => MapToDto(p)).ToList()
         };
     }
 

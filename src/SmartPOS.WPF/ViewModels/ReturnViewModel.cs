@@ -8,6 +8,7 @@ using SmartPOS.Shared.DTOs.Return;
 using SmartPOS.Shared.DTOs.Order;
 using SmartPOS.Shared.Exceptions;
 using SmartPOS.WPF.Session;
+using SmartPOS.WPF.Navigation;
 
 namespace SmartPOS.WPF.ViewModels;
 
@@ -27,6 +28,7 @@ public partial class ReturnViewModel : ObservableObject
     private readonly IReturnService _returnService;
     private readonly IOrderRepository _orderRepository;
     private readonly CurrentSessionContext _session;
+    private readonly NavigationService _navigationService;
 
     [ObservableProperty]
     private bool _isLoading;
@@ -62,14 +64,31 @@ public partial class ReturnViewModel : ObservableObject
     public ReturnViewModel(
         IReturnService returnService,
         IOrderRepository orderRepository,
-        CurrentSessionContext session)
+        CurrentSessionContext session,
+        NavigationService navigationService)
     {
         _returnService = returnService;
         _orderRepository = orderRepository;
         _session = session;
+        _navigationService = navigationService;
 
         _ = LoadReturnsAsync();
     }
+
+    [RelayCommand]
+    private void NavigateToSales() => _navigationService.NavigateTo<SalesViewModel>();
+
+    [RelayCommand]
+    private void NavigateToSync() => _navigationService.NavigateTo<SyncViewModel>();
+
+    [RelayCommand]
+    private void NavigateToCustomer() => _navigationService.NavigateTo<CustomerViewModel>();
+
+    [RelayCommand]
+    private void NavigateToCatalog() => _navigationService.NavigateTo<CatalogViewModel>();
+
+    [RelayCommand]
+    private void NavigateToReport() => _navigationService.NavigateTo<ReportViewModel>();
 
     [RelayCommand]
     public async Task LoadReturnsAsync()

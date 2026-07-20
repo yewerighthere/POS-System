@@ -31,4 +31,7 @@
   <ItemGroup>
     <None Update="appsettings.json"><CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory></None>
   </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Assets\Images\**" />
+  </ItemGroup>
 </Project>

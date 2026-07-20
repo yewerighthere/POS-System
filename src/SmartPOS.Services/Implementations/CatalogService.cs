@@ -379,12 +379,39 @@ public class CatalogService : ICatalogService
         var product = await _productRepository.GetByIdAsync(productId)
             ?? throw new BusinessException("Sản phẩm không tồn tại.");
 
+        string? finalPath = imagePath;
+        if (!string.IsNullOrWhiteSpace(imagePath) && File.Exists(imagePath))
+        {
+            try
+            {
+                // Xác định thư mục đích
+                var targetDir = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Assets", "Images");
+                if (!Directory.Exists(targetDir))
+                {
+                    Directory.CreateDirectory(targetDir);
+                }
+
+                // Copy file và lấy tên file an toàn
+                var fileName = Path.GetFileName(imagePath);
+                var destFile = Path.Combine(targetDir, fileName);
+                File.Copy(imagePath, destFile, true);
+
+                // Đường dẫn tương đối lưu vào DB
+                finalPath = $"Assets/Images/{fileName}";
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Lỗi khi copy ảnh sản phẩm sang thư mục Assets/Images: {Path}", imagePath);
+                throw new BusinessException("Không thể tải và lưu trữ hình ảnh này. Vui lòng thử file khác.");
+            }
+        }
+
         var oldImagePath = product.ImagePath;
-        product.ImagePath = imagePath;
+        product.ImagePath = finalPath;
         product.UpdatedAt = DateTime.UtcNow;
 
         await _productRepository.UpdateAsync(product);
-        _logger.LogInformation("Đã cập nhật hình ảnh sản phẩm {ProductId} ({Name})", product.Id, product.Name);
+        _logger.LogInformation("Đã cập nhật hình ảnh sản phẩm {ProductId} ({Name}) thành {NewPath}", product.Id, product.Name, finalPath);
 
         return MapToDto(product);
     }

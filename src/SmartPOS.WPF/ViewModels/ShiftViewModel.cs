@@ -77,6 +77,7 @@ public partial class ShiftViewModel : ObservableObject
         CurrentShift is null ? string.Empty
         : CurrentShift.OpenedAt.ToLocalTime().ToString("HH:mm dd/MM/yyyy");
     [ObservableProperty] private ShiftSummaryDto? _lastSummary;
+    [ObservableProperty] private ShiftSummaryDto? _currentShiftSummary;
     [ObservableProperty] private string _staffName = string.Empty;
     [ObservableProperty] private string _staffRole = string.Empty;
     [ObservableProperty] private string _currentDateDisplay = string.Empty;
@@ -119,6 +120,7 @@ public partial class ShiftViewModel : ObservableObject
             if (openShift is not null)
             {
                 CurrentShift = openShift;
+                CurrentShiftSummary = await _shiftService.GetShiftSummaryAsync(openShift.Id);
                 if (_session.CurrentShift is null)
                 {
                     _session.CurrentShift = openShift;
@@ -228,6 +230,15 @@ public partial class ShiftViewModel : ObservableObject
         finally
         {
             IsLoading = false;
+        }
+    }
+
+    [RelayCommand]
+    private void FillExpectedCash()
+    {
+        if (CurrentShiftSummary != null)
+        {
+            ClosingCashInput = CurrentShiftSummary.ExpectedCash.ToString("N0");
         }
     }
 }

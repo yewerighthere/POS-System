@@ -18,26 +18,37 @@ public class LocalImagePathConverter : IValueConverter
 
         try
         {
-            bool isUrl = path.StartsWith("http://", StringComparison.OrdinalIgnoreCase) || 
-                         path.StartsWith("https://", StringComparison.OrdinalIgnoreCase);
-
-            if (!isUrl && !File.Exists(path))
+            // Loại bỏ hoàn toàn hình ảnh url internet
+            if (path.StartsWith("http://", StringComparison.OrdinalIgnoreCase) || 
+                path.StartsWith("https://", StringComparison.OrdinalIgnoreCase))
+            {
                 return null;
+            }
+
+            // Chuyển đổi đường dẫn tương đối thành WPF Pack URI
+            // Định dạng Pack URI cho Resource: pack://application:,,,/SmartPOS.WPF;component/Assets/Images/filename.jpg
+            string resourcePath = path;
+            if (!path.StartsWith("pack://", StringComparison.OrdinalIgnoreCase))
+            {
+                // Chuẩn hoá đường dẫn, thay dấu '\' bằng '/'
+                string normalized = path.Replace('\\', '/');
+                if (normalized.StartsWith("Assets/", StringComparison.OrdinalIgnoreCase))
+                {
+                    resourcePath = $"pack://application:,,,/SmartPOS.WPF;component/{normalized}";
+                }
+                else
+                {
+                    resourcePath = $"pack://application:,,,/SmartPOS.WPF;component/Assets/Images/{normalized}";
+                }
+            }
 
             var bitmap = new BitmapImage();
             bitmap.BeginInit();
-            bitmap.UriSource = new Uri(path, UriKind.Absolute);
-            if (!isUrl)
-            {
-                bitmap.CacheOption = BitmapCacheOption.OnLoad;
-            }
+            bitmap.UriSource = new Uri(resourcePath, UriKind.Absolute);
+            bitmap.CacheOption = BitmapCacheOption.OnLoad;
             bitmap.DecodePixelWidth = 200; // Limit memory usage
             bitmap.EndInit();
-            
-            if (!isUrl)
-            {
-                bitmap.Freeze();
-            }
+            bitmap.Freeze();
             return bitmap;
         }
         catch
@@ -58,10 +69,16 @@ public class ImagePathToVisibilityConverter : IValueConverter
 {
     public object Convert(object? value, Type targetType, object? parameter, CultureInfo culture)
     {
-        var hasImage = value is string s && !string.IsNullOrWhiteSpace(s) && 
-                       (s.StartsWith("http://", StringComparison.OrdinalIgnoreCase) || 
-                        s.StartsWith("https://", StringComparison.OrdinalIgnoreCase) || 
-                        File.Exists(s));
+        var hasImage = false;
+        if (value is string s && !string.IsNullOrWhiteSpace(s))
+        {
+            // Bỏ qua link internet
+            if (!s.StartsWith("http://", StringComparison.OrdinalIgnoreCase) && 
+                !s.StartsWith("https://", StringComparison.OrdinalIgnoreCase))
+            {
+                hasImage = true; // Xem như hợp lệ vì đã được build dạng Resource
+            }
+        }
         // If parameter == "inverse", invert the result (used for the placeholder)
         var invert = parameter is string p && p == "inverse";
         var visible = hasImage ^ invert;
