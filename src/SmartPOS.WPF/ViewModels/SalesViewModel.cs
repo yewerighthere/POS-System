@@ -1,4 +1,6 @@
 using System.Collections.ObjectModel;
+using System.Globalization;
+using System.Windows.Threading;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using SmartPOS.Services.Interfaces;
@@ -20,6 +22,15 @@ public partial class SalesViewModel : ObservableObject
     private readonly IPromotionService _promotionService;
     private readonly CurrentSessionContext _session;
     private readonly ICatalogService _catalogService;
+
+    [ObservableProperty]
+    private string _staffName = string.Empty;
+
+    [ObservableProperty]
+    private string _shiftCode = "Chưa mở ca";
+
+    [ObservableProperty]
+    private string _currentTimeDisplay = string.Empty;
 
     [ObservableProperty]
     private bool _isLoading;
@@ -89,8 +100,35 @@ public partial class SalesViewModel : ObservableObject
         _session = session;
         _catalogService = catalogService;
 
+        LoadSessionInfo();
+        StartClock();
+
         RecalculateCart();
         _ = InitializeAsync();
+    }
+
+    private void LoadSessionInfo()
+    {
+        StaffName = !string.IsNullOrWhiteSpace(_session.CurrentUser?.FullName)
+            ? _session.CurrentUser.FullName
+            : _session.CurrentUser?.Username ?? "Unknown";
+
+        ShiftCode = _session.CurrentShift != null
+            ? $"Shift #{_session.CurrentShift.Id.ToString()[..6].ToUpper()}"
+            : "Chưa mở ca";
+    }
+
+    private void StartClock()
+    {
+        UpdateTime();
+        var timer = new DispatcherTimer { Interval = TimeSpan.FromSeconds(1) };
+        timer.Tick += (_, _) => UpdateTime();
+        timer.Start();
+    }
+
+    private void UpdateTime()
+    {
+        CurrentTimeDisplay = DateTime.Now.ToString("MMM d - yyyy, hh:mm tt", CultureInfo.InvariantCulture);
     }
 
     private async Task InitializeAsync()

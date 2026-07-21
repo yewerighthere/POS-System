@@ -3,6 +3,7 @@ using CommunityToolkit.Mvvm.Input;
 using SmartPOS.Services.Interfaces;
 using SmartPOS.Shared.DTOs.Inventory;
 using SmartPOS.WPF.Navigation;
+using SmartPOS.WPF.Session;
 
 namespace SmartPOS.WPF.ViewModels;
 
@@ -10,6 +11,16 @@ public partial class SyncViewModel : ObservableObject
 {
     private readonly IInventorySyncService _inventorySyncService;
     private readonly NavigationService _navigationService;
+    private readonly CurrentSessionContext _session;
+
+    [ObservableProperty]
+    private string _staffName = string.Empty;
+
+    [ObservableProperty]
+    private string _shiftCode = "Chưa mở ca";
+
+    [ObservableProperty]
+    private string _currentTimeDisplay = string.Empty;
 
     [ObservableProperty]
     private bool _isLoading;
@@ -29,10 +40,38 @@ public partial class SyncViewModel : ObservableObject
     [ObservableProperty]
     private bool _stockSuccess;
 
-    public SyncViewModel(IInventorySyncService inventorySyncService, NavigationService navigationService)
+    public SyncViewModel(IInventorySyncService inventorySyncService, NavigationService navigationService, CurrentSessionContext session)
     {
         _inventorySyncService = inventorySyncService;
         _navigationService = navigationService;
+        _session = session;
+
+        LoadSessionInfo();
+        StartClock();
+    }
+
+    private void LoadSessionInfo()
+    {
+        StaffName = !string.IsNullOrWhiteSpace(_session.CurrentUser?.FullName)
+            ? _session.CurrentUser.FullName
+            : _session.CurrentUser?.Username ?? "Unknown";
+
+        ShiftCode = _session.CurrentShift != null
+            ? $"Shift #{_session.CurrentShift.Id.ToString()[..6].ToUpper()}"
+            : "Chưa mở ca";
+    }
+
+    private void StartClock()
+    {
+        UpdateTime();
+        var timer = new System.Windows.Threading.DispatcherTimer { Interval = TimeSpan.FromSeconds(1) };
+        timer.Tick += (_, _) => UpdateTime();
+        timer.Start();
+    }
+
+    private void UpdateTime()
+    {
+        CurrentTimeDisplay = DateTime.Now.ToString("MMM d - yyyy, hh:mm tt", System.Globalization.CultureInfo.InvariantCulture);
     }
 
     [RelayCommand]

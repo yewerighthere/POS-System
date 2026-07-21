@@ -197,19 +197,19 @@
                             <!-- Shift info -->
                             <StackPanel Margin="0,0,0,8">
                                 <TextBlock Text="SHIFT INFO" Foreground="#94A3B8" FontSize="10" FontWeight="Bold"/>
-                                <TextBlock Text="Shift #0042" Foreground="#F8FAFC" FontSize="12" FontWeight="SemiBold" Margin="0,2,0,0"/>
+                                <TextBlock Text="{Binding ShiftCode}" Foreground="#F8FAFC" FontSize="12" FontWeight="SemiBold" Margin="0,2,0,0"/>
                             </StackPanel>
 
                             <!-- Staff info -->
                             <StackPanel Margin="0,0,0,8">
                                 <TextBlock Text="STAFF / CASHIER" Foreground="#94A3B8" FontSize="10" FontWeight="Bold"/>
-                                <TextBlock Text="Nguyen Van A" Foreground="#F8FAFC" FontSize="12" FontWeight="SemiBold" Margin="0,2,0,0"/>
+                                <TextBlock Text="{Binding StaffName}" Foreground="#F8FAFC" FontSize="12" FontWeight="SemiBold" Margin="0,2,0,0"/>
                             </StackPanel>
 
                             <!-- Current Time -->
                             <StackPanel>
                                 <TextBlock Text="CURRENT TIME" Foreground="#94A3B8" FontSize="10" FontWeight="Bold"/>
-                                <TextBlock Text="Jun 7 - 2026, 12:22 AM" Foreground="#F8FAFC" FontSize="11" Margin="0,2,0,0"/>
+                                <TextBlock Text="{Binding CurrentTimeDisplay}" Foreground="#F8FAFC" FontSize="11" Margin="0,2,0,0"/>
                             </StackPanel>
                         </StackPanel>
                     </Border>
