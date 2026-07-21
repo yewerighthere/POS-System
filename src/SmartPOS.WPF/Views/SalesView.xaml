@@ -1064,28 +1064,26 @@
               </Border>
           </Grid>
 
-          <!-- Popup: Create Customer Form -->
+        <!-- Popup: Create Customer Form (Quick Registration — Phone + Name only) -->
           <Grid Background="#66000000" Panel.ZIndex="100" Grid.ColumnSpan="2" Visibility="{Binding IsCreateCustomerPopupOpen, Converter={StaticResource BooleanToVisibilityConverter}}">
-              <Border Background="White" CornerRadius="12" Width="400" HorizontalAlignment="Center" VerticalAlignment="Center" Padding="24">
+              <Border Background="White" CornerRadius="12" Width="420" HorizontalAlignment="Center" VerticalAlignment="Center" Padding="28,24">
                   <StackPanel>
-                      <TextBlock Text="Tạo tài khoản thành viên" FontSize="18" FontWeight="Bold" Foreground="#0F172A" Margin="0,0,0,16"/>
-                      
+                      <TextBlock Text="Đăng ký tài khoản tích điểm" FontSize="18" FontWeight="Bold" Foreground="#0F172A" Margin="0,0,0,6"/>
+                      <TextBlock Text="Chỉ cần số điện thoại và tên — đơn hàng sẽ được gắn vào tài khoản này." FontSize="12" Foreground="#64748B" TextWrapping="Wrap" Margin="0,0,0,20"/>
+
                       <TextBlock Text="Số điện thoại" FontSize="12" FontWeight="SemiBold" Foreground="#64748B" Margin="0,0,0,4"/>
                       <TextBox Text="{Binding NewCustomerPhone}" IsReadOnly="True" Style="{StaticResource PromoTextBox}" Background="#F1F5F9" Foreground="#64748B" Margin="0,0,0,14"/>
-                      
+
                       <TextBlock Text="Tên khách hàng (*)" FontSize="12" FontWeight="SemiBold" Foreground="#64748B" Margin="0,0,0,4"/>
-                      <TextBox Text="{Binding NewCustomerName, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource PromoTextBox}" Margin="0,0,0,14"/>
-                      
-                      <TextBlock Text="Email (Không bắt buộc)" FontSize="12" FontWeight="SemiBold" Foreground="#64748B" Margin="0,0,0,4"/>
-                      <TextBox Text="{Binding NewCustomerEmail, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource PromoTextBox}" Margin="0,0,0,20"/>
-                      
+                      <TextBox Text="{Binding NewCustomerName, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource PromoTextBox}" Margin="0,0,0,24"/>
+
                       <Grid>
                           <Grid.ColumnDefinitions>
                               <ColumnDefinition Width="*"/>
                               <ColumnDefinition Width="*"/>
                           </Grid.ColumnDefinitions>
                           <Button Grid.Column="0" Content="Hủy" Command="{Binding CloseCustomerPopupsCommand}" Background="Transparent" Foreground="#64748B" BorderThickness="0" FontWeight="SemiBold" Margin="0,0,8,0" Height="40" Cursor="Hand"/>
-                          <Button Grid.Column="1" Content="Lưu khách hàng" Command="{Binding ConfirmCreateCustomerCommand}" Height="40">
+                          <Button Grid.Column="1" Content="Đăng ký &amp; Gắn vào đơn" Command="{Binding ConfirmCreateCustomerCommand}" Height="40">
                               <Button.Style>
                                   <Style TargetType="Button" BasedOn="{StaticResource CheckoutButton}">
                                       <Setter Property="IsEnabled" Value="True"/>
@@ -1101,7 +1099,7 @@
                   </StackPanel>
               </Border>
           </Grid>
-          
+
           <!-- Popup: Apply Promotion -->
           <Grid Background="#66000000" Panel.ZIndex="100" Grid.ColumnSpan="2" Visibility="{Binding IsPromoPopupOpen, Converter={StaticResource BooleanToVisibilityConverter}}">
               <Border Background="White" CornerRadius="12" Width="400" HorizontalAlignment="Center" VerticalAlignment="Center" Padding="24">

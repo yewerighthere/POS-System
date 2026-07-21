@@ -298,6 +298,15 @@ public class InventorySyncService : IInventorySyncService
                 else
                     product.LocalStockQuantity = 0; // tránh âm kho
 
+                // Tự động ngừng kinh doanh khi hết hàng
+                if (product.LocalStockQuantity <= 0 && product.IsActive)
+                {
+                    product.IsActive = false;
+                    _logger.LogInformation(
+                        "Sản phẩm {ProductId} ({Name}) hết hàng sau khi bán — tự động chuyển sang Inactive.",
+                        product.Id, product.Name);
+                }
+
                 product.UpdatedAt = DateTime.UtcNow;
                 await _productRepository.UpdateAsync(product);
                 _logger.LogInformation("Đã cập nhật LocalStockQuantity sản phẩm {ProductId}: -{Qty} (sentToInventory={Sent})",

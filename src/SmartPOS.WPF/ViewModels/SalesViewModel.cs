@@ -503,7 +503,7 @@ public partial class SalesViewModel : ObservableObject
         IsLoading = true;
         try
         {
-            var dto = new SmartPOS.Shared.DTOs.Customer.CreateCustomerDto(NewCustomerName, NewCustomerPhone, string.IsNullOrWhiteSpace(NewCustomerEmail) ? null : NewCustomerEmail);
+            var dto = new SmartPOS.Shared.DTOs.Customer.CreateCustomerDto(NewCustomerName, NewCustomerPhone, null);
             var customer = await _customerService.CreateAsync(dto).ConfigureAwait(true);
             CustomerInfo = $"{customer.FullName} ({customer.Phone})";
             Cart.Customer = customer;

@@ -7,7 +7,10 @@ namespace SmartPOS.WPF.Converters;
 
 /// <summary>
 /// Converts a local file path (ImagePath) to a BitmapImage for display in WPF Image controls.
-/// Falls back to null (shows nothing / placeholder) if path is invalid or file not found.
+/// Supports:
+///   - Absolute disk paths returned by OpenFileDialog (e.g. C:\Users\...\photo.jpg)
+///   - Embedded resource paths starting with "Assets/" (converted to Pack URI)
+/// Falls back to null (shows placeholder) if path is invalid or file not found.
 /// </summary>
 public class LocalImagePathConverter : IValueConverter
 {
@@ -18,35 +21,40 @@ public class LocalImagePathConverter : IValueConverter
 
         try
         {
-            // Loại bỏ hoàn toàn hình ảnh url internet
-            if (path.StartsWith("http://", StringComparison.OrdinalIgnoreCase) || 
+            // Block internet URLs — not supported in this offline POS
+            if (path.StartsWith("http://", StringComparison.OrdinalIgnoreCase) ||
                 path.StartsWith("https://", StringComparison.OrdinalIgnoreCase))
-            {
                 return null;
-            }
 
-            // Chuyển đổi đường dẫn tương đối thành WPF Pack URI
-            // Định dạng Pack URI cho Resource: pack://application:,,,/SmartPOS.WPF;component/Assets/Images/filename.jpg
-            string resourcePath = path;
-            if (!path.StartsWith("pack://", StringComparison.OrdinalIgnoreCase))
+            Uri uri;
+
+            if (path.StartsWith("pack://", StringComparison.OrdinalIgnoreCase))
             {
-                // Chuẩn hoá đường dẫn, thay dấu '\' bằng '/'
+                // Already a WPF Pack URI (e.g. embedded resource)
+                uri = new Uri(path, UriKind.Absolute);
+            }
+            else if (Path.IsPathRooted(path))
+            {
+                // Absolute local file path from OpenFileDialog (e.g. C:\Users\photo.jpg)
+                if (!File.Exists(path))
+                    return null;
+                uri = new Uri(path, UriKind.Absolute);
+            }
+            else
+            {
+                // Relative path — treat as embedded Assets resource
                 string normalized = path.Replace('\\', '/');
-                if (normalized.StartsWith("Assets/", StringComparison.OrdinalIgnoreCase))
-                {
-                    resourcePath = $"pack://application:,,,/SmartPOS.WPF;component/{normalized}";
-                }
-                else
-                {
-                    resourcePath = $"pack://application:,,,/SmartPOS.WPF;component/Assets/Images/{normalized}";
-                }
+                string packPath = normalized.StartsWith("Assets/", StringComparison.OrdinalIgnoreCase)
+                    ? normalized
+                    : $"Assets/Images/{normalized}";
+                uri = new Uri($"pack://application:,,,/SmartPOS.WPF;component/{packPath}", UriKind.Absolute);
             }
 
             var bitmap = new BitmapImage();
             bitmap.BeginInit();
-            bitmap.UriSource = new Uri(resourcePath, UriKind.Absolute);
+            bitmap.UriSource = uri;
             bitmap.CacheOption = BitmapCacheOption.OnLoad;
-            bitmap.DecodePixelWidth = 200; // Limit memory usage
+            bitmap.DecodePixelWidth = 300;
             bitmap.EndInit();
             bitmap.Freeze();
             return bitmap;
@@ -61,8 +69,9 @@ public class LocalImagePathConverter : IValueConverter
         => throw new NotImplementedException();
 }
 
+
 /// <summary>
-/// Converts ImagePath string: returns Visibility.Visible if path exists, Collapsed if null/empty.
+/// Converts ImagePath string: returns Visibility.Visible if path is valid and exists, Collapsed otherwise.
 /// Used to show/hide the image preview and the placeholder icon.
 /// </summary>
 public class ImagePathToVisibilityConverter : IValueConverter
@@ -72,11 +81,16 @@ public class ImagePathToVisibilityConverter : IValueConverter
         var hasImage = false;
         if (value is string s && !string.IsNullOrWhiteSpace(s))
         {
-            // Bỏ qua link internet
-            if (!s.StartsWith("http://", StringComparison.OrdinalIgnoreCase) && 
+            // Block internet URLs
+            if (!s.StartsWith("http://", StringComparison.OrdinalIgnoreCase) &&
                 !s.StartsWith("https://", StringComparison.OrdinalIgnoreCase))
             {
-                hasImage = true; // Xem như hợp lệ vì đã được build dạng Resource
+                if (Path.IsPathRooted(s))
+                    // Absolute disk path — only valid if the file actually exists
+                    hasImage = File.Exists(s);
+                else
+                    // Relative / Pack URI — assume valid (resource embedded in app)
+                    hasImage = true;
             }
         }
         // If parameter == "inverse", invert the result (used for the placeholder)

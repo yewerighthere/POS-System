@@ -9,6 +9,7 @@
              d:DataContext="{d:DesignInstance Type=viewmodels:ReportViewModel}"
              Background="#F8FAFC"
              Foreground="{StaticResource TextPrimaryBrush}"
+             Loaded="UserControl_Loaded"
              d:DesignHeight="768" d:DesignWidth="1024">
 
     <UserControl.Resources>
