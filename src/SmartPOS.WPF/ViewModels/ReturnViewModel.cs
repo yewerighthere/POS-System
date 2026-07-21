@@ -57,6 +57,15 @@ public partial class ReturnViewModel : ObservableObject
     [ObservableProperty]
     private string _returnReasonInput = string.Empty;
 
+    [ObservableProperty]
+    private string _staffName = string.Empty;
+
+    [ObservableProperty]
+    private string _shiftCode = "Chưa mở ca";
+
+    [ObservableProperty]
+    private string _currentTimeDisplay = string.Empty;
+
     public ObservableCollection<ReturnDto> ReturnsList { get; } = new();
     public ObservableCollection<ReturnDto> FilteredReturns { get; } = new();
     public ObservableCollection<ReturnItemInputViewModel> OrderItemsForReturn { get; } = new();
@@ -72,7 +81,34 @@ public partial class ReturnViewModel : ObservableObject
         _session = session;
         _navigationService = navigationService;
 
+        LoadSessionInfo();
+        StartClock();
+
         _ = LoadReturnsAsync();
+    }
+
+    private void LoadSessionInfo()
+    {
+        StaffName = !string.IsNullOrWhiteSpace(_session.CurrentUser?.FullName)
+            ? _session.CurrentUser.FullName
+            : _session.CurrentUser?.Username ?? "Unknown";
+
+        ShiftCode = _session.CurrentShift != null
+            ? $"Shift #{_session.CurrentShift.Id.ToString()[..6].ToUpper()}"
+            : "Chưa mở ca";
+    }
+
+    private void StartClock()
+    {
+        UpdateTime();
+        var timer = new System.Windows.Threading.DispatcherTimer { Interval = TimeSpan.FromSeconds(1) };
+        timer.Tick += (_, _) => UpdateTime();
+        timer.Start();
+    }
+
+    private void UpdateTime()
+    {
+        CurrentTimeDisplay = DateTime.Now.ToString("MMM d - yyyy, hh:mm tt", System.Globalization.CultureInfo.InvariantCulture);
     }
 
     [RelayCommand]

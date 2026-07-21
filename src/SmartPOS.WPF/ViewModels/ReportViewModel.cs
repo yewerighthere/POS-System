@@ -24,6 +24,10 @@ public partial class ReportViewModel : ObservableObject
     [ObservableProperty] private ObservableCollection<OrderLogDto> _orderLog = new();
     [ObservableProperty] private ObservableCollection<TopProductDto> _topProducts = new();
 
+    [ObservableProperty] private string _staffName = string.Empty;
+    [ObservableProperty] private string _shiftCode = "Chưa mở ca";
+    [ObservableProperty] private string _currentTimeDisplay = string.Empty;
+
     public string TodayDisplay => DateTime.Now.ToString("dd MMM yyyy");
     public int MaxTopSold => TopProducts.Count > 0 ? TopProducts.Max(p => p.TotalSold) : 1;
 
@@ -38,6 +42,33 @@ public partial class ReportViewModel : ObservableObject
         _session = session;
         _logger = logger;
         _navigationService = navigationService;
+
+        LoadSessionInfo();
+        StartClock();
+    }
+
+    private void LoadSessionInfo()
+    {
+        StaffName = !string.IsNullOrWhiteSpace(_session.CurrentUser?.FullName)
+            ? _session.CurrentUser.FullName
+            : _session.CurrentUser?.Username ?? "Unknown";
+
+        ShiftCode = _session.CurrentShift != null
+            ? $"Shift #{_session.CurrentShift.Id.ToString()[..6].ToUpper()}"
+            : "Chưa mở ca";
+    }
+
+    private void StartClock()
+    {
+        UpdateTime();
+        var timer = new System.Windows.Threading.DispatcherTimer { Interval = TimeSpan.FromSeconds(1) };
+        timer.Tick += (_, _) => UpdateTime();
+        timer.Start();
+    }
+
+    private void UpdateTime()
+    {
+        CurrentTimeDisplay = DateTime.Now.ToString("MMM d - yyyy, hh:mm tt", System.Globalization.CultureInfo.InvariantCulture);
     }
 
     [RelayCommand]
